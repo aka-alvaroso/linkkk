@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useParams } from "react-router-dom"
-import { getIP } from "./utils/getIP";s
+import { getIP } from "../utils/getUserData";
 
 
 export default function Redirect() {
