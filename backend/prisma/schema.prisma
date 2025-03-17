@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Models
+model User {
+  id         Int     @id @default(autoincrement())
+  username   String  @unique
+  email      String  @unique
+  password   String
+  createdAt  DateTime @default(now())
+  planId     Int
+  plan       Plan @relation(fields: [planId], references: [id])
+  links      Link[]
+  groups     Group[]
+  tags       Tag[]
+}
+
+model Plan {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  price       Float
+  links_limit Int
+  api_limit   Int
+  qr          Boolean
+  pro_analytics Boolean
+  users       User[]
+}
+
+model Link {
+  id          Int     @id @default(autoincrement())
+  userId      Int
+  longUrl     String
+  shortUrl    String  @unique
+  status      Boolean @default(true)
+  accessLimit Int?
+  d_expire    DateTime?
+  password    String?
+  createdAt  DateTime @default(now())
+  user        User @relation(fields: [userId], references: [id])
+  accesses    Access[]
+  groups      Group[] @relation("LinkGroups")
+  tags        Tag[]   @relation("LinkTags")
+}
+
+model Access {
+  id         Int     @id @default(autoincrement())
+  linkId     Int
+  d_access   DateTime @default(now())
+  device     String
+  ip         String
+  is_vpn     String
+  country    String
+  accessType String
+  link       Link @relation(fields: [linkId], references: [id])
+}
+
+model Group {
+  id         Int     @id @default(autoincrement())
+  userId     Int
+  name       String
+  createdAt DateTime @default(now())
+  user       User @relation(fields: [userId], references: [id])
+  links      Link[] @relation("LinkGroups")
+}
+
+model Tag {
+  id     Int    @id @default(autoincrement())
+  userId Int
+  name   String
+  color  String
+  user   User @relation(fields: [userId], references: [id])
+  links  Link[] @relation("LinkTags")
+}
