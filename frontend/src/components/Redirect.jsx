@@ -14,10 +14,10 @@ export default function Redirect() {
 
         const getLink = async () => {
             try {
-                const response = await fetch(`http://localhost:3000/link/${shortCode}`);
+                const response = await fetch(`https://linkkk-production.up.railway.app/link/${shortCode}`);
                 const data = await response.json();
 
-                const access = await fetch(`http://localhost:3000/access/create`, {
+                const access = await fetch(`https://linkkk-production.up.railway.app/access/create`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
