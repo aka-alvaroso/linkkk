@@ -1,7 +1,7 @@
 
 import { useEffect } from "react";
 import { useParams } from "react-router-dom"
-// import { getIP } from "../utils/getUserData";
+import { getIPData, getVPN } from "../utils/getUserData";
 
 
 export default function Redirect() {
@@ -9,9 +9,13 @@ export default function Redirect() {
     
     useEffect(() => {
 
-        // const ip = getIP();
-
         const getLink = async () => {
+
+            const { ip, country } = await getIPData();
+            const { proxy, hosting } = await getVPN({ ip });
+            const { device } = navigator.userAgentData.mobile;
+
+
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_URL}link/${shortCode}`);
                 const data = await response.json();
@@ -24,11 +28,11 @@ export default function Redirect() {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        linkId: '1',
-                        device: "pc",
-                        ip: "11.0.0.0",
-                        is_vpn: "false",
-                        country: "ES",
+                        linkId: data.id,
+                        device: device ? "MOBILE" : "DESKTOP",
+                        ip: ip,
+                        is_vpn: proxy || hosting ? "true" : "false",
+                        country: country.toUpperCase(),
                         accessType: "link",
                     }),
                 })

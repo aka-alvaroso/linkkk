@@ -1,19 +1,26 @@
-const getIP = async () => {
+const getIPData = async () => {
   const response = await fetch(
-    "https://ipinfo.io?token=" + import.meta.env.VITE_IPInfoToken
+    "http://pro.ip-api.com/json/?key=" + import.meta.env.VITE_IP_API_KEY
   );
 
   const data = await response.json();
-  return data.ip;
+
+  return { ip: data.query, country: data.countryCode };
 };
 
 const getVPN = async ({ ip }) => {
   const response = await fetch(
-    `https://ipinfo.io/${ip}?token=${import.meta.env.VITE_IPInfoToken}`
+    "https://pro.ip-api.com/json/" +
+      ip +
+      "?fields=66846719&key=" +
+      import.meta.env.VITE_IP_API_KEY
   );
 
   const data = await response.json();
-  return data.vpn;
+  return {
+    proxy: data.proxy,
+    hosting: data.hosting,
+  };
 };
 
-export { getIP };
+export { getIPData, getVPN };
