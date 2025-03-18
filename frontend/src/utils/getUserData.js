@@ -1,6 +1,6 @@
 const getIPData = async () => {
   const response = await fetch(
-    "http://pro.ip-api.com/json/?key=" + import.meta.env.VITE_IP_API_KEY
+    "https://pro.ip-api.com/json/?key=" + import.meta.env.VITE_IP_API_KEY
   );
 
   const data = await response.json();
