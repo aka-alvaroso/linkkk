@@ -4,7 +4,8 @@
 export default function Test() {
   return (
     <div>
-      Test
+      TEST
+      <p>URL de la API: {import.meta.env.VITE_API_URL}</p>
     </div>
   )
 }

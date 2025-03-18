@@ -1,31 +1,32 @@
 
 import { useEffect } from "react";
 import { useParams } from "react-router-dom"
-import { getIP } from "../utils/getUserData";
+// import { getIP } from "../utils/getUserData";
 
 
 export default function Redirect() {
     const { shortCode } = useParams();
-    console.log("Redirigiendo a: ", shortCode)
     
     useEffect(() => {
 
-        const ip = getIP();
+        // const ip = getIP();
 
         const getLink = async () => {
             try {
-                const response = await fetch(`https://linkkk-production.up.railway.app/link/${shortCode}`);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}link/${shortCode}`);
                 const data = await response.json();
 
-                const access = await fetch(`https://linkkk-production.up.railway.app/access/create`, {
+                console.log(data)
+
+                const access = await fetch(`${import.meta.env.VITE_API_URL}access/create`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        linkId: data.id,
+                        linkId: '1',
                         device: "pc",
-                        ip: ip,
+                        ip: "11.0.0.0",
                         is_vpn: "false",
                         country: "ES",
                         accessType: "link",

@@ -34,14 +34,14 @@ const createLink = async (req, res) => {
 // Obtener un link por ID
 const getLinkByShortCode = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { shortCode } = req.params;
 
-    if (!id) {
-      return res.status(400).json({ error: "Falta el parámetro id" });
+    if (!shortCode) {
+      return res.status(400).json({ error: "Falta el parámetro shortCode" });
     }
 
     const link = await prisma.link.findUnique({
-      where: { shortUrl: id },
+      where: { shortUrl: shortCode },
       include: {
         accesses: true,
         groups: true,

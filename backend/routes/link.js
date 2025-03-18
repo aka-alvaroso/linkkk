@@ -10,7 +10,7 @@ const {
 } = require("../controllers/link");
 
 router.post("/create", createLink);
-router.get("/:id", getLinkByShortCode);
+router.get("/:shortCode", getLinkByShortCode);
 router.get("/user/:userId", getLinksByUserId);
 router.put("/:id", updateLink);
 router.delete("/:id", deleteLink);
