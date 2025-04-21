@@ -5,7 +5,7 @@ import Footer from "../components/Footer";
 
 function MobileLayout() {
   return (
-    <div className="max-w-full min-h-screen flex flex-col items-center relative bg-red-100">
+    <div className="max-w-full min-h-screen flex flex-col items-center relative">
       <Navbar />
       <main className="max-w-full pb-24 bg-primary">
         <Outlet />

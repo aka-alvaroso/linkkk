@@ -129,7 +129,7 @@ export default function Home() {
               alt="Clipboard character"
               className="hidden opacity-0 xl:block xl:opacity-100 absolute top-30 right-20 transition"
             />
-            <h1 className="mt-8 text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
+            <h1 className="text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
               <p className="title inline-block font-brice transition-transform duration-200 hover:-translate-y-1/3">
                 P
               </p>
@@ -379,15 +379,15 @@ export default function Home() {
             En solo 3 pasos, podrás compartir tus sitios favoritos:
           </p>
           <ol className="list-inside mt-3 text-md lg:text-xl relative">
-            <li className="paso w-full absolute top-0 bg-yellow text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
+            <li className="paso w-full h-24 absolute top-0 bg-yellow text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
               <span className="font-bold font-brice text-2xl mr-2">1.</span>
               Pega el enlace de destino
             </li>
-            <li className="paso w-full absolute top-25 bg-lavender text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
+            <li className="paso w-full h-24 absolute top-25 bg-lavender text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
               <span className="font-bold font-brice text-2xl mr-2">2.</span>
               Dale a 'Acortar' y copia el enlace corto
             </li>
-            <li className="paso w-full absolute top-56 sm:top-50 lg:top-56 xl:top-50 bg-orange text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
+            <li className="paso w-full h-24 absolute top-50 sm:top-50 xl:top-50 bg-orange text-navy border-2 border-navy py-6 px-4 rounded-xl my-2 transition hover:-translate-y-1 hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
               <span className="font-bold font-brice text-2xl mr-2">3.</span>
               ¡Comparte el enlace corto quien desees!
             </li>
@@ -399,17 +399,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 
-        Contraseña
-        Limite de accesos
-        Fecha expiracion
-        Redireccion inteligente
-        Bloqueo de paises
-        Sufijo personalizado
-        Metadatos
-        Grupos
-        Etiquetas
-        */}
       <section className="relative min-h-screen bg-lavender text-navy flex flex-col items-center justify-evenly py-12">
         <img
           src="images/thinking_link_machine.png"

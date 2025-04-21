@@ -14,12 +14,13 @@ export default function Redirect() {
   const [userData, setUserData] = useState(null);
   const [passwordError, setPasswordError] = useState(null);
   const [passwordInput, setPasswordInput] = useState("password");
+  const [status, setStatus] = useState(null);
 
   useEffect(() => {
     const getLink = async () => {
       const { ip, country } = await getIPData();
       const { proxy, hosting } = await getVPN({ ip });
-      const device = navigator.userAgentData.mobile;
+      const device = navigator.userAgent.includes("Mobi") ? true : false;
 
       setUserData({ ip, country, proxy, hosting, device });
 
@@ -111,11 +112,13 @@ export default function Redirect() {
 
         if (access.status !== 201) {
           console.error(access.json());
+          setStatus(access.json());
         } else {
           window.location.href = url;
         }
       } catch (e) {
         console.error(e);
+        setStatus(e);
       }
     };
 
@@ -194,6 +197,7 @@ export default function Redirect() {
 
       if (access.status !== 201) {
         console.error(access.json());
+        setStatus(access.json());
       } else {
         window.location.href = url;
       }
@@ -325,6 +329,13 @@ export default function Redirect() {
       )}
 
       {!error && <p className="text-lg mt-4">Redireccionando...</p>}
+
+      {status && (
+        <div className="flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold text-yellow font-brice">Error</h1>
+          <p className="text-lg mt-4">{status}</p>
+        </div>
+      )}
     </div>
   );
 }
