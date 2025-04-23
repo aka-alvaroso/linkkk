@@ -258,7 +258,7 @@ export default function CreateLink() {
     );
 
   return (
-    <div className="relative w-full lg:w-4/6 mx-auto py-18 h-full mt-12 flex flex-col items-center justify-center rounded-4xl text-white">
+    <div className="relative w-full lg:w-4/6 mx-auto py-6 pb-24 min-h-full mt-12 flex flex-col items-center justify-center bg-primary text-white">
       <h1 className="text-4xl font-bold text-yellow font-brice">
         Crear enlace
       </h1>
@@ -700,7 +700,7 @@ export default function CreateLink() {
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   {/* Titulo */}
-                  <div className="flex items-center gap-2 mt-4">
+                  <div className="flex flex-col lg:flex-row items-center gap-2 mt-4">
                     <p className="flex items-center ">
                       <ALargeSmall width={25} height={25} className="mr-1" />
                       <span className="w-full  text-md">Titulo:</span>
@@ -714,7 +714,7 @@ export default function CreateLink() {
                   </div>
 
                   {/* Descripcion */}
-                  <div className="flex items-center gap-2 mt-4">
+                  <div className="flex flex-col lg:flex-row items-center gap-2 mt-4">
                     <p className="flex items-center ">
                       <Monitor width={25} height={25} className="mr-1" />
                       <span className="w-full  text-md">Descripción:</span>
@@ -728,7 +728,7 @@ export default function CreateLink() {
                   </div>
 
                   {/* Imagen */}
-                  <div className="flex items-center gap-2 mt-4">
+                  <div className="flex flex-col lg:flex-row items-center gap-2 mt-4">
                     <p className="flex items-center ">
                       <Image width={25} height={25} className="mr-1" />
                       <span className="w-full  text-md">Imagen:</span>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   LineChart,
   Line,
@@ -10,9 +10,10 @@ import {
   PieChart,
   Pie,
 } from "recharts";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Loading from "../components/Loading";
+import EditLinkModal from "../components/EditLinkModal";
 import {
   useReactTable,
   getCoreRowModel,
@@ -52,12 +53,13 @@ import {
 } from "lucide-react";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const { shortCode } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [link, setLink] = useState({});
   const [stats, setStats] = useState({});
-  const [statusLoading, setStatusLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -65,7 +67,6 @@ export default function Dashboard() {
       status: !prevLink.status,
     }));
 
-    setStatusLoading(true);
     try {
       // Obtener el token para la autorización
       const token = localStorage.getItem("jwt");
@@ -80,7 +81,17 @@ export default function Dashboard() {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
+            longUrl: link.longUrl,
             status: !link.status,
+            groupId: link.group ? link.group.id : null,
+            tags: link.tags.map(tag => tag.id),
+            d_expire: link.d_expire,
+            password: link.password,
+            accessLimit: link.accessLimit,
+            blockedCountries: link.blockedCountries.map(country => country.id),
+            mobileUrl: link.mobileUrl,
+            desktopUrl: link.desktopUrl,
+            sufix: link.sufix,
           }),
         }
       );
@@ -99,75 +110,74 @@ export default function Dashboard() {
       console.error("Error en la solicitud:", error);
       setError("Error de conexión al actualizar el enlace");
     }
-    setStatusLoading(false);
   };
 
+  const token = localStorage.getItem("jwt");
+  const userId = jwtDecode(token).id;
+
+  const fetchData = useCallback(async () => {
+    // Obtener el enlace
+    const responseLink = await fetch(
+      `${import.meta.env.VITE_API_URL}link/${shortCode}`,
+      {
+        headers: {
+          authorization: "Bearer " + token,
+        },
+      }
+    );
+
+    if (responseLink.ok) {
+      const dataLink = await responseLink.json();
+
+      if (dataLink.userId !== userId) {
+        setError("No tienes acceso a este enlace");
+        return;
+      }
+
+      // console.log(JSON.stringify(dataLink, 0, 2));
+      setLink(dataLink);
+    } else {
+      switch (responseLink.status) {
+        case 404:
+          setError("Enlace no encontrado");
+          break;
+        default:
+          setError("Error al obtener enlace");
+          break;
+      }
+    }
+
+    // Obtener los accesos del enlace
+    const responseStats = await fetch(
+      `${import.meta.env.VITE_API_URL}link/stats/${shortCode}`,
+      {
+        headers: {
+          authorization: "Bearer " + token,
+        },
+      }
+    );
+
+    if (responseStats.ok) {
+      const dataStats = await responseStats.json();
+      // console.log(JSON.stringify(dataStats, 0, 2));
+      setStats(dataStats);
+    } else {
+      switch (responseStats.status) {
+        case 404:
+          setError("Enlace no encontrado");
+          break;
+        default:
+          setError("Error al obtener estadísticas");
+          break;
+      }
+    }
+
+    setLoading(false);
+  }, [shortCode, token, userId]);
+
   useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    const userId = jwtDecode(token).id;
-
-    const fetchData = async () => {
-      // Obtener el enlace
-      const responseLink = await fetch(
-        `${import.meta.env.VITE_API_URL}link/${shortCode}`,
-        {
-          headers: {
-            authorization: "Bearer " + token,
-          },
-        }
-      );
-
-      if (responseLink.ok) {
-        const dataLink = await responseLink.json();
-
-        if (dataLink.userId !== userId) {
-          setError("No tienes acceso a este enlace");
-          return;
-        }
-
-        // console.log(JSON.stringify(dataLink, 0, 2));
-        setLink(dataLink);
-      } else {
-        switch (responseLink.status) {
-          case 404:
-            setError("Enlace no encontrado");
-            break;
-          default:
-            setError("Error al obtener enlace");
-            break;
-        }
-      }
-
-      // Obtener los accesos del enlace
-      const responseStats = await fetch(
-        `${import.meta.env.VITE_API_URL}link/stats/${shortCode}`,
-        {
-          headers: {
-            authorization: "Bearer " + token,
-          },
-        }
-      );
-
-      if (responseStats.ok) {
-        const dataStats = await responseStats.json();
-        // console.log(JSON.stringify(dataStats, 0, 2));
-        setStats(dataStats);
-      } else {
-        switch (responseStats.status) {
-          case 404:
-            setError("Enlace no encontrado");
-            break;
-          default:
-            setError("Error al obtener estadísticas");
-            break;
-        }
-      }
-
-      setLoading(false);
-    };
-
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   function formatNumber(num) {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
@@ -211,7 +221,17 @@ export default function Dashboard() {
     <>
       {error && <p className="text-center text-red-500 text-lg">{error}</p>}
       {link && (
-        <div className="w-full h-full p-4 overflow-hidden bg-primary">
+        <div className="w-full min-h-full p-4 pb-24 bg-primary">
+          {isEditModalOpen && (
+            <EditLinkModal
+              onClose={() => {
+                setIsEditModalOpen(false);
+                navigate(`/dashboard/${link.shortUrl}`);
+                fetchData();
+              }}
+              link={link}
+            />
+          )}
           <div className="w-full lg:w-4/6 mx-auto">
             <h1 className="text-4xl font-bold my-4 text-yellow font-brice">
               Detalles del enlace
@@ -273,7 +293,12 @@ export default function Dashboard() {
                   <button className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow">
                     <Copy size={30} />
                   </button>
-                  <button className="py-4 bg-lavender text-navy font-bold rounded-xl border-2 border-lavender flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-lavender">
+                  <button
+                    className="py-4 bg-lavender text-navy font-bold rounded-xl border-2 border-lavender flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-lavender"
+                    onClick={() => {
+                      setIsEditModalOpen(true);
+                    }}
+                  >
                     <Edit size={30} />
                   </button>
                   <button className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral">

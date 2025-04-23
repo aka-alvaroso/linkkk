@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/Auth";
+import EditLinkModal from "../components/EditLinkModal";
 
 import Loading from "../components/Loading";
 import {
@@ -28,6 +29,9 @@ export default function MyLinks() {
   const [loading, setLoading] = useState(true);
   const [links, setLinks] = useState([]);
   const [filteredLinks, setFilteredLinks] = useState([]);
+  const [selectedLink, setSelectedLink] = useState(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
   // const [activeFilters, setActiveFilters] = useState({ tags: [], group: "all" });
   const { isAuthenticated } = useAuth();
 
@@ -49,50 +53,60 @@ export default function MyLinks() {
   };
 
   useEffect(() => {
-    if (!isAuthenticated()) return navigate("/login");
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
+  }, [isAuthenticated, navigate]);
 
-    // Recuperar el id del usuario del token
-    const token = localStorage.getItem("jwt");
-    const userId = jwtDecode(token).id;
+  // Recuperar el id del usuario del token
+  const token = localStorage.getItem("jwt");
+  const userId = jwtDecode(token).id;
 
-    const fetchLinks = async () => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}link/user/` + userId,
-          {
-            headers: {
-              authorization: "Bearer " + token,
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
+  const fetchLinks = useCallback(async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}link/user/` + userId,
+        {
+          headers: {
+            authorization: "Bearer " + token,
+          },
         }
+      );
 
-        let data = await response.json();
-        setLinks(data);
-        console.log(data);
-
-        if (groupId) {
-          data = data.filter((link) => link.group?.id === Number(groupId));
-        }
-
-        if (tagId) {
-          data = data.filter((link) =>
-            link.tags.find((tag) => tag?.id === Number(tagId))
-          );
-        }
-        setFilteredLinks(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        console.error(response.json());
+        return;
       }
-    };
 
+      let data = await response.json();
+      setLinks(data);
+      // console.log(data);
+
+      if (groupId) {
+        data = data.filter((link) => link.group?.id === Number(groupId));
+      }
+
+      if (tagId) {
+        data = data.filter((link) =>
+          link.tags.find((tag) => tag?.id === Number(tagId))
+        );
+      }
+      setFilteredLinks(data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  }, [userId, token, groupId, tagId]);
+
+  useEffect(() => {
     fetchLinks();
-  }, []);
+  }, [fetchLinks]); // Ensure fetchLinks is called when dependencies change
+
+  const handleCloseModal = () => {
+    setIsEditModalOpen(false);
+    // setIsDeleteModalOpen(false);
+    fetchLinks(); // Refresh groups when modal closes
+  };
 
   const colorMap = {
     RED: "bg-red-100 text-red-600",
@@ -127,6 +141,10 @@ export default function MyLinks() {
 
   return (
     <div className="w-full bg-primary flex flex-col items-center justify-center py-12">
+      {isEditModalOpen && (
+        <EditLinkModal onClose={handleCloseModal} link={selectedLink} />
+      )}
+
       <div className="w-11/12 lg:w-4/6 p-4 flex flex-wrap items-center gap-4">
         <h1 className="text-4xl font-bold text-yellow font-brice">
           Mis enlaces
@@ -265,7 +283,14 @@ export default function MyLinks() {
               <button className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow">
                 <Copy size={30} />
               </button>
-              <button className="py-4 bg-lavender text-navy font-bold rounded-xl border-2 border-lavender flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-lavender">
+              <button
+                className="py-4 bg-lavender text-navy font-bold rounded-xl border-2 border-lavender flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-lavender"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedLink(link);
+                  setIsEditModalOpen(true);
+                }}
+              >
                 <Edit size={30} />
               </button>
               <button className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral">

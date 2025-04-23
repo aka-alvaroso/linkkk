@@ -125,6 +125,7 @@ const getLinksByUserId = async (req, res) => {
         accesses: true,
         group: true,
         tags: true,
+        blockedCountries: true,
       },
       orderBy: {
         createdAt: "desc",
@@ -248,7 +249,19 @@ const getLinkStats = async (req, res) => {
 const updateLink = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const {
+      longUrl,
+      status,
+      groupId,
+      tags,
+      d_expire,
+      password,
+      accessLimit,
+      blockedCountries,
+      mobileUrl,
+      desktopUrl,
+      sufix,
+    } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "Falta el parámetro id" });
@@ -257,6 +270,7 @@ const updateLink = async (req, res) => {
     // Verificar si el link existe
     const existingLink = await prisma.link.findUnique({
       where: { id: Number(id) },
+      include: { tags: true }, // Ensure tags are included
     });
 
     if (!existingLink) {
@@ -266,10 +280,33 @@ const updateLink = async (req, res) => {
     // Actualizar el link
     const updatedLink = await prisma.link.update({
       where: { id: Number(id) },
-      data: updateData,
+      data: {
+        longUrl,
+        status,
+        groupId: groupId === "0" ? null : Number(groupId), // Interpret "0" as no group
+        tags: {
+          set: [],
+          connect: tags && tags.map((tagId) => ({ id: Number(tagId) })),
+        },
+        d_expire: d_expire ? new Date(d_expire) : null,
+        password: password ? password : null,
+        accessLimit: accessLimit ? Number(accessLimit) : null,
+        blockedCountries: {
+          set: [],
+          connect:
+            blockedCountries &&
+            blockedCountries.map((countryId) => ({
+              id: Number(countryId),
+            })),
+        },
+        mobileUrl: mobileUrl ? mobileUrl : null,
+        desktopUrl: desktopUrl ? desktopUrl : null,
+        sufix,
+      },
       include: {
         group: true,
         tags: true,
+        accesses: true,
       },
     });
 

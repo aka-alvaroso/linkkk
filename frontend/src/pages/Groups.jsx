@@ -169,14 +169,14 @@ export default function Groups() {
           </div>
         )}
 
-        <div className="w-full h-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 px-4 place-items-center">
+        <div className="w-full h-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 px-4">
           {groupsFiltered.map((group) => {
             const groupColor = colorMap[group.color];
 
             return (
               <div
                 key={group.id}
-                className="w-full md:max-w-sm h-56 flex flex-col items-center justify-between bg-primary border-2 border-navy text-white rounded-3xl p-4 hover:scale-102 transition-all duration-300"
+                className="w-full md:max-w-sm h-56 flex flex-col items-center justify-between bg-primary border-2 border-navy text-white rounded-3xl p-4 hover:scale-102 hover:border-white transition-all duration-300"
               >
                 <div className="w-full flex items-start gap-2">
                   <span
