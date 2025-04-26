@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/Auth";
@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 
 export default function Navbar() {
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isLoggedIn, logout } = useAuth();
   const [active, setActive] = useState("home");
 
   return (
@@ -79,7 +79,7 @@ export default function Navbar() {
           </button>
         </div>
 
-        {isAuthenticated() ? (
+        {isLoggedIn ? (
           <button
             className="ml-auto relative h-[50px] rounded-xl py-1 px-4 flex items-center gap-2 transition bg-coral text-white border-2 border-coral border-dashed hover:cursor-pointer hover:bg-transparent hover:text-coral"
             onClick={() => {

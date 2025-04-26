@@ -12,8 +12,8 @@ export default function DeleteGroupModal({ onClose, tag }) {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             tagId: tag.id,
           }),

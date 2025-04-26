@@ -12,8 +12,8 @@ import MyLinks from "./pages/MyLinks.jsx";
 import CreateLink from "./pages/CreateLink.jsx";
 import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
-import { AuthProvider } from "./context/Auth.jsx";
 import { useState, useEffect } from "react";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Componente responsivo que elige el layout adecuado
 function ResponsiveLayout({ children }) {
@@ -37,29 +37,50 @@ function ResponsiveLayout({ children }) {
 
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
-        {/* Rutas públicas sin layout */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/test" element={<Test />} />
-        <Route path="/r/:shortCode" element={<Redirect />} />
+    <Routes>
+      {/* Rutas públicas sin layout */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/r/:shortCode" element={<Redirect />} />
 
-        {/* Rutas con layout responsivo */}
-        <Route element={<ResponsiveLayout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard/:shortCode" element={<Dashboard />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/tags" element={<Tags />} />
-          <Route path="/links" element={<MyLinks />} />
-          <Route path="/links/create" element={<CreateLink />} />
-        </Route>
+      {/* Rutas con layout responsivo */}
+      <Route element={<ResponsiveLayout />}>
+        <Route path="/links" element={<MyLinks />} />
 
-        <Route path="/:shortCode" element={<Redirect />} />
-        {/* Ruta 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </AuthProvider>
+        <Route path="/" element={<Home />} />
+        <Route path="/links/create" element={<CreateLink />} />
+
+        <Route
+          path="/dashboard/:shortCode"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/groups"
+          element={
+            <ProtectedRoute>
+              <Groups />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/tags"
+          element={
+            <ProtectedRoute>
+              <Tags />
+            </ProtectedRoute>
+          }
+        />
+      </Route>
+
+      <Route path="/:shortCode" element={<Redirect />} />
+      {/* Ruta 404 */}
+      <Route path="notfound" element={<NotFound />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
   );
 }
 

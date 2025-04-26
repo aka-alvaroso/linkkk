@@ -1,13 +1,13 @@
 import { FileWarning, Folder, TriangleAlert, X } from "lucide-react";
 
-export default function DeleteGroupModal({ onClose, group }) {
+export default function DeleteGroupModal({ onClose, link }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Enviar datos al servidor
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}group/delete`,
+        `${import.meta.env.VITE_API_URL}link/delete`,
         {
           method: "DELETE",
           headers: {
@@ -15,7 +15,7 @@ export default function DeleteGroupModal({ onClose, group }) {
           },
           credentials: "include",
           body: JSON.stringify({
-            groupId: group.id,
+            id: link.id,
           }),
         }
       );
@@ -25,11 +25,11 @@ export default function DeleteGroupModal({ onClose, group }) {
       if (response.ok) {
         onClose();
       } else {
-        console.error(data.error || "Failed to delete group");
+        console.error(data.error || "Failed to delete link");
       }
     } catch (err) {
       console.error("Network error or server not responding");
-      console.error("Error deleting group:", err);
+      console.error("Error deleting link:", err);
     }
   };
 
@@ -47,7 +47,7 @@ export default function DeleteGroupModal({ onClose, group }) {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold flex items-center gap-2 text-red-500">
             <Folder width={24} height={24} />
-            <p>Eliminar grupo - {group.title}</p>
+            <p>Eliminar enlace - linkkk.dev/{link.shortUrl}</p>
           </h2>
           <button
             onClick={() => onClose()}
@@ -61,8 +61,8 @@ export default function DeleteGroupModal({ onClose, group }) {
             <TriangleAlert width={36} height={36} className="text-red-500" />
             <div className="flex gap-2 items-center justify-center">
               <p className=" text-neutral-800 text-sm p-4">
-                ¿Estás seguro de que deseas eliminar el grupo {group.title}?
-                Esta acción no se puede deshacer.
+                ¿Estás seguro de que deseas eliminar el enlace linkkk.dev/
+                {link.shortUrl}? Esta acción no se puede deshacer.
               </p>
             </div>
             <div className="flex gap-2 items-center w-full">

@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Folder, X } from "lucide-react";
 
-export default function CreateGroupModal({ onClose, userId }) {
+export default function CreateGroupModal({ onClose }) {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
 
@@ -24,8 +24,8 @@ export default function CreateGroupModal({ onClose, userId }) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
-            userId: userId,
             title: title,
             description: description,
             color: color,

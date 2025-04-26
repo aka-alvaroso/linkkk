@@ -26,9 +26,16 @@ export default function Redirect() {
 
       try {
         const response = await fetch(
-          `${import.meta.env.VITE_API_URL}link/${shortCode}`
+          `${import.meta.env.VITE_API_URL}r/${shortCode}`
         );
+
+        if (!response.ok) {
+          navigate("/notfound");
+          return;
+        }
+
         const link = await response.json();
+
         let url = link.longUrl;
 
         setLink(link);

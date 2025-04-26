@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import {
@@ -19,7 +18,7 @@ import DeleteTagModal from "../components/DeleteTagModal";
 
 export default function Groups() {
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [tags, setTags] = useState([]);
   const [tagsFiltered, setTagsFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,21 +35,12 @@ export default function Groups() {
     );
   };
   const fetchTags = useCallback(async () => {
-    if (!isAuthenticated()) return navigate("/login");
-
     setLoading(true);
 
-    const userId = jwtDecode(token).id;
-
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}tag/user/` + userId,
-        {
-          headers: {
-            authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user`, {
+        credentials: "include",
+      });
 
       if (response.status !== 200) {
         console.error(response.json());
@@ -64,11 +54,13 @@ export default function Groups() {
     } catch (error) {
       console.error(error);
     }
-  }, [isAuthenticated, navigate, token]);
+  }, []);
 
   useEffect(() => {
-    fetchTags();
-  }, [fetchTags]);
+    if (isLoggedIn) {
+      fetchTags();
+    }
+  }, [fetchTags, isLoggedIn]);
 
   const handleModalClose = () => {
     setIsCreateModalOpen(false);
@@ -110,12 +102,7 @@ export default function Groups() {
 
   return (
     <div className="w-full lg:w-4/6 mx-auto h-full p-4 overflow-hidden">
-      {isCreateModalOpen && (
-        <CreateTagModal
-          onClose={handleModalClose}
-          userId={jwtDecode(token).id}
-        />
-      )}
+      {isCreateModalOpen && <CreateTagModal onClose={handleModalClose} />}
       {isEditModalOpen && (
         <EditTagModal onClose={handleModalClose} tag={selectedTag} />
       )}
@@ -205,7 +192,10 @@ export default function Groups() {
                   </button>
                 </div>
                 {/* Número de enlaces */}
-                <button className="w-4/6 py-2 mt-auto text-light-blue border-2 border-light-blue rounded-xl flex justify-center items-center gap-2 transition hover:bg-light-blue hover:text-navy hover:cursor-pointer">
+                <button
+                  className="w-4/6 py-2 mt-auto text-light-blue border-2 border-light-blue rounded-xl flex justify-center items-center gap-2 transition hover:bg-light-blue hover:text-navy hover:cursor-pointer"
+                  onClick={() => navigate(`/links?tagId=${tag.id}`)}
+                >
                   Ver enlaces
                 </button>
               </div>

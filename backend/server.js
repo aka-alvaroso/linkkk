@@ -4,10 +4,11 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const linkRoutes = require("./routes/link");
+const linkController = require("./controllers/link");
 const accessRoutes = require("./routes/access");
 const groupRoutes = require("./routes/group");
 const tagRoutes = require("./routes/tag");
-const verifyToken = require("./middlewares/verifyToken");
+const cookieParser = require("cookie-parser");
 
 const prisma = require("./prisma/client");
 
@@ -16,7 +17,13 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 app.use(express.json());
 
 // Rutas
@@ -25,6 +32,8 @@ app.get("/", (req, res) => {
 });
 
 // Rutas de la API
+
+app.get("/r/:shortCode", linkController.getLinkRedirect);
 app.use("/link", linkRoutes);
 app.use("/access", accessRoutes);
 app.use("/auth", authRoutes);
@@ -315,8 +324,6 @@ app.get("/countries/deleteall", async (req, res) => {
     res.status(500).json({ error: "Error al borrar los países" });
   }
 });
-
-app.use(verifyToken);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);

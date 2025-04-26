@@ -1,10 +1,28 @@
 const prisma = require("../prisma/client");
+const jwt = require("jsonwebtoken");
 
-// Crear un link
 const createLink = async (req, res) => {
+  if (req.guest?.guestSessionId) {
+    await prisma.link.deleteMany({
+      where: {
+        guest_sessionId: req.guest.guestSessionId,
+        d_expire: { lt: new Date() },
+      },
+    });
+
+    const count = await prisma.link.count({
+      where: {
+        guest_sessionId: req.guest.guestSessionId,
+      },
+    });
+
+    if (count >= 10) {
+      return res.status(400).json({ error: "Límite de enlaces alcanzado" });
+    }
+  }
+
   try {
     const {
-      userId,
       url,
       groupId,
       tags,
@@ -15,11 +33,13 @@ const createLink = async (req, res) => {
       mobileUrl,
       desktopUrl,
       expirationDate,
-      metadata,
+      // metadata,
     } = req.body;
 
-    if (!userId || !url) {
-      return res.status(400).json({ error: "Faltan parámetros" });
+    // TODO: Validación de datos y URLs
+
+    if (!url) {
+      return res.status(400).json({ error: "Falta el parámetro url" });
     }
 
     const chars =
@@ -29,37 +49,37 @@ const createLink = async (req, res) => {
       .map(() => chars.charAt(Math.floor(Math.random() * chars.length)))
       .join("");
 
+    const isGuest = !!req.guest;
+
     const link = await prisma.link.create({
       data: {
-        userId: Number(userId),
+        userId: !isGuest ? Number(req.user?.id) : null,
+        guest_sessionId: isGuest ? Number(req.guest?.guestSessionId) : null,
         longUrl: url,
         shortUrl: randomString,
-        groupId: groupId ? Number(groupId) : null,
-        sufix: sufix ? sufix : null,
-        password: password ? password : null,
-        accessLimit: accessLimit ? Number(accessLimit) : null,
+        groupId: isGuest ? null : groupId ? Number(groupId) : null,
+        sufix: isGuest ? null : sufix ? sufix : null,
+        password: isGuest ? null : password ? password : null,
+        accessLimit: isGuest ? null : accessLimit ? Number(accessLimit) : null,
         blockedCountries: {
-          connect: blockedCountries?.map((countryId) => ({
-            id: Number(countryId),
-          })),
+          connect: !isGuest
+            ? blockedCountries?.map((countryId) => ({ id: Number(countryId) }))
+            : [],
         },
-        mobileUrl: mobileUrl ? mobileUrl : null,
-        desktopUrl: desktopUrl ? desktopUrl : null,
-        d_expire: expirationDate ? new Date(expirationDate) : null,
+        tags: {
+          connect: !isGuest
+            ? tags?.map((tagId) => ({ id: Number(tagId) }))
+            : [],
+        },
+        mobileUrl: isGuest ? null : mobileUrl ? mobileUrl : null,
+        desktopUrl: isGuest ? null : desktopUrl ? desktopUrl : null,
+        d_expire: isGuest
+          ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          : expirationDate
+          ? new Date(expirationDate)
+          : null,
       },
     });
-
-    // If tags are provided, connect them to the link
-    if (tags && tags.length > 0) {
-      await prisma.link.update({
-        where: { id: link.id },
-        data: {
-          tags: {
-            connect: tags.map((tagId) => ({ id: Number(tagId) })),
-          },
-        },
-      });
-    }
 
     res.status(201).json(link);
   } catch (error) {
@@ -70,13 +90,47 @@ const createLink = async (req, res) => {
   }
 };
 
-// Obtener un link por ID
-const getLinkByShortCode = async (req, res) => {
+const getLinkRedirect = async (req, res) => {
   try {
     const { shortCode } = req.params;
 
     if (!shortCode) {
-      return res.status(400).json({ error: "Falta el parámetro shortCode" });
+      return res.status(400).json({ error: "Missing shortCode parameter" });
+    }
+
+    let link = await prisma.link.findUnique({
+      where: { sufix: shortCode },
+      include: { blockedCountries: true },
+    });
+    if (!link)
+      link = await prisma.link.findUnique({
+        where: { shortUrl: shortCode },
+        include: { blockedCountries: true },
+      });
+
+    if (!link) {
+      return res.status(404).json({ error: "Link not found" });
+    }
+
+    res.status(200).json(link);
+  } catch (error) {
+    console.error("Error al recuperar link:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+const getLinkDetails = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res
+        .status(401)
+        .json({ error: "No token provided - Link details" });
+    }
+
+    const { shortCode } = req.params;
+
+    if (!shortCode) {
+      return res.status(400).json({ error: "Missing shortCode parameter" });
     }
 
     const link = await prisma.link.findFirst({
@@ -88,71 +142,63 @@ const getLinkByShortCode = async (req, res) => {
         group: true,
         tags: true,
         blockedCountries: true,
-        metadata: true,
       },
     });
 
-    if (!link) {
-      return res.status(404).json({ error: "Link no encontrado" });
+    if (!link || link.userId !== req.user.id) {
+      return res.status(404).json({ error: "Link not found" });
     }
 
     res.status(200).json(link);
   } catch (error) {
-    console.error("Error al obtener link:", error);
-    res.status(500).json({ error: "Error al obtener link" });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Obtener todos los links de un usuario
 const getLinksByUserId = async (req, res) => {
   try {
-    const { userId } = req.params;
-
-    if (!userId) {
-      return res.status(400).json({ error: "Falta el parámetro userId" });
-    }
-
-    const user = await prisma.user.findUnique({
-      where: { id: Number(userId) },
-    });
-    if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
+    const userId = req.user?.id;
+    const guestId = req.guest?.guestSessionId;
 
     const links = await prisma.link.findMany({
-      where: { userId: Number(userId) },
+      where: userId
+        ? { userId: Number(userId) }
+        : guestId
+        ? { guest_sessionId: Number(guestId) }
+        : {},
       include: {
-        accesses: true,
         group: true,
         tags: true,
-        blockedCountries: true,
       },
       orderBy: {
         createdAt: "desc",
       },
     });
 
-    if (!links) {
-      return res.status(404).json({ error: "Links no encontrados" });
+    if (links.length === 0) {
+      return res.status(200).json({ links: [] });
     }
 
-    res.status(200).json(links);
+    res.status(200).json({ links });
   } catch (error) {
-    console.error("Error al obtener links:", error);
-    res.status(500).json({ error: "Error al obtener links" });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Estadísticas de un link
+// TODO: Optimización y claridad del código al recuperar stats
 const getLinkStats = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "No token provided - Link stats" });
+    }
+
     const { shortCode } = req.params;
 
     if (!shortCode) {
-      return res.status(400).json({ error: "Falta el parámetro id" });
+      return res.status(400).json({ error: "Missing shortCode parameter" });
     }
 
-    // 1. Obtener el link
+    // Obtener el enlace con accesos
     const link = await prisma.link.findFirst({
       where: {
         OR: [{ shortUrl: shortCode }, { sufix: shortCode }],
@@ -162,75 +208,57 @@ const getLinkStats = async (req, res) => {
       },
     });
 
-    // 2. Obtener los accesos
-    const accesses = await prisma.access.findMany({
-      where: { linkId: Number(link.id) },
-    });
-
-    // 3. Calcular los accesos al enlace totales
-    const totalAccesses = accesses.length;
-
-    // 4. Calcular los accesos al enlace de los últimos 7 días (Incluir el día actual)
-    const today = new Date();
-    const last7Days = [];
-
-    // Nombres de los días en español
-    const dayNames = [
-      "Domingo",
-      "Lunes",
-      "Martes",
-      "Miércoles",
-      "Jueves",
-      "Viernes",
-      "Sábado",
-    ];
-
-    // Crear array con los últimos 7 días (incluyendo hoy)
-    for (let i = 6; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-
-      // Inicializar cada día con 0 clics
-      const dayName = i === 0 ? "Hoy" : dayNames[date.getDay()];
-
-      last7Days.push({
-        day: dayName,
-        date: new Date(date.setHours(0, 0, 0, 0)), // Normalizar a inicio del día
-        clics: 0,
-      });
+    if (!link || link.userId !== req.user.id) {
+      return res.status(404).json({ error: "Link not found" });
     }
 
-    // Contar los accesos para cada día
-    accesses.forEach((access) => {
-      const accessDate = new Date(access.date);
-      accessDate.setHours(0, 0, 0, 0); // Normalizar a inicio del día
+    const accesses = link.accesses;
 
-      // Verificar si el acceso está dentro de los últimos 7 días
-      for (let i = 0; i < last7Days.length; i++) {
-        if (accessDate.getTime() === last7Days[i].date.getTime()) {
-          last7Days[i].clics++;
-          break;
-        }
-      }
+    const totalAccesses = accesses.length;
+
+    const today = new Date();
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(today.getDate() - i);
+      return {
+        date: date.setHours(0, 0, 0, 0),
+        day:
+          i === 0
+            ? "Hoy"
+            : [
+                "Domingo",
+                "Lunes",
+                "Martes",
+                "Miércoles",
+                "Jueves",
+                "Viernes",
+                "Sábado",
+              ][date.getDay()],
+        clics: 0,
+      };
     });
 
-    // Eliminar la propiedad date que usamos para comparar (no la necesitamos en la respuesta)
+    const accessMap = accesses.reduce((acc, access) => {
+      const accessDate = new Date(access.date).setHours(0, 0, 0, 0);
+      const day = last7Days.find((d) => d.date === accessDate);
+      if (day) {
+        day.clics += 1;
+      }
+      return acc;
+    }, {});
+
     const last7DaysFormatted = last7Days.map(({ day, clics }) => ({
       day,
       clics,
     }));
 
-    // 5. Calcular el porcentaje de tipos de dispositivos (Mobile y Desktop)
     const mobileAccesses = accesses.filter(
-      (access) => access.device?.type === "MOBILE" || access.device === "MOBILE"
+      (access) => access.device?.type === "MOBILE"
     ).length;
-
-    // 6. Calcular el número de accesos a través de QR
     const qrAccesses = accesses.filter(
-      (access) => access.method?.type === "QR" || access.method === "QR"
+      (access) => access.method?.type === "QR"
     ).length;
 
-    // Devolver estadisticas
     res.status(200).json({
       totalAccesses,
       last7Days: last7DaysFormatted,
@@ -240,14 +268,17 @@ const getLinkStats = async (req, res) => {
       linkAccesses: totalAccesses - qrAccesses,
     });
   } catch (error) {
-    console.error("Error al obtener estadísticas:", error);
-    res.status(500).json({ error: "Error al obtener estadísticas" });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Actualizar un link
+// TODO: Optimización y claridad del código al actualizar un link
 const updateLink = async (req, res) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ error: "No token provided - Link update" });
+    }
+
     const { id } = req.params;
     const {
       longUrl,
@@ -267,17 +298,14 @@ const updateLink = async (req, res) => {
       return res.status(400).json({ error: "Falta el parámetro id" });
     }
 
-    // Verificar si el link existe
     const existingLink = await prisma.link.findUnique({
       where: { id: Number(id) },
-      include: { tags: true }, // Ensure tags are included
     });
 
-    if (!existingLink) {
+    if (!existingLink || existingLink.userId !== req.user.id) {
       return res.status(404).json({ error: "Link no encontrado" });
     }
 
-    // Actualizar el link
     const updatedLink = await prisma.link.update({
       where: { id: Number(id) },
       data: {
@@ -293,11 +321,13 @@ const updateLink = async (req, res) => {
         accessLimit: accessLimit ? Number(accessLimit) : null,
         blockedCountries: {
           set: [],
-          connect:
-            blockedCountries &&
-            blockedCountries.map((countryId) => ({
-              id: Number(countryId),
-            })),
+          connect: blockedCountries?.map((countryId) => ({
+            id: Number(countryId),
+          })),
+        },
+        tags: {
+          set: [],
+          connect: tags?.map((tagId) => ({ id: Number(tagId) })),
         },
         mobileUrl: mobileUrl ? mobileUrl : null,
         desktopUrl: desktopUrl ? desktopUrl : null,
@@ -312,36 +342,34 @@ const updateLink = async (req, res) => {
 
     res.status(200).json(updatedLink);
   } catch (error) {
-    console.error("Error al actualizar link:", error);
-    res
-      .status(500)
-      .json({ error: "Error al actualizar link", details: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Eliminar un link
 const deleteLink = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.body;
 
     if (!id) {
       return res.status(400).json({ error: "Falta el parámetro id" });
     }
 
     const link = await prisma.link.delete({
-      where: { id: Number(id) },
+      where: {
+        id: Number(id),
+      },
     });
 
-    res.status(200).json({ message: "Link eliminado correctamente", link });
+    res.status(200).json({ message: "Link deleted successfully", link });
   } catch (error) {
-    console.error("Error al eliminar link:", error);
-    res.status(500).json({ error: "Error al eliminar link" });
+    res.status(500).json({ error: error.message });
   }
 };
 
 module.exports = {
   createLink,
-  getLinkByShortCode,
+  getLinkRedirect,
+  getLinkDetails,
   getLinksByUserId,
   getLinkStats,
   updateLink,

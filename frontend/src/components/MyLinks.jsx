@@ -317,14 +317,7 @@ export default function MyLinks() {
               >
                 <Edit size={30} />
               </button>
-              <button
-                className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedLink(link);
-                  setIsDeleteModalOpen(true);
-                }}
-              >
+              <button className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral">
                 <Trash size={30} />
               </button>
             </div>

@@ -17,7 +17,7 @@ import {
 
 export default function EditLinkModal({ onClose, link }) {
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
+  const { token } = useAuth();
   const [error, setError] = useState(null);
   const [tags, setTags] = useState([]);
   const [tagsSelected, setTagsSelected] = useState([]);
@@ -84,8 +84,6 @@ export default function EditLinkModal({ onClose, link }) {
   // fetchTags();
   useEffect(() => {
     const fetchTags = async () => {
-      if (!isAuthenticated()) return navigate("/login");
-
       const userId = jwtDecode(token).id;
 
       try {
@@ -117,7 +115,7 @@ export default function EditLinkModal({ onClose, link }) {
     };
 
     fetchTags();
-  }, [isAuthenticated, navigate, token, link.tags]);
+  }, [navigate, token, link.tags]);
 
   const handleTagClick = (tag) => {
     if (tagsSelected.find((selectedTag) => selectedTag.id === tag.id)) {
@@ -132,8 +130,6 @@ export default function EditLinkModal({ onClose, link }) {
   // fetchGroups();
   useEffect(() => {
     const fetchGroups = async () => {
-      if (!isAuthenticated()) return navigate("/login");
-
       const userId = jwtDecode(token).id;
 
       try {
@@ -163,13 +159,11 @@ export default function EditLinkModal({ onClose, link }) {
     };
 
     fetchGroups();
-  }, [isAuthenticated, navigate, token]);
+  }, [navigate, token]);
 
   // fetchCountries();
   useEffect(() => {
     const fetchCountries = async () => {
-      if (!isAuthenticated()) return navigate("/login");
-
       // const userId = jwtDecode(token).id;
 
       try {
@@ -203,7 +197,7 @@ export default function EditLinkModal({ onClose, link }) {
     };
 
     fetchCountries();
-  }, [isAuthenticated, navigate, token, link.blockedCountries]);
+  }, [navigate, token, link.blockedCountries]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

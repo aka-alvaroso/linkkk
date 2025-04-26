@@ -22,8 +22,8 @@ export default function EditGroupModal({ onClose, group }) {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             groupId: group.id,
             title: title,

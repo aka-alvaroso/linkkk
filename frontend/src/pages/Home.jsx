@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import {
   Brush,
   Calendar,
@@ -22,9 +21,12 @@ import {
   Zap,
 } from "lucide-react";
 import { animate, onScroll } from "animejs";
+import { useAuth } from "../context/Auth";
 
 export default function Home() {
   const navigate = useNavigate();
+  const { isLoggedIn, isGuestSession, authLoading, createGuestSession } =
+    useAuth();
 
   const [error, setError] = useState(null);
 
@@ -79,6 +81,11 @@ export default function Home() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!authLoading && !isGuestSession && !isLoggedIn) {
+      alert("Creando sesión de invitado desde home");
+      await createGuestSession();
+    }
+
     const url = document.getElementById("main-input").value;
 
     if (!url) {
@@ -93,14 +100,18 @@ export default function Home() {
         authorization: "Bearer " + localStorage.getItem("jwt"),
       },
       body: JSON.stringify({
-        userId: jwtDecode(localStorage.getItem("jwt")).id,
         url: url,
       }),
+      credentials: "include",
     });
 
     if (response.ok) {
       const data = await response.json();
-      navigate(`/dashboard/${data.shortUrl}`);
+      if (isLoggedIn) {
+        navigate(`/dashboard/${data.shortUrl}`);
+      } else {
+        navigate(`/links`);
+      }
     } else {
       const data = await response.json();
       setError(data.error);

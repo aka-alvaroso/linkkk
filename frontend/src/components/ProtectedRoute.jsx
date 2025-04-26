@@ -1,20 +1,21 @@
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '../context/Auth';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/Auth";
 
 function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth();
-  
+  const navigate = useNavigate();
+  const { isLoggedIn, authLoading, checkLoginStatus } = useAuth();
+
   // Mientras verifica la autenticación, muestra un loader
-  if (loading) {
+  if (authLoading) {
     return <div>Cargando...</div>;
   }
-  
-  // Si no está autenticado, redirige al login
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  // Si está autenticado, muestra el contenido
+
+  checkLoginStatus().then(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  });
+
   return children;
 }
 
