@@ -40,7 +40,8 @@ model Plan {
 
 model Link {
   id          Int     @id @default(autoincrement())
-  userId      Int
+  userId      Int?
+  guest_sessionId Int?
   longUrl     String
   shortUrl    String  @unique
   status      Boolean @default(true)
@@ -53,10 +54,11 @@ model Link {
   mobileUrl   String?
   desktopUrl  String?
   blockedCountries Country[] @relation("LinkCountries")
-  sufix       String?
+  sufix       String?  @unique
   metadataId  Int?    @unique  // Añadido @unique para garantizar relación 1:1
   metadata    MetadataConfig? @relation(fields: [metadataId], references: [id])
-  user        User @relation(fields: [userId], references: [id])
+  user        User? @relation(fields: [userId], references: [id])
+  guest_session GuestSession? @relation(fields: [guest_sessionId], references: [id])
   group       Group?  @relation(fields: [groupId], references: [id]) // Optional relation to Group
   createdAt   DateTime @default(now())
 }
@@ -116,6 +118,12 @@ model Country {
   code            String           @db.VarChar(2)
   name            String           @db.VarChar(100)
   links           Link[]           @relation("LinkCountries")
+}
+
+model GuestSession {
+  id         Int     @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+  links      Link[]
 }
 
 enum Colors {

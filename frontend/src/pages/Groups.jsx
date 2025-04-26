@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import {
@@ -19,7 +18,7 @@ import EditGroupModal from "../components/EditGroupModal";
 
 export default function Groups() {
   const navigate = useNavigate();
-  const { isAuthenticated, token } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [groups, setGroups] = useState([]);
   const [groupsFiltered, setGroupsFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,19 +37,13 @@ export default function Groups() {
 
   // Extract fetchGroups as a useCallback function so it can be passed to the modal
   const fetchGroups = useCallback(async () => {
-    if (!isAuthenticated()) return navigate("/login");
-
     setLoading(true);
-
-    const userId = jwtDecode(token).id;
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}group/user/` + userId,
+        `${import.meta.env.VITE_API_URL}group/user`,
         {
-          headers: {
-            authorization: "Bearer " + localStorage.getItem("jwt"),
-          },
+          credentials: "include",
         }
       );
 
@@ -67,11 +60,13 @@ export default function Groups() {
       console.error(error);
       setLoading(false);
     }
-  }, [isAuthenticated, navigate, token]);
+  }, []);
 
   useEffect(() => {
-    fetchGroups();
-  }, [fetchGroups]);
+    if (isLoggedIn) {
+      fetchGroups();
+    }
+  }, [fetchGroups, isLoggedIn]);
 
   // Function to handle modal close and refresh groups
   const handleModalClose = () => {
@@ -114,12 +109,7 @@ export default function Groups() {
 
   return (
     <div className="w-full lg:w-4/6 mx-auto h-full p-4 overflow-hidden">
-      {isCreateModalOpen && (
-        <CreateGroupModal
-          onClose={handleModalClose}
-          userId={jwtDecode(token).id}
-        />
-      )}
+      {isCreateModalOpen && <CreateGroupModal onClose={handleModalClose} />}
       {isDeleteModalOpen && (
         <DeleteGroupModal onClose={handleModalClose} group={selectedGroup} />
       )}

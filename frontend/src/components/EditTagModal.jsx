@@ -21,8 +21,8 @@ export default function EditTagModal({ onClose, tag }) {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             tagId: tag.id,
             name,

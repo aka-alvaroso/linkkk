@@ -1,18 +1,19 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
 import { useAuth } from "../context/Auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { checkLoginStatus } = useAuth();
   const [error, setError] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const response = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,15 +22,16 @@ export default function Login() {
         username: document.querySelector("#username").value,
         password: document.querySelector("#password").value,
       }),
+      credentials: "include",
     });
 
-    const data = await response.json();
-
-    if (response.ok) {
-      login(data.token);
+    if (res.ok) {
+      checkLoginStatus();
       navigate("/");
     } else {
-      setError(data.error);
+      const data = await res.json();
+      console.log(data.details);
+      setError(data.error || "Error al iniciar sesión");
     }
   };
 

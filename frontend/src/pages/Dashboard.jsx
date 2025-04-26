@@ -11,7 +11,7 @@ import {
   Pie,
 } from "recharts";
 import { useParams, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import { useAuth } from "../context/Auth";
 import Loading from "../components/Loading";
 import EditLinkModal from "../components/EditLinkModal";
 import {
@@ -54,6 +54,7 @@ import {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuth();
   const { shortCode } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -68,9 +69,6 @@ export default function Dashboard() {
     }));
 
     try {
-      // Obtener el token para la autorización
-      const token = localStorage.getItem("jwt");
-
       // Actualizar en la bd
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}link/${link.id}`,
@@ -78,17 +76,19 @@ export default function Dashboard() {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             longUrl: link.longUrl,
             status: !link.status,
             groupId: link.group ? link.group.id : null,
-            tags: link.tags.map(tag => tag.id),
+            tags: link.tags.map((tag) => tag.id),
             d_expire: link.d_expire,
             password: link.password,
             accessLimit: link.accessLimit,
-            blockedCountries: link.blockedCountries.map(country => country.id),
+            blockedCountries: link.blockedCountries.map(
+              (country) => country.id
+            ),
             mobileUrl: link.mobileUrl,
             desktopUrl: link.desktopUrl,
             sufix: link.sufix,
@@ -98,7 +98,7 @@ export default function Dashboard() {
 
       if (response.ok) {
         const data = await response.json();
-        console.log(data);
+        // console.log(data);
         // Cuando se actualiza el enlace en la bd, se muestra notificacion
         // TODO - Notificacion
       } else {
@@ -112,27 +112,17 @@ export default function Dashboard() {
     }
   };
 
-  const token = localStorage.getItem("jwt");
-  const userId = jwtDecode(token).id;
-
   const fetchData = useCallback(async () => {
     // Obtener el enlace
     const responseLink = await fetch(
       `${import.meta.env.VITE_API_URL}link/${shortCode}`,
       {
-        headers: {
-          authorization: "Bearer " + token,
-        },
+        credentials: "include",
       }
     );
 
     if (responseLink.ok) {
       const dataLink = await responseLink.json();
-
-      if (dataLink.userId !== userId) {
-        setError("No tienes acceso a este enlace");
-        return;
-      }
 
       // console.log(JSON.stringify(dataLink, 0, 2));
       setLink(dataLink);
@@ -151,9 +141,7 @@ export default function Dashboard() {
     const responseStats = await fetch(
       `${import.meta.env.VITE_API_URL}link/stats/${shortCode}`,
       {
-        headers: {
-          authorization: "Bearer " + token,
-        },
+        credentials: "include",
       }
     );
 
@@ -173,11 +161,13 @@ export default function Dashboard() {
     }
 
     setLoading(false);
-  }, [shortCode, token, userId]);
+  }, [shortCode]);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (isLoggedIn) {
+      fetchData();
+    }
+  }, [fetchData, isLoggedIn]);
 
   function formatNumber(num) {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";

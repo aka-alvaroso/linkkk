@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/Auth";
 import Loading from "../components/Loading";
 
@@ -28,7 +27,14 @@ export default function CreateLink() {
   const [activeTab, setActiveTab] = useState("basic");
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { isAuthenticated, token } = useAuth();
+  const {
+    authLoading,
+    isLoggedIn,
+    isGuestSession,
+    checkLoginStatus,
+    checkGuestSession,
+    createGuestSession,
+  } = useAuth();
   const [tagsSelected, setTagsSelected] = useState([]);
   const [groups, setGroups] = useState([]);
   const [groupSelected, setGroupSelected] = useState(0);
@@ -37,110 +43,96 @@ export default function CreateLink() {
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [countriesMenuOpen, setCountriesMenuOpen] = useState(false);
 
-  // fetchTags();
   useEffect(() => {
-    const fetchTags = async () => {
-      if (!isAuthenticated()) return navigate("/login");
+    if (authLoading) return;
 
-      setLoading(true);
+    if (isLoggedIn === null || isGuestSession === null) return;
 
-      const userId = jwtDecode(token).id;
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}tag/user/` + userId,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
-        }
-
-        const data = await response.json();
-        setTags(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
+    const init = async () => {
+      if (!isGuestSession && !isLoggedIn) {
+        await createGuestSession();
+        fetchCountries();
+        return;
       }
+
+      if (isLoggedIn && !isGuestSession) {
+        fetchGroups();
+        fetchTags();
+      }
+      fetchCountries();
     };
 
-    fetchTags();
-  }, []);
+    init();
+  }, [authLoading, isLoggedIn, isGuestSession, createGuestSession]);
+
+  // fetchTags();
+  const fetchTags = async () => {
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user/`, {
+        credentials: "include",
+      });
+
+      if (response.status !== 200) {
+        return;
+      }
+
+      const data = await response.json();
+      setTags(data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // fetchGroups();
-  useEffect(() => {
-    const fetchGroups = async () => {
-      if (!isAuthenticated()) return navigate("/login");
+  const fetchGroups = async () => {
+    setLoading(true);
 
-      setLoading(true);
-
-      const userId = jwtDecode(token).id;
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}group/user/` + userId,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}group/user/`,
+        {
+          credentials: "include",
         }
+      );
 
-        const data = await response.json();
-        setGroups(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        return;
       }
-    };
 
-    fetchGroups();
-  }, []);
+      const data = await response.json();
+      setGroups(data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // fetchCountries();
-  useEffect(() => {
-    const fetchCountries = async () => {
-      if (!isAuthenticated()) return navigate("/login");
+  const fetchCountries = async () => {
+    setLoading(true);
 
-      setLoading(true);
-
-      // const userId = jwtDecode(token).id;
-
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}countries/get`,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}countries/get`,
+        {
+          credentials: "include",
         }
+      );
 
-        const data = await response.json();
-        setCountries(data);
-        setLoading(false);
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        return;
       }
-    };
 
-    fetchCountries();
-  }, []);
+      const data = await response.json();
+      setCountries(data);
+      setLoading(false);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const colorMap = {
     RED: "bg-red-100 text-red-400",
@@ -212,10 +204,8 @@ export default function CreateLink() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
           body: JSON.stringify({
-            userId: jwtDecode(localStorage.getItem("jwt")).id,
             url: url,
             groupId: groupSelected,
             tags: tags,
@@ -228,6 +218,7 @@ export default function CreateLink() {
             expirationDate: expirationDate,
             metadata: metadata,
           }),
+          credentials: "include",
         }
       );
 
@@ -235,7 +226,11 @@ export default function CreateLink() {
 
       if (response.ok) {
         setError(null);
-        navigate(`/dashboard/${data.sufix ? data.sufix : data.shortUrl}`);
+        if (isLoggedIn) {
+          navigate(`/dashboard/${data.sufix ? data.sufix : data.shortUrl}`);
+        } else {
+          navigate(`/links`);
+        }
       } else {
         setError(data.error || "Error al crear el enlace");
       }

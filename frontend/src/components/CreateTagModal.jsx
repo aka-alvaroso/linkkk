@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { Folder, X } from "lucide-react";
 
-export default function CreateTagModal({ onClose, userId }) {
+export default function CreateTagModal({ onClose }) {
   const navigate = useNavigate();
   const [error, setError] = useState(null);
 
@@ -23,8 +23,8 @@ export default function CreateTagModal({ onClose, userId }) {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
-            userId: userId,
             tagName: title,
             color: color,
           }),

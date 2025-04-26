@@ -3,14 +3,93 @@ const jwt = require("jsonwebtoken");
 const bcryptjs = require("bcryptjs");
 const prisma = require("../prisma/client");
 const router = express.Router();
+const authenticate = require("../middlewares/authenticate");
+const userAuthenticate = require("../middlewares/userAuthenticate");
+const guestAuthenticate = require("../middlewares/guestAuthenticate");
 
-const SECRET_KEY = process.env.SECRET_KEY;
+const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
+const GUEST_SECRET_KEY = process.env.GUEST_SECRET_KEY;
+
+router.post("/guest", async (req, res) => {
+  try {
+    const guestSession = await prisma.guestSession.create({
+      data: {
+        createdAt: new Date(),
+      },
+    });
+
+    const guestToken = jwt.sign(
+      {
+        guestSessionId: guestSession.id,
+      },
+      GUEST_SECRET_KEY,
+      {
+        expiresIn: "1w",
+      }
+    );
+
+    res.cookie("guestToken", guestToken, {
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+    });
+
+    return res.status(201).json({ message: "OK" });
+  } catch (error) {
+    return res.status(500).json({ error: "Error creating guest session" });
+  }
+});
+
+router.get("/guest", async (req, res) => {
+  const guestToken = req.cookies.guestToken;
+
+  if (!guestToken) {
+    return res.status(200).json({ isGuest: false });
+  }
+
+  try {
+    const decoded = jwt.verify(guestToken, GUEST_SECRET_KEY);
+    return res.status(200).json({ isGuest: true, guest: decoded });
+  } catch (error) {
+    return res.status(200).json({ isGuest: false });
+  }
+});
+
+router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
+  const guestId = Number(req.guest?.id);
+
+  if (!guestId) {
+    return res.status(400).json({ error: "Invalid guest ID" });
+  }
+
+  try {
+    const guest = await prisma.guestSession.findUnique({
+      where: { id: guestId },
+    });
+
+    if (!guest) {
+      return res.status(404).json({ error: "Guest session not found" });
+    }
+
+    await prisma.guestSession.delete({
+      where: { id: guestId },
+    });
+
+    res.clearCookie("guestToken");
+    res.status(200).json({ message: "Guest session deleted successfully" });
+  } catch (error) {
+    res.status(500).json({
+      error: "Failed to delete guest session",
+    });
+  }
+});
 
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ error: "Faltan campos obligatorios" });
+    return res.status(400).json({ error: "Missing mandatory fields" });
   }
 
   const existingUser = await prisma.user.findFirst({
@@ -42,6 +121,30 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   const { username, password } = req.body;
+  const guestToken = req.cookies.guestToken;
+  const guestId = jwt.decode(guestToken)?.guestSessionId;
+
+  if (guestToken) {
+    try {
+      const guest = await prisma.guestSession.findUnique({
+        where: { id: guestId },
+      });
+
+      if (!guest) {
+        return res.status(404).json({ error: "Guest session not found" });
+      }
+
+      await prisma.guestSession.delete({
+        where: { id: guestId },
+      });
+
+      res.clearCookie("guestToken");
+    } catch (error) {
+      return res.status(500).json({
+        error: "Failed to delete guest session",
+      });
+    }
+  }
 
   try {
     const user = await prisma.user.findUnique({
@@ -51,27 +154,54 @@ router.post("/login", async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
+      return res.status(401).json({ error: "Incorrect credentials" });
     }
 
     const isPasswordCorrect = await bcryptjs.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
+      return res.status(401).json({ error: "Incorrect credentials" });
     }
 
     const token = jwt.sign(
       { id: user.id, username: user.username, planId: user.planId },
-      SECRET_KEY,
+      AUTH_SECRET_KEY,
       {
-        expiresIn: "1h",
+        expiresIn: "1w",
       }
     );
 
-    res.json({ token, user });
+    res.cookie("token", token, {
+      maxAge: 60 * 60 * 24 * 7,
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+    });
+
+    res.status(200).json({ message: "OK" });
   } catch (error) {
-    res.status(500).json({ error: "Error al autenticar" });
+    res.status(500).json({ error: "Error authenticating" });
   }
+});
+
+router.get("/status", async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(200).json({ isAuthenticated: false });
+  }
+
+  try {
+    const decoded = jwt.verify(token, AUTH_SECRET_KEY);
+    return res.status(200).json({ isAuthenticated: true, user: decoded });
+  } catch (error) {
+    return res.status(200).json({ isAuthenticated: false });
+  }
+});
+
+router.get("/logout", authenticate, userAuthenticate, async (req, res) => {
+  res.clearCookie("token");
+  res.status(200).json({ message: "OK" });
 });
 
 module.exports = router;
