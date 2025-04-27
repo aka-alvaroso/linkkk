@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import Test from "./pages/Test.jsx";
+import { useAuth } from "./context/Auth.jsx";
+
 import Redirect from "./components/Redirect.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
@@ -13,7 +14,9 @@ import CreateLink from "./pages/CreateLink.jsx";
 import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
 import { useState, useEffect } from "react";
+
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import GuestOrUserRoute from "./components/GuestOrUserRoute.jsx";
 
 // Componente responsivo que elige el layout adecuado
 function ResponsiveLayout({ children }) {
@@ -36,20 +39,47 @@ function ResponsiveLayout({ children }) {
 }
 
 function App() {
+  const { authChecked } = useAuth();
+
+  if (!authChecked) {
+    return <div>Cargando aplicación...</div>; // Protegemos la app entera si quieres
+  }
+
   return (
     <Routes>
-      {/* Rutas públicas sin layout */}
+      {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/r/:shortCode" element={<Redirect />} />
 
-      {/* Rutas con layout responsivo */}
+      {/* Rutas que requieren mínimo sesión de invitado */}
       <Route element={<ResponsiveLayout />}>
-        <Route path="/links" element={<MyLinks />} />
+        <Route
+          path="/links"
+          element={
+            <GuestOrUserRoute>
+              <MyLinks />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/"
+          element={
+            <GuestOrUserRoute>
+              <Home />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/links/create"
+          element={
+            <GuestOrUserRoute>
+              <CreateLink />
+            </GuestOrUserRoute>
+          }
+        />
 
-        <Route path="/" element={<Home />} />
-        <Route path="/links/create" element={<CreateLink />} />
-
+        {/* Rutas que requieren ser usuario logueado */}
         <Route
           path="/dashboard/:shortCode"
           element={
@@ -76,9 +106,8 @@ function App() {
         />
       </Route>
 
+      {/* Rutas públicas */}
       <Route path="/:shortCode" element={<Redirect />} />
-      {/* Ruta 404 */}
-      <Route path="notfound" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

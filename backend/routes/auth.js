@@ -87,6 +87,8 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
 
 router.post("/register", async (req, res) => {
   const { username, email, password } = req.body;
+  const guestToken = req.cookies.guestToken;
+  const guestId = jwt.decode(guestToken)?.guestSessionId;
 
   if (!username || !email || !password) {
     return res.status(400).json({ error: "Missing mandatory fields" });
@@ -112,6 +114,39 @@ router.post("/register", async (req, res) => {
         planId: 1,
       },
     });
+
+    if (guestId) {
+      try {
+        const guestLinks = await prisma.link.findMany({
+          where: {
+            guest_sessionId: guestId,
+          },
+        });
+
+        if (guestLinks.length > 0) {
+          guestLinks.forEach(async (link) => {
+            await prisma.link.update({
+              where: {
+                id: link.id,
+              },
+              data: {
+                userId: user.id,
+              },
+            });
+          });
+        }
+
+        await prisma.guestSession.delete({
+          where: {
+            id: guestId,
+          },
+        });
+
+        res.clearCookie("guestToken");
+      } catch (error) {
+        console.error(error);
+      }
+    }
 
     res.status(201).json({ message: "Usuario registrado con éxito", user });
   } catch (error) {

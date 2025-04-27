@@ -347,6 +347,9 @@ const updateLink = async (req, res) => {
 };
 
 const deleteLink = async (req, res) => {
+  const userId = req.user?.id;
+  const guestId = req.guest?.guestSessionId;
+
   try {
     const { id } = req.body;
 
@@ -357,6 +360,8 @@ const deleteLink = async (req, res) => {
     const link = await prisma.link.delete({
       where: {
         id: Number(id),
+        userId: userId ? Number(userId) : null,
+        guest_sessionId: guestId ? Number(guestId) : null,
       },
     });
 

@@ -84,6 +84,7 @@ export default function Navbar() {
             className="ml-auto relative h-[50px] rounded-xl py-1 px-4 flex items-center gap-2 transition bg-coral text-white border-2 border-coral border-dashed hover:cursor-pointer hover:bg-transparent hover:text-coral"
             onClick={() => {
               logout();
+              navigate("/");
             }}
           >
             Cerrar sesión

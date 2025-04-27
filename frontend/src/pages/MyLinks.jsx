@@ -28,6 +28,8 @@ export default function MyLinks() {
     isGuestSession,
     loading: authLoading,
     createGuestSession,
+    checkLoginStatus,
+    checkGuestSession,
   } = useAuth();
   const [searchParams] = useSearchParams();
   const groupId = searchParams.get("groupId");
@@ -95,14 +97,9 @@ export default function MyLinks() {
 
   useEffect(() => {
     if (authLoading) return;
-
     if (isLoggedIn === null || isGuestSession === null) return;
 
-    if (!isLoggedIn && !isGuestSession) {
-      createGuestSession().then(fetchLinks);
-    } else {
-      fetchLinks();
-    }
+    fetchLinks();
   }, [fetchLinks, isLoggedIn, isGuestSession, authLoading]);
 
   const handleCloseModal = () => {

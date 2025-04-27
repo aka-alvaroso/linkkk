@@ -5,7 +5,7 @@ import { useAuth } from "../context/Auth";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { checkLoginStatus } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -27,6 +27,7 @@ export default function Register() {
           email: email,
           password: password,
         }),
+        credentials: "include",
       }
     );
 
@@ -40,10 +41,10 @@ export default function Register() {
           username: username,
           password: password,
         }),
+        credentials: "include",
       });
       if (session.ok) {
-        const data = await session.json();
-        login(data.token);
+        checkLoginStatus();
         navigate("/");
       } else {
         const data = await session.json();

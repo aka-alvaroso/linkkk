@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { jwtDecode } from "jwt-decode";
 import { useAuth } from "../context/Auth";
+import Loading from "../components/Loading";
 
 import {
   Check,
@@ -17,7 +17,7 @@ import {
 
 export default function EditLinkModal({ onClose, link }) {
   const navigate = useNavigate();
-  const { token } = useAuth();
+  const { authLoading, isLoggedIn, isGuestSession } = useAuth();
   const [error, setError] = useState(null);
   const [tags, setTags] = useState([]);
   const [tagsSelected, setTagsSelected] = useState([]);
@@ -27,6 +27,7 @@ export default function EditLinkModal({ onClose, link }) {
   const [countries, setCountries] = useState([]);
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [countriesMenuOpen, setCountriesMenuOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -50,8 +51,8 @@ export default function EditLinkModal({ onClose, link }) {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("jwt")}`,
           },
+          credentials: "include",
           body: JSON.stringify({
             longUrl: longUrl,
             status: status,
@@ -82,40 +83,30 @@ export default function EditLinkModal({ onClose, link }) {
   };
 
   // fetchTags();
-  useEffect(() => {
-    const fetchTags = async () => {
-      const userId = jwtDecode(token).id;
+  const fetchTags = async () => {
+    setLoading(true);
 
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}tag/user/` + userId,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user/`, {
+        credentials: "include",
+      });
 
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
-        }
-
-        const data = await response.json();
-        setTags(data);
-
-        // Inicializar tags seleccionados
-        const initialSelectedTags = data.filter((tag) =>
-          link.tags.some((linkTag) => linkTag.id === tag.id)
-        );
-        setTagsSelected(initialSelectedTags);
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        return;
       }
-    };
 
-    fetchTags();
-  }, [navigate, token, link.tags]);
+      const data = await response.json();
+      setTags(data);
+
+      // Inicializar tags seleccionados
+      const initialSelectedTags = data.filter((tag) =>
+        link.tags.some((linkTag) => linkTag.id === tag.id)
+      );
+      setTagsSelected(initialSelectedTags);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleTagClick = (tag) => {
     if (tagsSelected.find((selectedTag) => selectedTag.id === tag.id)) {
@@ -128,76 +119,73 @@ export default function EditLinkModal({ onClose, link }) {
   };
 
   // fetchGroups();
-  useEffect(() => {
-    const fetchGroups = async () => {
-      const userId = jwtDecode(token).id;
+  const fetchGroups = async () => {
+    setLoading(true);
 
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}group/user/` + userId,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}group/user/`,
+        {
+          credentials: "include",
         }
+      );
 
-        const data = await response.json();
-        setGroups(data);
-
-        if (data.length > 0 && link.group) {
-          setGroupSelected(link.group.id.toString());
-        }
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        return;
       }
-    };
 
-    fetchGroups();
-  }, [navigate, token]);
+      const data = await response.json();
+      setGroups(data);
+
+      if (data.length > 0 && link.group) {
+        setGroupSelected(link.group.id.toString());
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // fetchCountries();
-  useEffect(() => {
-    const fetchCountries = async () => {
-      // const userId = jwtDecode(token).id;
+  const fetchCountries = async () => {
+    setLoading(true);
 
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}countries/get`,
-          {
-            headers: {
-              authorization: "Bearer " + localStorage.getItem("jwt"),
-            },
-          }
-        );
-
-        if (response.status !== 200) {
-          console.error(response.json());
-          return;
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}countries/get`,
+        {
+          credentials: "include",
         }
+      );
 
-        const data = await response.json();
-        setCountries(data);
-
-        // Inicializar tags seleccionados
-        const initialSelectedCountries = data.filter((country) =>
-          link.blockedCountries.some(
-            (linkCountry) => linkCountry.id === country.id
-          )
-        );
-        setSelectedCountries(initialSelectedCountries);
-      } catch (error) {
-        console.error(error);
+      if (response.status !== 200) {
+        return;
       }
-    };
+
+      const data = await response.json();
+      setCountries(data);
+
+      // Inicializar tags seleccionados
+      const initialSelectedCountries = data.filter((country) =>
+        link.blockedCountries.some(
+          (linkCountry) => linkCountry.id === country.id
+        )
+      );
+      setSelectedCountries(initialSelectedCountries);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (isLoggedIn === null || isGuestSession === null) return;
 
     fetchCountries();
-  }, [navigate, token, link.blockedCountries]);
+    fetchGroups();
+    fetchTags();
+    setLoading(false);
+  }, [authLoading, isLoggedIn, isGuestSession]);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -238,6 +226,11 @@ export default function EditLinkModal({ onClose, link }) {
         onClose();
       }}
     >
+      {loading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50">
+          <Loading />
+        </div>
+      )}
       <div
         className="editLinkModal relative w-11/12 max-h-8/12 overflow-auto bg-lavender text-navy shadow-[10px_10px_0px_0px_rgba(7,0,77)] rounded-4xl p-6 md:p-8 lg:w-3xl"
         onClick={(e) => e.stopPropagation()}

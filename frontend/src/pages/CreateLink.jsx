@@ -27,14 +27,7 @@ export default function CreateLink() {
   const [activeTab, setActiveTab] = useState("basic");
   const [tags, setTags] = useState([]);
   const [loading, setLoading] = useState(true);
-  const {
-    authLoading,
-    isLoggedIn,
-    isGuestSession,
-    checkLoginStatus,
-    checkGuestSession,
-    createGuestSession,
-  } = useAuth();
+  const { authLoading, isLoggedIn, isGuestSession } = useAuth();
   const [tagsSelected, setTagsSelected] = useState([]);
   const [groups, setGroups] = useState([]);
   const [groupSelected, setGroupSelected] = useState(0);
@@ -48,22 +41,14 @@ export default function CreateLink() {
 
     if (isLoggedIn === null || isGuestSession === null) return;
 
-    const init = async () => {
-      if (!isGuestSession && !isLoggedIn) {
-        await createGuestSession();
-        fetchCountries();
-        return;
-      }
+    if (!isGuestSession) {
+      fetchGroups();
+      fetchTags();
+    }
 
-      if (isLoggedIn && !isGuestSession) {
-        fetchGroups();
-        fetchTags();
-      }
-      fetchCountries();
-    };
-
-    init();
-  }, [authLoading, isLoggedIn, isGuestSession, createGuestSession]);
+    fetchCountries();
+    setLoading(false);
+  }, [authLoading, isLoggedIn, isGuestSession]);
 
   // fetchTags();
   const fetchTags = async () => {
@@ -80,7 +65,6 @@ export default function CreateLink() {
 
       const data = await response.json();
       setTags(data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -104,7 +88,6 @@ export default function CreateLink() {
 
       const data = await response.json();
       setGroups(data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
     }
@@ -128,7 +111,6 @@ export default function CreateLink() {
 
       const data = await response.json();
       setCountries(data);
-      setLoading(false);
     } catch (error) {
       console.error(error);
     }

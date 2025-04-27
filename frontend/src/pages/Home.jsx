@@ -25,8 +25,7 @@ import { useAuth } from "../context/Auth";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { isLoggedIn, isGuestSession, authLoading, createGuestSession } =
-    useAuth();
+  const { isLoggedIn } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -80,11 +79,6 @@ export default function Home() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!authLoading && !isGuestSession && !isLoggedIn) {
-      alert("Creando sesión de invitado desde home");
-      await createGuestSession();
-    }
 
     const url = document.getElementById("main-input").value;
 
