@@ -169,6 +169,7 @@ const getLinksByUserId = async (req, res) => {
       include: {
         group: true,
         tags: true,
+        blockedCountries: true,
       },
       orderBy: {
         createdAt: "desc",

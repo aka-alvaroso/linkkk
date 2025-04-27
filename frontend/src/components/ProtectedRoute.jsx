@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../context/Auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import Loading from "../components/Loading";
 
 function ProtectedRoute({ children }) {
-  const { isLoggedIn, authChecked, checkLoginStatus } = useAuth();
+  const { authChecked, checkLoginStatus } = useAuth();
   const navigate = useNavigate();
   const [revalidating, setRevalidating] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     if (!authChecked) return; // Todavía no hemos cargado el auth del todo.
@@ -21,10 +23,14 @@ function ProtectedRoute({ children }) {
     };
 
     validateSession();
-  }, [authChecked, checkLoginStatus, navigate]);
+  }, [authChecked, checkLoginStatus, navigate, location.pathname]);
 
   if (!authChecked || revalidating) {
-    return <div>Cargando sesión...</div>; // Spinner bonito
+    return (
+      <div className="w-full h-[80vh] flex items-center justify-center">
+        <Loading />
+      </div>
+    ); // Spinner bonito
   }
 
   return children;

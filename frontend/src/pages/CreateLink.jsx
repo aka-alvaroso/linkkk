@@ -41,7 +41,7 @@ export default function CreateLink() {
 
     if (isLoggedIn === null || isGuestSession === null) return;
 
-    if (!isGuestSession) {
+    if (!isGuestSession && isLoggedIn) {
       fetchGroups();
       fetchTags();
     }

@@ -23,14 +23,7 @@ import {
 
 export default function MyLinks() {
   const navigate = useNavigate();
-  const {
-    isLoggedIn,
-    isGuestSession,
-    loading: authLoading,
-    createGuestSession,
-    checkLoginStatus,
-    checkGuestSession,
-  } = useAuth();
+  const { isLoggedIn, isGuestSession, loading: authLoading } = useAuth();
   const [searchParams] = useSearchParams();
   const groupId = searchParams.get("groupId");
   const tagId = searchParams.get("tagId");
