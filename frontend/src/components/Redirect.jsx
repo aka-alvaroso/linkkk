@@ -31,6 +31,7 @@ export default function Redirect() {
 
         if (!response.ok) {
           navigate("/notfound");
+          console.log(response.json());
           return;
         }
 
@@ -138,6 +139,7 @@ export default function Redirect() {
     const password = e.target[0].value;
     if (link.password === password) {
       setPasswordError(null);
+      console.log(link);
 
       if (link.accessLimit && link.accessLimit <= link.accesses.length) {
         setError("accessLimit");

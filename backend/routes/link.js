@@ -2,6 +2,13 @@ const express = require("express");
 const authenticate = require("../middlewares/authenticate");
 const userAuthenticate = require("../middlewares/userAuthenticate");
 const router = express.Router();
+const validate = require("../middlewares/validate");
+const {
+  createLinkSchema,
+  shortCodeParamSchema,
+  updateLinkSchema,
+  deleteLinkSchema,
+} = require("../validations/link");
 
 const {
   createLink,
@@ -12,11 +19,29 @@ const {
   deleteLink,
 } = require("../controllers/link");
 
-router.post("/create", authenticate, createLink);
+router.post("/create", authenticate, validate(createLinkSchema), createLink);
 router.get("/user", authenticate, getLinksByUserId);
-router.get("/:shortCode", authenticate, userAuthenticate, getLinkDetails);
-router.get("/stats/:shortCode", authenticate, userAuthenticate, getLinkStats);
-router.put("/:id", authenticate, userAuthenticate, updateLink);
-router.delete("/:id", authenticate, deleteLink);
+router.get(
+  "/:shortCode",
+  authenticate,
+  userAuthenticate,
+  validate(shortCodeParamSchema),
+  getLinkDetails
+);
+router.get(
+  "/stats/:shortCode",
+  authenticate,
+  userAuthenticate,
+  validate(shortCodeParamSchema),
+  getLinkStats
+);
+router.put(
+  "/:id",
+  authenticate,
+  userAuthenticate,
+  validate(updateLinkSchema),
+  updateLink
+);
+router.delete("/delete", authenticate, validate(deleteLinkSchema), deleteLink);
 
 module.exports = router;

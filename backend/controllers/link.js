@@ -110,12 +110,12 @@ const getLinkRedirect = async (req, res) => {
 
     let link = await prisma.link.findUnique({
       where: { sufix: shortCode },
-      include: { blockedCountries: true },
+      include: { blockedCountries: true, accesses: true },
     });
     if (!link)
       link = await prisma.link.findUnique({
         where: { shortUrl: shortCode },
-        include: { blockedCountries: true },
+        include: { blockedCountries: true, accesses: true },
       });
 
     if (!link) {

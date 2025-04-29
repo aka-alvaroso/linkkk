@@ -157,8 +157,11 @@ export default function CreateLink() {
     const sufix = document.getElementById("sufix-input")?.value || "";
     const tags = tagsSelected.map((tag) => tag.id);
     const password = document.getElementById("password-input")?.value || "";
-    const accessLimit = document.getElementById("limit-input")?.value || "";
-    const blockedCountries = selectedCountries.map((country) => country.id);
+    const accessLimit =
+      parseInt(document.getElementById("limit-input")?.value) || 0;
+    const blockedCountries = selectedCountries.map((country) =>
+      country.id.toString()
+    );
     const mobileUrl = document.getElementById("mobile-url")?.value || "";
     const desktopUrl = document.getElementById("desktop-url")?.value || "";
     const expirationDate = document.getElementById("date-input")?.value || "";
@@ -189,7 +192,7 @@ export default function CreateLink() {
           },
           body: JSON.stringify({
             url: url,
-            groupId: groupSelected,
+            groupId: parseInt(groupSelected),
             tags: tags,
             sufix: sufix,
             password: password,
@@ -219,7 +222,10 @@ export default function CreateLink() {
             "Se ha perdido la sesión - Si no tienes cuenta, reinicia la página, si tienes una cuenta, inicia sesión de nuevo."
           );
         } else {
-          setError(data.error || "Error al crear el enlace");
+          setError(
+            data.error + " - " + JSON.stringify(data.details) ||
+              "Error al crear el enlace"
+          );
         }
       }
     } catch (err) {

@@ -9,6 +9,8 @@ const accessRoutes = require("./routes/access");
 const groupRoutes = require("./routes/group");
 const tagRoutes = require("./routes/tag");
 const cookieParser = require("cookie-parser");
+const validate = require("./middlewares/validate");
+const { shortCodeParamSchema } = require("./validations/link");
 
 const prisma = require("./prisma/client");
 
@@ -33,7 +35,11 @@ app.get("/", (req, res) => {
 
 // Rutas de la API
 
-app.get("/r/:shortCode", linkController.getLinkRedirect);
+app.get(
+  "/r/:shortCode",
+  validate(shortCodeParamSchema),
+  linkController.getLinkRedirect
+);
 app.use("/link", linkRoutes);
 app.use("/access", accessRoutes);
 app.use("/auth", authRoutes);

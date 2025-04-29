@@ -16,9 +16,7 @@ export default function DeleteGroupModal({ onClose, link }) {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({
-            id: link.id,
-          }),
+          body: JSON.stringify({ id: Number(link.id) }),
         }
       );
 
@@ -28,7 +26,8 @@ export default function DeleteGroupModal({ onClose, link }) {
         onClose();
         navigate(`/links`);
       } else {
-        console.error(data.error || "Failed to delete link");
+        console.error(data.error + " - " + JSON.stringify(data.details)) ||
+          "Failed to delete link";
       }
     } catch (err) {
       console.error("Network error or server not responding");

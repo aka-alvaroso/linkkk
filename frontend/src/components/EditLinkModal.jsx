@@ -33,13 +33,16 @@ export default function EditLinkModal({ onClose, link }) {
     const longUrl = document.getElementById("longUrl").value;
     const status = document.getElementById("status").checked ? true : false;
     const tags = tagsSelected.map((tag) => tag.id);
-    const expirationDate = document.getElementById("expirationDate").value;
-    const password = document.getElementById("password").value;
-    const accessLimit = document.getElementById("limit").value;
+    const expirationDate =
+      document.getElementById("expirationDate")?.value || "";
+    const password = document.getElementById("password")?.value || "";
+    const accessLimit = parseInt(document.getElementById("limit")?.value) || 0;
     const blockedCountries = selectedCountries.map((country) => country.id);
-    const mobileUrl = document.getElementById("mobileUrl").value;
-    const desktopUrl = document.getElementById("desktopUrl").value;
-    const sufix = document.getElementById("customSuffix").value;
+    document.getElementById("desktopUrl")?.value || undefined;
+    const mobileUrl = document.getElementById("mobileUrl")?.value || undefined;
+    const desktopUrl =
+      document.getElementById("desktopUrl")?.value || undefined;
+    const sufix = document.getElementById("customSuffix")?.value || "";
 
     // Enviar datos al servidor
     try {
@@ -72,7 +75,10 @@ export default function EditLinkModal({ onClose, link }) {
       if (response.ok) {
         onClose();
       } else {
-        setError(data.error || "Failed to create group");
+        setError(
+          data.error + " - " + JSON.stringify(data.details) ||
+            "Failed to create group"
+        );
       }
     } catch (err) {
       setError("Network error or server not responding");

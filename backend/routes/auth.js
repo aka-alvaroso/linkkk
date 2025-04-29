@@ -6,6 +6,8 @@ const router = express.Router();
 const authenticate = require("../middlewares/authenticate");
 const userAuthenticate = require("../middlewares/userAuthenticate");
 const guestAuthenticate = require("../middlewares/guestAuthenticate");
+const validate = require("../middlewares/validate");
+const { registerSchema, loginSchema } = require("../validations/auth");
 
 const AUTH_SECRET_KEY = process.env.AUTH_SECRET_KEY;
 const GUEST_SECRET_KEY = process.env.GUEST_SECRET_KEY;
@@ -29,9 +31,9 @@ router.post("/guest", async (req, res) => {
     );
 
     res.cookie("guestToken", guestToken, {
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "lax",
     });
 
@@ -85,7 +87,7 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
   }
 });
 
-router.post("/register", async (req, res) => {
+router.post("/register", validate(registerSchema), async (req, res) => {
   const { username, email, password } = req.body;
   const guestToken = req.cookies.guestToken;
   const guestId = jwt.decode(guestToken)?.guestSessionId;
@@ -154,7 +156,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
+router.post("/login", validate(loginSchema), async (req, res) => {
   const { username, password } = req.body;
   const guestToken = req.cookies.guestToken;
   const guestId = jwt.decode(guestToken)?.guestSessionId;
@@ -207,9 +209,9 @@ router.post("/login", async (req, res) => {
     );
 
     res.cookie("token", token, {
-      maxAge: 60 * 60 * 24 * 7,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
       httpOnly: true,
-      secure: true,
+      secure: false,
       sameSite: "lax",
     });
 
