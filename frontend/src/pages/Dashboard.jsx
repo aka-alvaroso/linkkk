@@ -83,17 +83,17 @@ export default function Dashboard() {
           body: JSON.stringify({
             longUrl: link.longUrl,
             status: !link.status,
-            groupId: link.group ? link.group.id : "0",
+            groupId: link.group ? link.group.id.toString() : "0",
             tags: link.tags.map((tag) => tag.id),
-            d_expire: link.d_expire,
-            password: link.password,
-            accessLimit: link.accessLimit,
+            d_expire: link.d_expire ? new Date(link.d_expire) : undefined,
+            password: link.password ? link.password : undefined,
+            accessLimit: link.accessLimit ? link.accessLimit : undefined,
             blockedCountries: link.blockedCountries.map(
               (country) => country.id
             ),
-            mobileUrl: link.mobileUrl,
-            desktopUrl: link.desktopUrl,
-            sufix: link.sufix,
+            mobileUrl: link.mobileUrl ? link.mobileUrl : undefined,
+            desktopUrl: link.desktopUrl ? link.desktopUrl : undefined,
+            sufix: link.sufix ? link.sufix : undefined,
           }),
         }
       );

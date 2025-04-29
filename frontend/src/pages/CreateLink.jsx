@@ -11,6 +11,7 @@ import {
   Minus,
   Monitor,
   Plus,
+  PlusIcon,
   TabletSmartphone,
   Tag,
   Twitter,
@@ -21,6 +22,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import Loading from "../components/Loading";
+import CreateGroupModal from "../components/CreateGroupModal";
+import CreateTagModal from "../components/CreateTagModal";
 
 export default function CreateLink() {
   const navigate = useNavigate();
@@ -35,6 +38,8 @@ export default function CreateLink() {
   const [countries, setCountries] = useState([]);
   const [selectedCountries, setSelectedCountries] = useState([]);
   const [countriesMenuOpen, setCountriesMenuOpen] = useState(false);
+  const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+  const [isCreateTagModalOpen, setIsCreateTagModalOpen] = useState(false);
 
   useEffect(() => {
     if (authLoading) return;
@@ -248,7 +253,28 @@ export default function CreateLink() {
 
   return (
     <div className="relative w-full lg:w-4/6 mx-auto py-6 pb-24 min-h-full mt-12 flex flex-col items-center justify-center bg-primary text-white">
-      <h1 className="text-4xl font-bold text-yellow font-brice">
+      {isCreateGroupModalOpen && (
+        <CreateGroupModal
+          onClose={() => {
+            setIsCreateGroupModalOpen(false);
+            navigate("/links/create");
+            fetchGroups();
+            setLoading(false);
+          }}
+        />
+      )}
+      {isCreateTagModalOpen && (
+        <CreateTagModal
+          onClose={() => {
+            setIsCreateTagModalOpen(false);
+            navigate("/links/create");
+            fetchTags();
+            setLoading(false);
+          }}
+        />
+      )}
+
+      <h1 className="text-6xl font-bold text-yellow font-brice">
         Crear enlace
       </h1>
 
@@ -386,6 +412,14 @@ export default function CreateLink() {
                     ))}
                   </select>
                 </div>
+                <button
+                  type="button"
+                  className="mt-2 bg-lavender text-navy flex items-center gap-2 p-2 rounded-xl border-2 border-lavender hover:bg-transparent hover:border-navy hover:cursor-pointer transition"
+                  onClick={() => setIsCreateGroupModalOpen(true)}
+                >
+                  <PlusIcon />
+                  Nuevo grupo
+                </button>
 
                 {/* Etiquetas */}
                 <div className="flex flex-col gap-2 mt-4">
@@ -416,6 +450,14 @@ export default function CreateLink() {
                       );
                     })}
                   </div>
+                  <button
+                    type="button"
+                    className="w-46 bg-lavender text-navy flex items-center gap-2 p-2 rounded-xl border-2 border-lavender hover:bg-transparent hover:border-navy hover:cursor-pointer transition"
+                    onClick={() => setIsCreateTagModalOpen(true)}
+                  >
+                    <PlusIcon />
+                    Nueva etiqueta
+                  </button>
                 </div>
               </div>
             </div>

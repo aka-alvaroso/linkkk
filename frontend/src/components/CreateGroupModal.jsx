@@ -1,10 +1,8 @@
-import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import { Folder, X } from "lucide-react";
 
 export default function CreateGroupModal({ onClose }) {
-  const navigate = useNavigate();
   const [error, setError] = useState(null);
 
   const handleSubmit = async (e) => {
@@ -147,7 +145,6 @@ export default function CreateGroupModal({ onClose }) {
               <button
                 type="submit"
                 className="w-1/2 h-10 p-2 rounded-4xl bg-neutral-800 text-white hover:bg-neutral-900 hover:cursor-pointer"
-                onClick={() => navigate("/groups")}
               >
                 Crear
               </button>
