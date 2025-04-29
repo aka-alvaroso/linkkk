@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/Auth";
 import Loading from "../components/Loading";
@@ -16,7 +15,6 @@ import {
 } from "lucide-react";
 
 export default function EditLinkModal({ onClose, link }) {
-  const navigate = useNavigate();
   const { authLoading, isLoggedIn, isGuestSession } = useAuth();
   const [error, setError] = useState(null);
   const [tags, setTags] = useState([]);

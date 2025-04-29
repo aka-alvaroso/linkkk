@@ -108,6 +108,7 @@ function App() {
 
       {/* Rutas públicas */}
       <Route path="/:shortCode" element={<Redirect />} />
+      <Route path="/notfound" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

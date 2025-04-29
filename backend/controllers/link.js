@@ -49,6 +49,16 @@ const createLink = async (req, res) => {
       .map(() => chars.charAt(Math.floor(Math.random() * chars.length)))
       .join("");
 
+    if (sufix) {
+      const linkExists = await prisma.link.findUnique({
+        where: { sufix: sufix },
+      });
+
+      if (linkExists) {
+        return res.status(400).json({ error: "Sufix already exists" });
+      }
+    }
+
     const isGuest = !!req.guest;
 
     const link = await prisma.link.create({
@@ -312,7 +322,7 @@ const updateLink = async (req, res) => {
       data: {
         longUrl,
         status,
-        groupId: groupId === "0" ? null : Number(groupId), // Interpret "0" as no group
+        groupId: groupId === "0" ? null : Number(groupId),
         tags: {
           set: [],
           connect: tags && tags.map((tagId) => ({ id: Number(tagId) })),
@@ -332,7 +342,7 @@ const updateLink = async (req, res) => {
         },
         mobileUrl: mobileUrl ? mobileUrl : null,
         desktopUrl: desktopUrl ? desktopUrl : null,
-        sufix,
+        sufix: sufix ? sufix : null,
       },
       include: {
         group: true,

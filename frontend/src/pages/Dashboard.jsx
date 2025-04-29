@@ -14,6 +14,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import Loading from "../components/Loading";
 import EditLinkModal from "../components/EditLinkModal";
+import DeleteLinkModal from "../components/DeleteLinkModal";
 import {
   useReactTable,
   getCoreRowModel,
@@ -61,6 +62,7 @@ export default function Dashboard() {
   const [link, setLink] = useState({});
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -81,7 +83,7 @@ export default function Dashboard() {
           body: JSON.stringify({
             longUrl: link.longUrl,
             status: !link.status,
-            groupId: link.group ? link.group.id : null,
+            groupId: link.group ? link.group.id : "0",
             tags: link.tags.map((tag) => tag.id),
             d_expire: link.d_expire,
             password: link.password,
@@ -222,6 +224,15 @@ export default function Dashboard() {
               link={link}
             />
           )}
+          {isDeleteModalOpen && (
+            <DeleteLinkModal
+              onClose={() => {
+                setIsDeleteModalOpen(false);
+              }}
+              link={link}
+            />
+          )}
+
           <div className="w-full lg:w-4/6 mx-auto">
             <h1 className="text-4xl font-bold my-4 text-yellow font-brice">
               Detalles del enlace
@@ -291,7 +302,12 @@ export default function Dashboard() {
                   >
                     <Edit size={30} />
                   </button>
-                  <button className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral">
+                  <button
+                    className="py-4 bg-coral text-white font-bold rounded-xl border-2 border-coral flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-coral"
+                    onClick={() => {
+                      setIsDeleteModalOpen(true);
+                    }}
+                  >
                     <Trash size={30} />
                   </button>
                 </div>

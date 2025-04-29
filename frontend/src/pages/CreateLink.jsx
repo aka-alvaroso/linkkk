@@ -214,7 +214,13 @@ export default function CreateLink() {
           navigate(`/links`);
         }
       } else {
-        setError(data.error || "Error al crear el enlace");
+        if (data.error === "No token provided") {
+          setError(
+            "Se ha perdido la sesión - Si no tienes cuenta, reinicia la página, si tienes una cuenta, inicia sesión de nuevo."
+          );
+        } else {
+          setError(data.error || "Error al crear el enlace");
+        }
       }
     } catch (err) {
       setError(

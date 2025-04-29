@@ -1,6 +1,8 @@
 import { FileWarning, Folder, TriangleAlert, X } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export default function DeleteGroupModal({ onClose, link }) {
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -24,6 +26,7 @@ export default function DeleteGroupModal({ onClose, link }) {
 
       if (response.ok) {
         onClose();
+        navigate(`/links`);
       } else {
         console.error(data.error || "Failed to delete link");
       }

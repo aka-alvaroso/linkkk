@@ -101,7 +101,7 @@ model Access {
   is_vpn     String
   country    String
   method     Method
-  link       Link @relation(fields: [linkId], references: [id])
+  link       Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
 }
 
 model Tag {
