@@ -127,12 +127,12 @@ export default function Home() {
             <img
               src="/images/clip_throwing_plane.png"
               alt="Clip character"
-              className="hidden xl:block absolute top-40 left-10 transition"
+              className="hidden xl:block absolute -bottom-20 left-10 transition"
             />
             <img
               src="/images/clipboard.png"
-              alt="Clipboard character"
-              className="hidden opacity-0 xl:block xl:opacity-100 absolute top-30 right-20 transition"
+              alt="Linky character pointing to input"
+              className="hidden opacity-0 xl:block xl:opacity-100 absolute -bottom-15 right-20 transition"
             />
             <h1 className="text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
               <p className="title inline-block font-brice transition-transform duration-200 hover:-translate-y-1/3">

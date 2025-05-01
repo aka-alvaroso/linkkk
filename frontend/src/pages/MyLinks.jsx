@@ -3,22 +3,27 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import EditLinkModal from "../components/EditLinkModal";
 import DeleteLinkModal from "../components/DeleteLinkModal";
 import { useAuth } from "../context/Auth";
+import GroupSelector from "../components/Group/GroupSelector";
+import TagSelector from "../components/Tag/TagSelector";
 
 import Loading from "../components/Loading";
 import {
   Calendar,
+  Check,
   ChevronDown,
   Copy,
   CornerDownRight,
   Edit,
   Folder,
   Link2Off,
+  Minus,
   Plus,
   QrCode,
   RotateCw,
   Search,
   Share,
   Trash,
+  X,
 } from "lucide-react";
 
 export default function MyLinks() {
@@ -33,25 +38,44 @@ export default function MyLinks() {
   const [selectedLink, setSelectedLink] = useState(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [allGroups, setAllGroups] = useState([]);
+  const [allTags, setAllTags] = useState([]);
 
-  // const [activeFilters, setActiveFilters] = useState({ tags: [], group: "all" });
+  const [filters, setFilters] = useState({
+    shortUrl: "",
+    status: "",
+    tags: [],
+    group: null,
+  });
 
-  const handleSearch = (e) => {
+  useEffect(() => {
     setFilteredLinks(
       links.filter((link) => {
-        return (
-          link.shortUrl.toLowerCase().includes(e.target.value.toLowerCase()) ||
-          link.longUrl.toLowerCase().includes(e.target.value.toLowerCase()) ||
-          link.group?.title
+        const matchesSearch =
+          !filters.shortUrl ||
+          link.shortUrl
             .toLowerCase()
-            .includes(e.target.value.toLowerCase()) ||
-          link.tags.find((tag) =>
-            tag.name.toLowerCase().includes(e.target.value.toLowerCase())
-          )
+            .includes(filters.shortUrl.toLowerCase()) ||
+          link.longUrl.toLowerCase().includes(filters.shortUrl.toLowerCase());
+
+        const matchesTags = filters.tags.every((tag) =>
+          link.tags.some((linkTag) => linkTag.id === tag.id)
         );
+
+        const matchesStatus =
+          filters.status === "active"
+            ? link.status
+            : filters.status === "inactive"
+            ? !link.status
+            : true;
+
+        const matchesGroup =
+          !filters.group || link.group?.id === filters.group.id;
+
+        return matchesSearch && matchesGroup && matchesTags && matchesStatus;
       })
     );
-  };
+  }, [filters]);
 
   const fetchLinks = useCallback(async () => {
     try {
@@ -71,28 +95,76 @@ export default function MyLinks() {
 
       let data = await res.json();
       setLinks(data.links);
+      setFilteredLinks(data.links);
 
       if (groupId) {
         data = data.links.filter((link) => link.group?.id === Number(groupId));
+        setFilteredLinks(data);
+        setLoading(false);
+        return;
       }
 
       if (tagId) {
         data = data.links.filter((link) =>
           link.tags.find((tag) => tag?.id === Number(tagId))
         );
+        setFilteredLinks(data);
+        setLoading(false);
+        return;
       }
-      setFilteredLinks(data.links);
+
       setLoading(false);
     } catch (error) {
       console.error(error);
     }
   }, [groupId, tagId]);
 
+  const fetchGroups = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}group/user`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (response.status !== 200) {
+        console.error(response.json());
+        return;
+      }
+
+      const data = await response.json();
+      setAllGroups(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchTags = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user`, {
+        credentials: "include",
+      });
+
+      if (response.status !== 200) {
+        console.error(response.json());
+        return;
+      }
+
+      const data = await response.json();
+      setAllTags(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (authLoading) return;
     if (isLoggedIn === null || isGuestSession === null) return;
 
     fetchLinks();
+    fetchGroups();
+    fetchTags();
   }, [fetchLinks, isLoggedIn, isGuestSession, authLoading]);
 
   const handleCloseModal = () => {
@@ -125,12 +197,13 @@ export default function MyLinks() {
     STONE: "bg-stone-100 text-stone-600",
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="w-full h-96 flex items-center justify-center">
         <Loading />
       </div>
     );
+  }
 
   return (
     <div className="w-full bg-primary flex flex-col items-center justify-center py-12">
@@ -152,21 +225,113 @@ export default function MyLinks() {
           <Plus width={20} height={20} />
           <span className="ml-2">Crear enlace</span>
         </button>
-        <div className="max-w-48 flex items-center gap-2 bg-primary text-white border-2 border-white border-dashed rounded-xl p-2">
-          <Search width={20} height={20} />
-          <input
-            type="text"
-            placeholder="Buscar enlaces"
-            className="w-full py-1 px-2 focus:outline-none placeholder:text-white"
-            onChange={(e) => handleSearch(e)}
-          />
-        </div>
-        <p className="text-white text-sm">
-          Resultados: <span className="font-bold">{filteredLinks.length}</span>
+
+        <p className="text-white text-md">
+          Mostrando: <span className="font-bold">{filteredLinks.length}</span>
         </p>
       </div>
 
-      <div className="w-11/12 lg:w-4/6 flex flex-col gap-4 items-center justify-center py-8">
+      {/* FILTROS */}
+      <div className="w-11/12 lg:w-4/6 p-4 flex gap-4 items-center justify-start flex-wrap">
+        <div
+          className={`min-w-48 max-w-48 flex items-center gap-2 bg-primary  border-2 border-dashed rounded-xl py-2 px-4 
+          ${
+            filters.shortUrl || filters.longUrl
+              ? "text-white border-white"
+              : "text-navy border-navy"
+          }`}
+        >
+          <Search size={20} />
+          <input
+            id="filters-search-input"
+            type="text"
+            placeholder="Buscar enlaces"
+            className="w-full focus:outline-none placeholder:text-navy"
+            onChange={(e) =>
+              setFilters({
+                ...filters,
+                shortUrl: e.target.value,
+                longUrl: e.target.value,
+              })
+            }
+          />
+        </div>
+        {/* Grupo */}
+        <GroupSelector
+          groups={allGroups}
+          selectedGroup={filters.group}
+          onSelect={(group) => setFilters({ ...filters, group: group })}
+        />
+        {/* Tags */}
+        <TagSelector
+          tags={allTags}
+          selectedTags={filters.tags}
+          onSelect={(tags) => setFilters({ ...filters, tags: tags })}
+        />
+        {/* Estado */}
+        <div
+          className="w-30 h-10 relative flex items-center justify-center p-1 border-2 border-navy border-dashed rounded-xl cursor-pointer"
+          onClick={() => {
+            if (filters.status === "active") {
+              setFilters({ ...filters, status: "" });
+            } else if (filters.status === "") {
+              setFilters({ ...filters, status: "inactive" });
+            } else {
+              setFilters({ ...filters, status: "active" });
+            }
+          }}
+        >
+          <div
+            className={`absolute rounded-lg w-1/3 h-3/4 flex items-center justify-center transition ${
+              filters.status === ""
+                ? "bg-navy text-primary"
+                : filters.status === "active"
+                ? "bg-yellow text-navy transform -translate-x-8"
+                : "bg-coral text-white transform translate-x-8"
+            }
+            }`}
+          >
+            <Check
+              size={20}
+              className={`${filters.status !== "active" ? "hidden" : ""}`}
+            />
+            <X
+              size={20}
+              className={`${filters.status !== "inactive" ? "hidden" : ""}`}
+            />
+            <Minus
+              size={20}
+              className={`${filters.status !== "" ? "hidden" : ""}`}
+            />
+          </div>
+        </div>
+
+        {/* Limpiar filtros */}
+        {(filters.tags.length > 0 ||
+          filters.group ||
+          filters.status ||
+          filters.shortUrl ||
+          filters.longUrl) && (
+          <button
+            className="xl:ml-auto flex items-center gap-2 text-navy bg-yellow border-2 border-yellow border-dashed py-2 px-4 rounded-xl transition hover:cursor-pointer hover:bg-primary hover:text-yellow"
+            onClick={() => {
+              document.getElementById("filters-search-input").value = "";
+              setFilters({
+                shortUrl: "",
+                longUrl: "",
+                status: "",
+                tags: [],
+                group: null,
+              });
+            }}
+          >
+            <X width={20} height={20} />
+            <span className="ml-2">Limpiar filtros</span>
+          </button>
+        )}
+      </div>
+
+      <div className="w-11/12 lg:w-4/6 flex flex-col gap-4 items-center justify-center py-8 z-10">
         {links.length === 0 && (
           <div className="w-full flex flex-col items-center justify-center mt-8">
             <Link2Off width={32} height={32} />
