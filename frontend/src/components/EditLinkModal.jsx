@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/Auth";
-import Loading from "../components/Loading";
+import Loading from "./Common/Loading";
 
 import {
   Check,

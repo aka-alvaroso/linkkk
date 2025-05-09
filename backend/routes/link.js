@@ -36,7 +36,7 @@ router.get(
   getLinkStats
 );
 router.put(
-  "/:id",
+  "/update",
   authenticate,
   userAuthenticate,
   validate(updateLinkSchema),

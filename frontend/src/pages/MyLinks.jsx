@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import EditLinkModal from "../components/EditLinkModal";
-import DeleteLinkModal from "../components/DeleteLinkModal";
 import { useAuth } from "../context/Auth";
+import { useUserData } from "../context/UserDataContext";
+
 import GroupSelector from "../components/Group/GroupSelector";
 import TagSelector from "../components/Tag/TagSelector";
 
-import Loading from "../components/Loading";
 import {
   Calendar,
   Check,
@@ -25,21 +24,20 @@ import {
   Trash,
   X,
 } from "lucide-react";
+import EditLinkDialog from "../components/Link/EditLinkDialog";
+import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
+import Button from "../components/Common/Button";
+import Card from "../components/Common/Card";
 
 export default function MyLinks() {
   const navigate = useNavigate();
-  const { isLoggedIn, isGuestSession, loading: authLoading } = useAuth();
+  const { userData } = useUserData();
   const [searchParams] = useSearchParams();
-  const groupId = searchParams.get("groupId");
-  const tagId = searchParams.get("tagId");
-  const [loading, setLoading] = useState(true);
-  const [links, setLinks] = useState([]);
-  const [filteredLinks, setFilteredLinks] = useState([]);
+  const { isLoggedIn } = useAuth();
+  const [filteredLinks, setFilteredLinks] = useState(userData?.links);
   const [selectedLink, setSelectedLink] = useState(null);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [allGroups, setAllGroups] = useState([]);
-  const [allTags, setAllTags] = useState([]);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     shortUrl: "",
@@ -50,7 +48,7 @@ export default function MyLinks() {
 
   useEffect(() => {
     setFilteredLinks(
-      links.filter((link) => {
+      userData.links.filter((link) => {
         const matchesSearch =
           !filters.shortUrl ||
           link.shortUrl
@@ -75,102 +73,25 @@ export default function MyLinks() {
         return matchesSearch && matchesGroup && matchesTags && matchesStatus;
       })
     );
-  }, [filters]);
-
-  const fetchLinks = useCallback(async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}link/user/`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-      });
-
-      if (res.status !== 200) {
-        console.error(await res.json());
-        setLinks([]);
-        setLoading(false);
-        return;
-      }
-
-      let data = await res.json();
-      setLinks(data.links);
-      setFilteredLinks(data.links);
-
-      if (groupId) {
-        data = data.links.filter((link) => link.group?.id === Number(groupId));
-        setFilteredLinks(data);
-        setLoading(false);
-        return;
-      }
-
-      if (tagId) {
-        data = data.links.filter((link) =>
-          link.tags.find((tag) => tag?.id === Number(tagId))
-        );
-        setFilteredLinks(data);
-        setLoading(false);
-        return;
-      }
-
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
-  }, [groupId, tagId]);
-
-  const fetchGroups = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}group/user`,
-        {
-          credentials: "include",
-        }
-      );
-
-      if (response.status !== 200) {
-        console.error(response.json());
-        return;
-      }
-
-      const data = await response.json();
-      setAllGroups(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchTags = async () => {
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user`, {
-        credentials: "include",
-      });
-
-      if (response.status !== 200) {
-        console.error(response.json());
-        return;
-      }
-
-      const data = await response.json();
-      setAllTags(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  }, [filters, userData.links]);
 
   useEffect(() => {
-    if (authLoading) return;
-    if (isLoggedIn === null || isGuestSession === null) return;
+    const groupId = searchParams.get("groupId");
+    const tagId = searchParams.get("tagId");
 
-    fetchLinks();
-    fetchGroups();
-    fetchTags();
-  }, [fetchLinks, isLoggedIn, isGuestSession, authLoading]);
+    const group = userData.groups?.find((g) => g.id === groupId);
+    const tag = userData.tags?.find((t) => t.id === tagId);
 
-  const handleCloseModal = () => {
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-    fetchLinks(); // Refresh groups when modal closes
+    setFilters((prev) => ({
+      ...prev,
+      group: group || null,
+      tags: tag ? [tag] : [],
+    }));
+  }, [searchParams, userData.groups, userData.tags]);
+
+  const handleCloseDialog = () => {
+    setIsEditDialogOpen(false);
+    setIsDeleteDialogOpen(false);
   };
 
   const colorMap = {
@@ -197,22 +118,22 @@ export default function MyLinks() {
     STONE: "bg-stone-100 text-stone-600",
   };
 
-  if (loading) {
-    return (
-      <div className="w-full h-96 flex items-center justify-center">
-        <Loading />
-      </div>
-    );
-  }
-
   return (
     <div className="w-full bg-primary flex flex-col items-center justify-center py-12">
-      {isEditModalOpen && (
-        <EditLinkModal onClose={handleCloseModal} link={selectedLink} />
-      )}
-      {isDeleteModalOpen && (
-        <DeleteLinkModal onClose={handleCloseModal} link={selectedLink} />
-      )}
+      <EditLinkDialog
+        isOpen={isEditDialogOpen}
+        onClose={handleCloseDialog}
+        allGroups={userData.groups}
+        allTags={userData.tags}
+        countries={userData.countries}
+        linkData={selectedLink}
+        setLinkData={setSelectedLink}
+      />
+      <DeleteLinkDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleCloseDialog}
+        link={selectedLink}
+      />
 
       <div className="w-11/12 lg:w-4/6 p-4 flex flex-wrap items-center gap-4">
         <h1 className="text-4xl font-bold text-yellow font-brice">
@@ -258,13 +179,13 @@ export default function MyLinks() {
         </div>
         {/* Grupo */}
         <GroupSelector
-          groups={allGroups}
+          groups={userData.groups}
           selectedGroup={filters.group}
           onSelect={(group) => setFilters({ ...filters, group: group })}
         />
         {/* Tags */}
         <TagSelector
-          tags={allTags}
+          tags={userData.tags}
           selectedTags={filters.tags}
           onSelect={(tags) => setFilters({ ...filters, tags: tags })}
         />
@@ -332,32 +253,44 @@ export default function MyLinks() {
       </div>
 
       <div className="w-11/12 lg:w-4/6 flex flex-col gap-4 items-center justify-center py-8 z-10">
-        {links.length === 0 && (
-          <div className="w-full flex flex-col items-center justify-center mt-8">
-            <Link2Off width={32} height={32} />
-            <p className="text-lg font-bold my-2">No tienes enlaces creados.</p>
-            <button className="py-2 px-4 bg-black text-white rounded-4xl flex gap-2">
+        {userData.links.length === 0 && (
+          <div className="w-full flex flex-col items-center justify-center mt-8 text-navy">
+            <Link2Off size={32} />
+            <p className="text-xl font-bold my-2">No tienes enlaces creados.</p>
+            <Button
+              variant="white_reverse"
+              size="lg"
+              onClick={() => {
+                navigate("/links/create");
+              }}
+            >
               Crear uno
-              <Plus width={20} height={20} />
-            </button>
+            </Button>
           </div>
         )}
-        {filteredLinks.length === 0 && links.length !== 0 && (
-          <div className="w-full flex flex-col items-center justify-center mt-8 text-neutral-800">
-            <Link2Off width={32} height={32} />
+        {filteredLinks.length === 0 && userData.links.length !== 0 && (
+          <div className="w-full flex flex-col items-center justify-center mt-8 text-navy">
+            <Link2Off size={32} />
             <p className="text-lg font-bold my-2">
               No se han encontrado enlaces
             </p>
-            <button className="py-2 px-4 bg-neutral-800 text-white rounded-4xl flex gap-2">
+            <Button
+              variant="white_reverse"
+              size="lg"
+              onClick={() => {
+                navigate("/links/create");
+              }}
+            >
               Crear uno
-              <Plus width={20} height={20} />
-            </button>
+            </Button>
           </div>
         )}
         {filteredLinks.map((link) => (
-          <div
+          <Card
             key={link.id}
-            className="w-11/12 flex flex-col lg:flex-row items-center rounded-4xl border-3 border-navy border-dashed text-white p-6 transition hover:border-yellow"
+            custom
+            rounded="3xl"
+            className={`w-full flex flex-col lg:flex-row items-center text-white cursor-pointer `}
             onClick={() =>
               navigate(`/dashboard/${link.sufix ? link.sufix : link.shortUrl}`)
             }
@@ -365,19 +298,27 @@ export default function MyLinks() {
             {/* Info */}
             <div className="w-full lg:w-2/4 h-full flex flex-col items-start justify-center">
               {link.status ? (
-                <p className="flex items-center gap-2 bg-green-100 text-green-600 rounded-4xl px-2 py-1 text-xs">
-                  <span className="relative w-3 h-3 mr-1 bg-green-500 rounded-4xl">
-                    <span className="absolute top-0 left-0 w-full h-full rounded-4xl bg-green-500 animate-ping"></span>
-                  </span>
-                  Activo
-                </p>
+                <div
+                  className={`relative flex items-center justify-center p-1 gap-2 border-2 border-dashed rounded-xl border-yellow w-26 h-8"`}
+                >
+                  <div
+                    className={`w-1/4 h-full rounded-lg flex items-center justify-center bg-yellow text-navy`}
+                  >
+                    <Check size={20} />
+                  </div>
+                  <p className="text-white">Activo</p>
+                </div>
               ) : (
-                <p className="flex items-center gap-2 bg-red-100 text-red-600 rounded-4xl px-2 py-1 text-xs">
-                  <span className="relative w-3 h-3 mr-1 bg-red-500 rounded-4xl">
-                    <span className="absolute top-0 left-0 w-full h-full rounded-4xl bg-red-500 animate-ping"></span>
-                  </span>
-                  Inactivo
-                </p>
+                <div
+                  className={`flex items-center justify-center p-1 gap-2 border-2 border-dashed rounded-xl border-coral w-26 h-8"`}
+                >
+                  <p className="text-white">Inactivo</p>
+                  <div
+                    className={`w-1/4 h-full rounded-lg flex items-center justify-center bg-coral text-white`}
+                  >
+                    <X size={20} />
+                  </div>
+                </div>
               )}
 
               <p className="w-full text-xl font-bold overflow-hidden text-ellipsis mt-2">
@@ -443,13 +384,13 @@ export default function MyLinks() {
             </div>
 
             {/* Botones */}
-            <div className="w-full sm:w-1/2 lg:w-1/4 h-full grid grid-cols-2 grid-rows-2 gap-2 p-2">
+            <div className="w-full sm:w-3/4 lg:w-1/4 h-full grid grid-cols-2 grid-rows-2 gap-2 p-2">
               <button
                 className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow"
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(
-                    "http://localhost:5173/" +
+                    "https://linkkk.dev/" +
                       (link.sufix ? link.sufix : link.shortUrl)
                   );
                 }}
@@ -461,13 +402,13 @@ export default function MyLinks() {
                 onClick={(e) => {
                   e.stopPropagation();
 
-                  if (!authLoading && !isLoggedIn && isGuestSession) {
+                  if (!isLoggedIn) {
                     navigate("/login");
                     return;
                   }
 
                   setSelectedLink(link);
-                  setIsEditModalOpen(true);
+                  setIsEditDialogOpen(true);
                 }}
               >
                 <Edit size={30} />
@@ -477,13 +418,13 @@ export default function MyLinks() {
                 onClick={(e) => {
                   e.stopPropagation();
                   setSelectedLink(link);
-                  setIsDeleteModalOpen(true);
+                  setIsDeleteDialogOpen(true);
                 }}
               >
                 <Trash size={30} />
               </button>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
     </div>

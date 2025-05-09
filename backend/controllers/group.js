@@ -4,15 +4,11 @@ const createGroup = async (req, res) => {
   const { title, description, color } = req.body;
   const userId = req.user.id;
 
-  if (!userId || !title) {
-    return res.status(400).json({ error: "Faltan parámetros" });
-  }
-
   const group = await prisma.group.create({
     data: {
       userId: Number(userId),
       title: title,
-      description: description,
+      description: description || "",
       color: color,
     },
   });
@@ -29,6 +25,7 @@ const getGroupsByUserId = async (req, res) => {
 
   const groups = await prisma.group.findMany({
     where: { userId: Number(userId) },
+    orderBy: { title: "asc" },
   });
 
   if (!groups) {
@@ -41,10 +38,6 @@ const getGroupsByUserId = async (req, res) => {
 const updateGroup = async (req, res) => {
   const { groupId, title, description, color } = req.body;
   const userId = req.user.id;
-
-  if (!groupId || !title) {
-    return res.status(400).json({ error: "Faltan parámetros" });
-  }
 
   const group = await prisma.group.update({
     where: {

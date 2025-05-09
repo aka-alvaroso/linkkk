@@ -1,7 +1,8 @@
 import { Routes, Route } from "react-router-dom";
 import { useAuth } from "./context/Auth.jsx";
+import { useUserData } from "./context/UserDataContext.jsx";
 
-import Redirect from "./components/Redirect.jsx";
+import Redirect from "./pages/Redirect.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -15,8 +16,9 @@ import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
 import { useState, useEffect } from "react";
 
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
-import GuestOrUserRoute from "./components/GuestOrUserRoute.jsx";
+import ProtectedRoute from "./components/Auth/ProtectedRoute.jsx";
+import GuestOrUserRoute from "./components/Auth/GuestOrUserRoute.jsx";
+import LoadingPage from "./pages/Loading.jsx";
 
 // Componente responsivo que elige el layout adecuado
 function ResponsiveLayout({ children }) {
@@ -40,9 +42,10 @@ function ResponsiveLayout({ children }) {
 
 function App() {
   const { authChecked } = useAuth();
+  const { loading: userDataLoading } = useUserData();
 
-  if (!authChecked) {
-    return <div>Cargando aplicación...</div>; // Protegemos la app entera si quieres
+  if (!authChecked || userDataLoading) {
+    return <LoadingPage />;
   }
 
   return (

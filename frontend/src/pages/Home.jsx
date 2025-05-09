@@ -322,20 +322,52 @@ export default function Home() {
           </div>
         </div>
       </section>
-      <div className="w-full overflow-hidden flex justify-evenly items-center gap-12 bg-pink text-navy border-y-2 border-navy py-6">
-        <Sparkle fill="#fff563" />
-        <span className="font-bold text-2xl font-brice">Personalizable</span>
-        <Sparkle fill="#fff563" />
-        <span className="font-bold text-2xl font-brice">Sin Anuncios</span>
-        <Sparkle fill="#fff563" />
-        <span className="font-bold text-2xl font-brice">Fácil y rápido</span>
-        <Sparkle fill="#fff563" />
-        <span className="font-bold text-2xl font-brice">
-          Analíticas precisas
-        </span>
-        <Sparkle fill="#fff563" />
-        <span className="font-bold text-2xl font-brice">Ahorra tiempo</span>
-        <Sparkle fill="#fff563" />
+      <div className="relative flex overflow-x-hidden bg-pink text-navy border-y-2 border-navy">
+        <div className="py-6 flex items-center animate-marquee whitespace-nowrap">
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Personalizable
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Sin Anuncios
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Fácil y rápido
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Analíticas precisas
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Ahorra tiempo
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+        </div>
+        <div className="absolute flex items-center mx-4 top-0 py-6 animate-marquee2 whitespace-nowrap">
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Personalizable
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Sin Anuncios
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Fácil y rápido
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Analíticas precisas
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Ahorra tiempo
+          </span>
+          <Sparkle fill="#fff563" size={30} />
+        </div>
       </div>
       <section className="bg-navy text-white flex flex-col md:flex-row items-center justify-evenly py-12">
         <img
@@ -558,20 +590,52 @@ export default function Home() {
         </div>
       </section>
 
-      <div className="w-full overflow-hidden flex justify-evenly items-center gap-12 bg-navy text-orange border-y-2 border-orange py-6">
-        <Sparkle fill="#FF8427" />
-        <span className="font-bold text-2xl font-brice">Personalizable</span>
-        <Sparkle fill="#FF8427" />
-        <span className="font-bold text-2xl font-brice">Sin Anuncios</span>
-        <Sparkle fill="#FF8427" />
-        <span className="font-bold text-2xl font-brice">Fácil y rápido</span>
-        <Sparkle fill="#FF8427" />
-        <span className="font-bold text-2xl font-brice">
-          Analíticas precisas
-        </span>
-        <Sparkle fill="#FF8427" />
-        <span className="font-bold text-2xl font-brice">Ahorra tiempo</span>
-        <Sparkle fill="#FF8427" />
+      <div className="relative flex overflow-x-hidden bg-navy text-orange border-y-2 border-orange">
+        <div className="py-6 flex items-center animate-marquee whitespace-nowrap">
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Personalizable
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Sin Anuncios
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Fácil y rápido
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Analíticas precisas
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Ahorra tiempo
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+        </div>
+        <div className=" absolute flex items-center mx-4 top-0 py-6 animate-marquee2 whitespace-nowrap">
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Personalizable
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Sin Anuncios
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Fácil y rápido
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Analíticas precisas
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+          <span className="font-bold text-4xl mx-4 font-brice">
+            Ahorra tiempo
+          </span>
+          <Sparkle fill="#FFE066" size={30} className="text-yellow" />
+        </div>
       </div>
 
       <footer className="bg-primary text-white flex flex-col items-center justify-center gap-4 p-12">

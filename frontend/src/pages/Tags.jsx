@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/Auth";
+import React, { useState, useEffect } from "react";
+import { useUserData } from "../context/UserDataContext";
 import {
   Ellipsis,
   Folder,
@@ -11,62 +10,36 @@ import {
   Tag,
   Trash,
 } from "lucide-react";
-import Loading from "../components/Loading";
-import CreateTagModal from "../components/CreateTagModal";
-import EditTagModal from "../components/EditTagModal";
-import DeleteTagModal from "../components/DeleteTagModal";
+import CreateTagDialog from "../components/Tag/CreateTagDialog";
+import EditTagDialog from "../components/Tag/EditTagDialog";
+import DeleteTagDialog from "../components/Tag/DeleteTagDialog";
+import Button from "../components/Common/Button";
+import Card from "../components/Common/Card";
 
 export default function Groups() {
-  const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
-  const [tags, setTags] = useState([]);
+  const { userData } = useUserData();
   const [tagsFiltered, setTagsFiltered] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedTag, setSelectedTag] = useState({});
 
   const handleSearch = (e) => {
     setTagsFiltered(
-      tags.filter((tag) =>
+      userData.tags.filter((tag) =>
         tag.name.toLowerCase().includes(e.target.value.toLowerCase())
       )
     );
   };
-  const fetchTags = useCallback(async () => {
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}tag/user`, {
-        credentials: "include",
-      });
-
-      if (response.status !== 200) {
-        console.error(response.json());
-        return;
-      }
-
-      const data = await response.json();
-      setTags(data);
-      setTagsFiltered(data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-    }
-  }, []);
 
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchTags();
-    }
-  }, [fetchTags, isLoggedIn]);
+    setTagsFiltered(userData.tags);
+  }, [userData.tags]);
 
   const handleModalClose = () => {
-    setIsCreateModalOpen(false);
-    setIsEditModalOpen(false);
-    setIsDeleteModalOpen(false);
-    fetchTags(); // Refresh groups when modal closes
+    setIsCreateDialogOpen(false);
+    setIsEditDialogOpen(false);
+    setIsDeleteDialogOpen(false);
   };
 
   const colorMap = {
@@ -93,31 +66,30 @@ export default function Groups() {
     STONE: "bg-stone-500 text-stone-500",
   };
 
-  if (loading)
-    return (
-      <div className="w-full h-96 flex items-center justify-center">
-        <Loading />
-      </div>
-    );
-
   return (
     <div className="w-full lg:w-4/6 mx-auto h-full p-4 overflow-hidden">
-      {isCreateModalOpen && <CreateTagModal onClose={handleModalClose} />}
-      {isEditModalOpen && (
-        <EditTagModal onClose={handleModalClose} tag={selectedTag} />
-      )}
-      {isDeleteModalOpen && (
-        <DeleteTagModal onClose={handleModalClose} tag={selectedTag} />
-      )}
+      <CreateTagDialog isOpen={isCreateDialogOpen} onClose={handleModalClose} />
+      <EditTagDialog
+        isOpen={isEditDialogOpen}
+        onClose={handleModalClose}
+        tag={selectedTag}
+      />
+      <DeleteTagDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleModalClose}
+        tag={selectedTag}
+      />
       <div className="p-4 flex flex-wrap items-center gap-4">
         <h1 className="text-3xl font-bold text-yellow font-brice">Etiquetas</h1>
-        <button
-          className="max-w-50 flex items-center gap-2 text-navy bg-yellow border-2 border-yellow border-dashed py-3 px-6 rounded-xl transition hover:cursor-pointer hover:bg-primary hover:text-yellow"
-          onClick={() => setIsCreateModalOpen(true)}
+        <Button
+          variant="yellow"
+          size="lg"
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="flex items-center gap-2"
         >
           <Plus width={20} height={20} />
           <span className="ml-2">Crear etiqueta</span>
-        </button>
+        </Button>
         <div className="max-w-48 flex items-center gap-2 bg-primary text-white border-2 border-white border-dashed rounded-xl p-2 ">
           <Search width={20} height={20} />
           <input
@@ -129,13 +101,13 @@ export default function Groups() {
         </div>
       </div>
       <div className="w-full h-full flex flex-col items-center justify-center mt-8">
-        {tags.length === 0 && (
+        {userData.tags.length === 0 && (
           <div className="w-full flex flex-col items-center justify-center text-neutral-800">
             <Hash width={42} height={42} />
             <p className="text-2xl font-bold my-4">No tienes etiquetas.</p>
             <button
               className="py-2 px-4 bg-transparent border-2 border-navy border-dashed text-white rounded-xl flex items-center gap-2 transition hover:cursor-pointer hover:bg-navy hover:text-white"
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => setIsCreateDialogOpen(true)}
             >
               Crear una
               <Plus width={20} height={20} />
@@ -143,7 +115,7 @@ export default function Groups() {
           </div>
         )}
 
-        {tagsFiltered.length === 0 && tags.length !== 0 && (
+        {tagsFiltered.length === 0 && userData.tags.length !== 0 && (
           <div className="w-full flex flex-col items-center justify-center text-neutral-800">
             <Hash width={42} height={42} />
             <p className="text-2xl font-bold my-4">
@@ -157,9 +129,11 @@ export default function Groups() {
             const tagColor = colorMap[tag.color];
 
             return (
-              <div
+              <Card
                 key={tag.id}
-                className="w-full md:max-w-sm h-40 flex flex-col items-center justify-between bg-primary border-2 border-navy text-white hover:border-white rounded-3xl p-4 hover:scale-102 transition-all duration-300"
+                custom
+                rounded="3xl"
+                className={"text-white flex flex-col gap-4"}
               >
                 <div className="w-full flex items-start gap-2">
                   <span
@@ -172,33 +146,33 @@ export default function Groups() {
                   >
                     #{tag.name}
                   </h1>
-                  <button
-                    className="ml-auto p-1 hover:cursor-pointer transition hover:text-yellow"
-                    onClick={() => {
-                      setSelectedTag(tag);
-                      setIsEditModalOpen(true);
-                    }}
-                  >
-                    <Pencil width={20} height={20} />
-                  </button>
-                  <button
-                    className="ml-auto p-1 hover:cursor-pointer transition hover:text-coral"
-                    onClick={() => {
-                      setSelectedTag(tag);
-                      setIsDeleteModalOpen(true);
-                    }}
-                  >
-                    <Trash width={20} height={20} />
-                  </button>
                 </div>
                 {/* Número de enlaces */}
-                <button
-                  className="w-4/6 py-2 mt-auto text-light-blue border-2 border-light-blue rounded-xl flex justify-center items-center gap-2 transition hover:bg-light-blue hover:text-navy hover:cursor-pointer"
-                  onClick={() => navigate(`/links?tagId=${tag.id}`)}
-                >
-                  Ver enlaces
-                </button>
-              </div>
+                <div className="w-full grid grid-cols-2 gap-2 items-center mt-auto">
+                  <Button
+                    variant="yellow"
+                    size="md"
+                    onClick={() => {
+                      setSelectedTag(tag);
+                      setIsEditDialogOpen(true);
+                    }}
+                    className="flex justify-center"
+                  >
+                    <Pencil width={20} height={20} />
+                  </Button>
+                  <Button
+                    variant="coral"
+                    size="md"
+                    onClick={() => {
+                      setSelectedTag(tag);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                    className="flex justify-center"
+                  >
+                    <Trash width={20} height={20} />
+                  </Button>
+                </div>
+              </Card>
             );
           })}
         </div>

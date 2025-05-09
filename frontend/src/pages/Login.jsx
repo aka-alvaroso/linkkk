@@ -1,14 +1,15 @@
 import React from "react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Cookies from "js-cookie";
 
+import { useUserData } from "../context/UserDataContext";
+import { useNotification } from "../context/NotificationContext";
 import { useAuth } from "../context/Auth";
 
 export default function Login() {
   const navigate = useNavigate();
   const { checkLoginStatus } = useAuth();
-  const [error, setError] = useState(null);
+  const { refreshUserData } = useUserData();
+  const { showNotification } = useNotification();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -26,18 +27,48 @@ export default function Login() {
     });
 
     if (res.ok) {
-      checkLoginStatus();
+      const isLoggedIn = await checkLoginStatus();
+      if (!isLoggedIn) {
+        showNotification({
+          title: "Error",
+          message: "No se pudo iniciar sesión",
+          type: "error",
+        });
+        navigate("/");
+      }
+      await refreshUserData({
+        onlyLinks: false,
+        onlyGroups: false,
+        onlyTags: false,
+        onlyCountries: false,
+      });
+      showNotification({
+        title: "Sesión iniciada",
+        message: "¡Bienvenido de nuevo!",
+        type: "success",
+      });
       navigate("/");
     } else {
       const data = await res.json();
       console.log(data.details);
-      setError(data.error || "Error al iniciar sesión");
+      showNotification({
+        title: "Error",
+        message: data.details,
+        type: "error",
+      });
     }
   };
 
   return (
     <div className="w-screen h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
+      {/* El div que contenía la imagen se elimina */}
       <div className="relative mx-auto py-18 bg-yellow text-navy shadow-[15px_15px_0_0_rgba(24,30,106)] w-10/12 flex flex-col items-center justify-center rounded-4xl xl:w-1/3">
+        {/* La imagen ahora es hija de este div y se posiciona relativamente a él */}
+        <img
+          src="/images/linky_muro.png"
+          alt="Linky character security"
+          className="absolute bottom-2/3 xs:bottom-1/2 left-1/2 -translate-x-1/2 scale-60 z-10 mb-[-20px] sm:mb-[-30px] md:mb-[-40px]" // Clases modificadas para posicionamiento
+        />
         <h1 className="text-4xl font-bold text-center z-10 font-brice">
           Iniciar Sesión
         </h1>
@@ -61,7 +92,6 @@ export default function Login() {
           >
             Iniciar sesión
           </button>
-          {error && <p className="mt-4 text-red-500 z-1">Error: {error}</p>}
         </form>
         <p className="mt-4 z-1">
           ¿No tienes cuenta?{" "}

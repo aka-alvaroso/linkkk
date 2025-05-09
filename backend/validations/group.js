@@ -2,7 +2,7 @@ const z = require("zod");
 
 const createGroupSchema = z.object({
   title: z.string(),
-  description: z.string(),
+  description: z.string().optional(),
   color: z.string(),
 });
 

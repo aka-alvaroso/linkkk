@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Check, ChevronDown } from "lucide-react";
+import { animate } from "animejs";
+import Button from "./Button";
 
 export default function SelectSearchable({
   items = [],
@@ -7,10 +9,15 @@ export default function SelectSearchable({
   selectedItems = [],
   multiple = false,
   placeholder = "Selecciona",
+  btnVariant = "navy",
+  listClassName = "max-w-48 bg-navy text-white border-2 border-white border-dashed",
+  renderItem,
+  position = "bottom",
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const containerRef = useRef(null);
+  const menuRef = useRef(null);
 
   const filteredItems = items.filter((item) =>
     item.title.toLowerCase().includes(query.toLowerCase())
@@ -42,6 +49,33 @@ export default function SelectSearchable({
     }
   };
 
+  const handeClose = () => {
+    if (!menuRef.current) return;
+
+    animate(menuRef.current, {
+      scale: [1, 0.95],
+      opacity: [1, 0],
+      duration: 300,
+      easing: "easeInQuad",
+      onComplete: () => {
+        setIsOpen(false);
+      },
+    });
+  };
+
+  useEffect(() => {
+    if (!isOpen || !menuRef.current) return;
+
+    const openAnimation = animate(menuRef.current, {
+      scale: [0.95, 1],
+      opacity: [0, 1],
+      duration: 300,
+      easing: "easeOutQuad",
+    });
+
+    openAnimation.play();
+  }, [isOpen]);
+
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -58,19 +92,31 @@ export default function SelectSearchable({
     };
   }, []);
 
+  const positions = {
+    bottom: "top-12 left-0",
+    top: "bottom-12 left-0",
+    left: "-top-20 -left-50",
+    right: "-top-20 -right-50",
+    bottomLeft: "top-0 right-50",
+    bottomRight: "top-0 left-50",
+    topLeft: "bottom-0 right-50",
+    topRight: "bottom-0 left-50",
+  };
+
   return (
     <div ref={containerRef} className={`relative ${isOpen ? "z-500" : ""}`}>
-      <button
-        className={`z-500 bg-transparent border-2 border-dashed rounded-xl shadow p-2 flex items-center justify-between w-48 hover:cursor-pointer 
-        ${
-          (multiple && selectedItems?.length > 0) ||
-          (!multiple && selectedItems !== null)
-            ? "border-white text-white"
-            : "border-navy text-navy"
-        }`}
-        onClick={() => setIsOpen(!isOpen)}
+      <Button
+        variant={btnVariant}
+        className="flex items-center gap-2"
+        onClick={() => {
+          if (isOpen) {
+            handeClose();
+          } else {
+            setIsOpen(!isOpen);
+          }
+        }}
       >
-        <span className="text-md max-w-10/12 overflow-hidden text-ellipsis">
+        <span className="text-md max-w-sm overflow-hidden text-ellipsis">
           {multiple && selectedItems?.length > 0
             ? `${selectedItems.length} seleccionados`
             : selectedItems?.title || placeholder}
@@ -80,22 +126,24 @@ export default function SelectSearchable({
           size={20}
           className={`transition ${isOpen ? "rotate-180" : ""}`}
         />
-      </button>
+      </Button>
       {isOpen && (
-        <div className="absolute top-12 left-0 w-full z-1000 ">
-          {" "}
+        <div
+          ref={menuRef}
+          className={`absolute w-full z-1000 ${positions[position]}`}
+        >
           {/* Ensure submenu has high z-index */}
-          <div className="rounded-xl bg-yellow shadow p-2 w-full">
+          <div className={`rounded-xl shadow w-full ${listClassName} `}>
             <input
               autoFocus
               type="text"
-              className="w-full border-b-2 border-navy p-1 mb-2 focus:outline-none"
+              className="w-full p-2 mb-2 focus:outline-none"
               placeholder={placeholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
             <ul
-              className="max-h-40 overflow-y-auto 
+              className="p-2 max-h-40 overflow-y-auto 
               [&::-webkit-scrollbar]:w-2
             [&::-webkit-scrollbar-track]:bg-transparent
             [&::-webkit-scrollbar-thumb]:bg-navy/50
@@ -106,13 +154,17 @@ export default function SelectSearchable({
               {filteredItems.map((item) => (
                 <li
                   key={item.id}
-                  className={`w-full cursor-pointer px-2 py-1 rounded hover:bg-navy/25 hover:text-primary flex items-center justify-between `}
+                  className={`w-full cursor-pointer px-2 py-1 rounded hover:bg-white/25  flex items-center justify-between `}
                   onClick={() => handleClick(item)}
                 >
-                  <p className="w-4/5 overflow-hidden text-ellipsis">
-                    {item.title}
-                  </p>
-                  {isSelected(item) && <Check width={20} height={20} />}
+                  {renderItem ? (
+                    renderItem(item)
+                  ) : (
+                    <p className="w-4/5 overflow-hidden text-ellipsis">
+                      {item.title}
+                    </p>
+                  )}
+                  {isSelected(item) && <Check size={20} />}
                 </li>
               ))}
               {filteredItems.length === 0 && (

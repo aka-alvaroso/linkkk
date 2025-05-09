@@ -1,79 +1,48 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/Auth";
+import React, { useEffect, useState } from "react";
+import { useUserData } from "../context/UserDataContext";
 import {
   Ellipsis,
   Folder,
   FolderX,
   ImagePlay,
+  Link2,
   Pencil,
   Plus,
   Search,
   Trash,
 } from "lucide-react";
-import Loading from "../components/Loading";
-import CreateGroupModal from "../components/CreateGroupModal";
-import DeleteGroupModal from "../components/DeleteGroupModal";
-import EditGroupModal from "../components/EditGroupModal";
+import Button from "../components/Common/Button";
+import CreateGroupDialog from "../components/Group/CreateGroupDialog";
+import EditGroupDialog from "../components/Group/EditGroupDialog";
+import DeleteGroupDialog from "../components/Group/DeleteGroupDialog";
+import Card from "../components/Common/Card";
 
 export default function Groups() {
-  const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
-  const [groups, setGroups] = useState([]);
-  const [groupsFiltered, setGroupsFiltered] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  console.log("Groups");
+  const { userData } = useUserData();
+  const [groupsFiltered, setGroupsFiltered] = useState(userData.groups);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState(null);
 
   const handleSearch = (e) => {
     setGroupsFiltered(
-      groups.filter((group) =>
+      userData.groups.filter((group) =>
         group.title.toLowerCase().includes(e.target.value.toLowerCase())
       )
     );
   };
 
-  // Extract fetchGroups as a useCallback function so it can be passed to the modal
-  const fetchGroups = useCallback(async () => {
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}group/user`,
-        {
-          credentials: "include",
-        }
-      );
-
-      if (response.status !== 200) {
-        console.error(response.json());
-        return;
-      }
-
-      const data = await response.json();
-      setGroups(data);
-      setGroupsFiltered(data);
-      setLoading(false);
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchGroups();
-    }
-  }, [fetchGroups, isLoggedIn]);
+    setGroupsFiltered(userData.groups);
+  }, [userData.groups]);
 
   // Function to handle modal close and refresh groups
   const handleModalClose = () => {
-    setIsCreateModalOpen(false);
-    setIsDeleteModalOpen(false);
-    setIsEditModalOpen(false);
-    fetchGroups(); // Refresh groups when modal closes
+    setIsCreateDialogOpen(false);
+    setIsEditDialogOpen(false);
+    setIsDeleteDialogOpen(false);
   };
 
   const colorMap = {
@@ -100,31 +69,35 @@ export default function Groups() {
     STONE: "bg-stone-500 text-stone-500",
   };
 
-  if (loading)
-    return (
-      <div className="w-full h-96 flex items-center justify-center">
-        <Loading />
-      </div>
-    );
-
   return (
     <div className="w-full lg:w-4/6 mx-auto h-full p-4 overflow-hidden">
-      {isCreateModalOpen && <CreateGroupModal onClose={handleModalClose} />}
-      {isDeleteModalOpen && (
-        <DeleteGroupModal onClose={handleModalClose} group={selectedGroup} />
-      )}
-      {isEditModalOpen && (
-        <EditGroupModal onClose={handleModalClose} group={selectedGroup} />
-      )}
+      <CreateGroupDialog
+        isOpen={isCreateDialogOpen}
+        onClose={handleModalClose}
+      />
+      <EditGroupDialog
+        isOpen={isEditDialogOpen}
+        onClose={handleModalClose}
+        group={selectedGroup}
+      />
+      <DeleteGroupDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={handleModalClose}
+        group={selectedGroup}
+      />
       <div className="p-4 flex flex-wrap items-center gap-4">
-        <h1 className="text-3xl font-bold text-yellow font-brice">Grupos</h1>
-        <button
-          className="max-w-48 flex items-center gap-2 text-navy bg-yellow border-2 border-yellow border-dashed py-3 px-6 rounded-xl transition hover:cursor-pointer hover:bg-primary hover:text-yellow"
-          onClick={() => setIsCreateModalOpen(true)}
+        <h1 className="text-4xl font-bold text-yellow font-brice">
+          Mis grupos
+        </h1>
+        <Button
+          variant="yellow"
+          size="lg"
+          onClick={() => setIsCreateDialogOpen(true)}
+          className="flex items-center gap-2"
         >
           <Plus width={20} height={20} />
           <span className="ml-2">Crear grupo</span>
-        </button>
+        </Button>
         <div className="max-w-48 flex items-center gap-2 bg-primary text-white border-2 border-white border-dashed rounded-xl p-2 ">
           <Search width={20} height={20} />
           <input
@@ -136,13 +109,13 @@ export default function Groups() {
         </div>
       </div>
       <div className="w-full h-full flex flex-col items-center justify-center mt-8">
-        {groups.length === 0 && (
+        {userData.groups.length === 0 && (
           <div className="w-full flex flex-col items-center justify-center text-navy">
             <FolderX width={42} height={42} />
             <p className="text-2xl font-bold my-4">No tienes grupos.</p>
             <button
               className="py-2 px-4 bg-transparent border-2 border-navy border-dashed text-white rounded-xl flex items-center gap-2 transition hover:cursor-pointer hover:bg-navy hover:text-white"
-              onClick={() => setIsCreateModalOpen(true)}
+              onClick={() => setIsCreateDialogOpen(true)}
             >
               Crear uno
               <Plus width={20} height={20} />
@@ -150,7 +123,7 @@ export default function Groups() {
           </div>
         )}
 
-        {groupsFiltered.length === 0 && groups.length !== 0 && (
+        {groupsFiltered.length === 0 && userData.groups.length !== 0 && (
           <div className="w-full flex flex-col items-center justify-center text-navy">
             <FolderX width={42} height={42} />
             <p className="text-2xl font-bold my-4">
@@ -164,9 +137,11 @@ export default function Groups() {
             const groupColor = colorMap[group.color];
 
             return (
-              <div
+              <Card
                 key={group.id}
-                className="w-full md:max-w-sm h-56 flex flex-col items-center justify-between bg-primary border-2 border-navy text-white rounded-3xl p-4 hover:scale-102 hover:border-white transition-all duration-300"
+                custom
+                rounded="3xl"
+                className={"text-white flex flex-col gap-4"}
               >
                 <div className="w-full flex items-start gap-2">
                   <span
@@ -179,36 +154,36 @@ export default function Groups() {
                   >
                     {group.title}
                   </h1>
-                  <button
-                    className="ml-auto p-1 hover:cursor-pointer transition hover:text-yellow"
-                    onClick={() => {
-                      setSelectedGroup(group);
-                      setIsEditModalOpen(true);
-                    }}
-                  >
-                    <Pencil width={20} height={20} />
-                  </button>
-                  <button
-                    className="ml-auto p-1 hover:cursor-pointer transition hover:text-coral"
-                    onClick={() => {
-                      setSelectedGroup(group);
-                      setIsDeleteModalOpen(true);
-                    }}
-                  >
-                    <Trash width={20} height={20} />
-                  </button>
                 </div>
-                <div className="w-full text-left mt-2 text-md overflow-hidden max-h-20 overflow-y-auto">
+                <div className="w-full text-left text-md overflow-hidden max-h-20 overflow-y-auto">
                   {group.description}
                 </div>
-                {/* Número de enlaces */}
-                <button
-                  className="w-4/6 py-2 mt-auto text-light-blue border-2 border-light-blue rounded-xl flex justify-center items-center gap-2 transition hover:bg-light-blue hover:text-navy hover:cursor-pointer"
-                  onClick={() => navigate(`/links?groupId=${group.id}`)}
-                >
-                  Ver enlaces
-                </button>
-              </div>
+
+                <div className="w-full grid grid-cols-2 gap-2 items-center mt-auto">
+                  <Button
+                    variant="yellow"
+                    size="md"
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      setIsEditDialogOpen(true);
+                    }}
+                    className="flex justify-center"
+                  >
+                    <Pencil size={20} />
+                  </Button>
+                  <Button
+                    variant="coral"
+                    size="md"
+                    onClick={() => {
+                      setSelectedGroup(group);
+                      setIsDeleteDialogOpen(true);
+                    }}
+                    className="flex justify-center"
+                  >
+                    <Trash size={20} />
+                  </Button>
+                </div>
+              </Card>
             );
           })}
         </div>

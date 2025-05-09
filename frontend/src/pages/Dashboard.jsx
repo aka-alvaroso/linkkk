@@ -12,8 +12,7 @@ import {
 } from "recharts";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
-import Loading from "../components/Loading";
-import EditLinkModal from "../components/EditLinkModal";
+import Loading from "../components/Common/Loading";
 import DeleteLinkModal from "../components/DeleteLinkModal";
 import {
   useReactTable,
@@ -52,6 +51,8 @@ import {
   Check,
   X,
 } from "lucide-react";
+import EditLinkDialog from "../components/Link/EditLinkDialog";
+import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -63,6 +64,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [countries, setCountries] = useState([]);
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -165,9 +167,31 @@ export default function Dashboard() {
     setLoading(false);
   }, [shortCode]);
 
+  const fetchCountries = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}countries/get`,
+        {
+          credentials: "include",
+        }
+      );
+
+      if (response.status !== 200) {
+        console.error(response.json());
+        return;
+      }
+
+      const data = await response.json();
+      setCountries(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       fetchData();
+      fetchCountries();
     }
   }, [fetchData, isLoggedIn]);
 
@@ -214,24 +238,22 @@ export default function Dashboard() {
       {error && <p className="text-center text-red-500 text-lg">{error}</p>}
       {link && (
         <div className="w-full min-h-full p-4 pb-24 bg-primary">
-          {isEditModalOpen && (
-            <EditLinkModal
-              onClose={() => {
-                setIsEditModalOpen(false);
-                navigate(`/dashboard/${link.shortUrl}`);
-                fetchData();
-              }}
-              link={link}
-            />
-          )}
-          {isDeleteModalOpen && (
-            <DeleteLinkModal
-              onClose={() => {
-                setIsDeleteModalOpen(false);
-              }}
-              link={link}
-            />
-          )}
+          <EditLinkDialog
+            isOpen={isEditModalOpen}
+            onClose={() => {
+              setIsEditModalOpen(false);
+            }}
+            linkData={link}
+            countries={countries}
+          />
+          <DeleteLinkDialog
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              navigate("/links");
+            }}
+            link={link}
+          />
 
           <div className="w-full lg:w-4/6 mx-auto">
             <h1 className="text-4xl font-bold my-4 text-yellow font-brice">

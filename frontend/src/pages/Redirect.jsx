@@ -69,13 +69,6 @@ export default function Redirect() {
           }
         }
 
-        // 1. Que el usuario sea de movil y el enlace tenga url para movil
-        // 2. Que el usuario sea de movil y el enlace tenga url para ordenador pero no para movil
-        // 3. Que el usuario sea de movil y que el enlace no tenga url para movil ni para ordenador
-        // 4. que el usuario sea de ordenador y el enlace tenga url para movil pero no para ordenador
-        // 5. que el usuario sea de ordenador y el enlace tenga url para ordenador
-        // 6. que el usuario sea de ordenador y que el enlace no tenga url para movil ni para ordenador
-
         if (device) {
           if (link.mobileUrl) {
             url = link.mobileUrl;

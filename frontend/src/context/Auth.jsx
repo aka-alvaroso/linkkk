@@ -6,7 +6,7 @@ export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGuestSession, setIsGuestSession] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
-  const [authChecked, setAuthChecked] = useState(false); // 👈 nuevo!
+  const [authChecked, setAuthChecked] = useState(false);
 
   const checkLoginStatus = async () => {
     try {

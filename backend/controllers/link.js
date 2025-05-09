@@ -23,7 +23,7 @@ const createLink = async (req, res) => {
 
   try {
     const {
-      url,
+      longUrl,
       groupId,
       tags,
       sufix,
@@ -33,14 +33,10 @@ const createLink = async (req, res) => {
       mobileUrl,
       desktopUrl,
       expirationDate,
-      // metadata,
+      metadataTitle,
+      metadataDescription,
+      metadataImage,
     } = req.body;
-
-    // TODO: Validación de datos y URLs
-
-    if (!url) {
-      return res.status(400).json({ error: "Falta el parámetro url" });
-    }
 
     const chars =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -65,7 +61,7 @@ const createLink = async (req, res) => {
       data: {
         userId: !isGuest ? Number(req.user?.id) : null,
         guest_sessionId: isGuest ? Number(req.guest?.guestSessionId) : null,
-        longUrl: url,
+        longUrl,
         shortUrl: randomString,
         groupId: isGuest ? null : groupId ? Number(groupId) : null,
         sufix: isGuest ? null : sufix ? sufix : null,
@@ -88,6 +84,9 @@ const createLink = async (req, res) => {
           : expirationDate
           ? new Date(expirationDate)
           : null,
+        metadataTitle: metadataTitle ? metadataTitle : null,
+        metadataDescription: metadataDescription ? metadataDescription : null,
+        metadataImage: metadataImage ? metadataImage : null,
       },
     });
 
@@ -103,6 +102,10 @@ const createLink = async (req, res) => {
 const getLinkRedirect = async (req, res) => {
   try {
     const { shortCode } = req.params;
+    const userAgent = req.headers["user-agent"];
+    const isBot = /bot|facebook|twitter|discord|crawl|spider|preview/i.test(
+      userAgent
+    );
 
     if (!shortCode) {
       return res.status(400).json({ error: "Missing shortCode parameter" });
@@ -122,7 +125,33 @@ const getLinkRedirect = async (req, res) => {
       return res.status(404).json({ error: "Link not found" });
     }
 
-    res.status(200).json(link);
+    if (isBot) {
+      return res.send(`
+          <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta property="og:title" content="${
+          link.metaTitle || "Título por defecto"
+        }" />
+        <meta property="og:description" content="${
+          link.metaDescription || "Descripción por defecto"
+        }" />
+        <meta property="og:image" content="${
+          link.metaImage || "https://tusitio.com/default.jpg"
+        }" />
+        <meta property="og:url" content="https://tusitio.com/${shortCode}" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta http-equiv="refresh" content="0;url=https://tusitio.com/r/${shortCode}" />
+        <title>${link.metaTitle || "Redireccionando..."}</title>
+      </head>
+      <body>
+        <p>Redirigiendo...</p>
+      </body>
+      </html>`);
+    } else {
+      res.status(200).json(link);
+    }
   } catch (error) {
     console.error("Error al recuperar link:", error);
     res.status(500).json({ error: error.message });
@@ -286,12 +315,8 @@ const getLinkStats = async (req, res) => {
 // TODO: Optimización y claridad del código al actualizar un link
 const updateLink = async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ error: "No token provided - Link update" });
-    }
-
-    const { id } = req.params;
     const {
+      id,
       longUrl,
       status,
       groupId,
@@ -303,11 +328,10 @@ const updateLink = async (req, res) => {
       mobileUrl,
       desktopUrl,
       sufix,
+      metadataTitle,
+      metadataDescription,
+      metadataImage,
     } = req.body;
-
-    if (!id) {
-      return res.status(400).json({ error: "Falta el parámetro id" });
-    }
 
     const existingLink = await prisma.link.findUnique({
       where: { id: Number(id) },
@@ -343,6 +367,9 @@ const updateLink = async (req, res) => {
         mobileUrl: mobileUrl ? mobileUrl : null,
         desktopUrl: desktopUrl ? desktopUrl : null,
         sufix: sufix ? sufix : null,
+        metadataTitle: metadataTitle ? metadataTitle : null,
+        metadataDescription: metadataDescription ? metadataDescription : null,
+        metadataImage: metadataImage ? metadataImage : null,
       },
       include: {
         group: true,

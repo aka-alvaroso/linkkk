@@ -24,6 +24,9 @@ const getTagsByUserId = async (req, res) => {
 
   const tags = await prisma.tag.findMany({
     where: { userId: Number(userId) },
+    orderBy: {
+      name: "asc",
+    },
   });
 
   if (!tags) {
@@ -37,10 +40,6 @@ const updateTag = async (req, res) => {
   const { tagId, name, color } = req.body;
   const userId = req.user.id;
 
-  if (!tagId || !name) {
-    return res.status(400).json({ error: "Faltan parámetros" });
-  }
-
   const tag = await prisma.tag.update({
     where: { id: Number(tagId), userId: Number(userId) },
     data: { name: name, color: color },
@@ -52,10 +51,6 @@ const updateTag = async (req, res) => {
 const deleteTag = async (req, res) => {
   const { tagId } = req.body;
   const userId = req.user.id;
-
-  if (!tagId) {
-    return res.status(400).json({ error: "Falta el parámetro tagId" });
-  }
 
   await prisma.tag.delete({
     where: { id: Number(tagId), userId: Number(userId) },

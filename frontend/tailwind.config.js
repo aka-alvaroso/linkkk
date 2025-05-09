@@ -2,15 +2,19 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
-      colors: {
-        primary: "0274ff",
-        orange: "#ff9802",
-        green: "#23ae74",
-        yellow: "#fff563",
-        lightBlue: "#99c0ec",
-        coral: "#ff6671",
-        navy: "#181e6a",
-        pink: "#fac8ff",
+      animation: {
+        marquee: "marquee 25s linear infinite",
+        marquee2: "marquee2 25s linear infinite",
+      },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
+        marquee2: {
+          "0%": { transform: "translateX(100%)" },
+          "100%": { transform: "translateX(0%)" },
+        },
       },
       fontFamily: {
         brice: ["Brice", "sans-serif"],

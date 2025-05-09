@@ -42,33 +42,29 @@ model Link {
   id          Int     @id @default(autoincrement())
   userId      Int?
   guest_sessionId Int?
-  longUrl     String
   shortUrl    String  @unique
+  longUrl     String
   status      Boolean @default(true)
-  groupId     Int?    // Optional foreign key to Group
+  groupId     Int?
   tags        Tag[]   @relation("LinkTags")
-  accesses    Access[]
-  d_expire    DateTime?
+  createdAt   DateTime @default(now())
   accessLimit Int?
   password    String?
+  d_expire    DateTime?
   mobileUrl   String?
   desktopUrl  String?
-  blockedCountries Country[] @relation("LinkCountries")
   sufix       String?  @unique
-  metadataId  Int?    @unique
-  smetadata    MetadataConfig? @relation(fields: [metadataId], references: [id], onDelete: Cascade)
+  metadataTitle     String?
+  metadataDescription String?
+  metadataImage     String?
+  accesses    Access[]
   user        User? @relation(fields: [userId], references: [id])
   guest_session GuestSession? @relation(fields: [guest_sessionId], references: [id])
-  group       Group?  @relation(fields: [groupId], references: [id]) // Optional relation to Group
-  createdAt   DateTime @default(now())
-}
-
-model MetadataConfig {
-  id             Int     @id @default(autoincrement())
-  title          String?
-  description    String?
-  imageUrl       String?
-  link           Link?
+  group       Group?  @relation(fields: [groupId], references: [id])
+  blockedCountries Country[] @relation("LinkCountries")
+  useGeoBlocking Boolean @default(false)
+  useCustomMetadata Boolean @default(false)
+  useSmartRedirection Boolean @default(false)
 }
 
 model Group {

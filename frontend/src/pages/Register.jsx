@@ -1,13 +1,15 @@
 import React from "react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "../context/Auth";
+import { useNotification } from "../context/NotificationContext";
+import { useUserData } from "../context/UserDataContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { checkLoginStatus } = useAuth();
-
-  const [error, setError] = useState(null);
+  const { checkLoginStatus, isLoggedIn } = useAuth();
+  const { refreshUserData } = useUserData();
+  const { showNotification } = useNotification();
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -44,15 +46,42 @@ export default function Register() {
         credentials: "include",
       });
       if (session.ok) {
-        checkLoginStatus();
+        await checkLoginStatus();
+        if (!isLoggedIn) {
+          showNotification({
+            title: "Error",
+            message: "No se pudo iniciar sesión",
+            type: "error",
+          });
+          navigate("/");
+        }
+        await refreshUserData({
+          onlyLinks: false,
+          onlyGroups: false,
+          onlyTags: false,
+          onlyCountries: false,
+        });
+        showNotification({
+          title: "Sesión iniciada",
+          message: "¡Bienvenido de nuevo!",
+          type: "success",
+        });
         navigate("/");
       } else {
         const data = await session.json();
-        setError(data.error);
+        showNotification({
+          title: "Error",
+          message: data.details,
+          type: "error",
+        });
       }
     } else {
       const data = await response.json();
-      setError(data.error);
+      showNotification({
+        title: "Error",
+        message: data.details,
+        type: "error",
+      });
     }
   };
 
@@ -90,7 +119,6 @@ export default function Register() {
           >
             Registrarme
           </button>
-          {error && <p className="mt-4 text-red-500 z-1">Error: {error}</p>}
         </form>
         <p className="mt-4 z-1">
           ¿Ya tienes cuenta?{" "}
