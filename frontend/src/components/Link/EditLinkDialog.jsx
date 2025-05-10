@@ -128,7 +128,15 @@ export default function EditLinkDialog({ isOpen, onClose, linkData }) {
         </div>
       </div>
 
-      <div className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-4/5 overflow-auto">
+      <div
+        className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-96 overflow-auto
+        [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:bg-white/50
+        [&::-webkit-scrollbar-track]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-white
+        [&::-webkit-scrollbar-thumb]:rounded-full
+      "
+      >
         {/* LongURL */}
         <Input
           label="URL Destino"

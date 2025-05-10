@@ -125,7 +125,15 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         </div>
       </div>
 
-      <div className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-4/5 overflow-auto">
+      <div
+        className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-96 overflow-auto
+        [&::-webkit-scrollbar]:w-2
+        [&::-webkit-scrollbar-track]:bg-white/50
+        [&::-webkit-scrollbar-track]:rounded-full
+        [&::-webkit-scrollbar-thumb]:bg-white
+        [&::-webkit-scrollbar-thumb]:rounded-full
+      "
+      >
         {/* LongURL */}
         <Input
           label="URL Destino"
@@ -168,7 +176,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
           />
         </div>
 
-        <div className=" w-full h-px md:col-span-2 my-4 bg-primary" />
+        <div className=" w-full hmd:-px md:col-span-2 my-4 bg-primary" />
 
         {/* Date Expire */}
         <Input
@@ -262,7 +270,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         />
 
         {/* Metada */}
-        <h4 className="text-lg col-span-2 mt-4">Metadatos</h4>
+        <h4 className="text-lg md:col-span-2 mt-4">Metadatos</h4>
         <Input
           label="Título"
           type="text"
@@ -283,7 +291,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
           inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
         />
 
-        <div className="col-span-2">
+        <div className="md:col-span-2">
           <Input
             label="Imagen"
             type="text"

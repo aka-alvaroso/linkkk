@@ -13,7 +13,8 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import Loading from "../components/Common/Loading";
-import DeleteLinkModal from "../components/DeleteLinkModal";
+import { useNotification } from "../context/NotificationContext";
+import { useUserData } from "../context/UserDataContext";
 import {
   useReactTable,
   getCoreRowModel,
@@ -65,6 +66,8 @@ export default function Dashboard() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [countries, setCountries] = useState([]);
+  const { showNotification } = useNotification();
+  const { refreshUserData } = useUserData();
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -75,7 +78,7 @@ export default function Dashboard() {
     try {
       // Actualizar en la bd
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}link/${link.id}`,
+        `${import.meta.env.VITE_API_URL}link/update`,
         {
           method: "PUT",
           headers: {
@@ -83,9 +86,10 @@ export default function Dashboard() {
           },
           credentials: "include",
           body: JSON.stringify({
+            id: link.id.toString(),
             longUrl: link.longUrl,
             status: !link.status,
-            groupId: link.group ? link.group.id.toString() : "0",
+            groupId: link.group ? link.group.id : undefined,
             tags: link.tags.map((tag) => tag.id),
             d_expire: link.d_expire ? new Date(link.d_expire) : undefined,
             password: link.password ? link.password : undefined,
@@ -100,15 +104,21 @@ export default function Dashboard() {
         }
       );
 
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
-        // console.log(data);
-        // Cuando se actualiza el enlace en la bd, se muestra notificacion
-        // TODO - Notificacion
+        await refreshUserData({ onlyLinks: true });
+        showNotification({
+          title: "Enlace actualizado",
+          message: "El enlace se ha actualizado correctamente.",
+          type: "success",
+        });
       } else {
-        const errorData = await response.json();
-        console.error("Error del servidor:", errorData);
-        setError(errorData.error || "Error al actualizar el estado del enlace");
+        showNotification({
+          title: "Error al actualizar el enlace",
+          message: data.error,
+          type: "error",
+        });
+        console.error("Error del servidor:", data);
       }
     } catch (error) {
       console.error("Error en la solicitud:", error);

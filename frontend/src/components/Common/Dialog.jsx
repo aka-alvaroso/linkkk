@@ -83,7 +83,7 @@ const Dialog = forwardRef(({ isOpen, onClose, children, size = "md" }, ref) => {
       }}
     >
       <div
-        className={`bg-navy border-2 border-primary border-dashed text-white rounded-2xl mx-4 p-6 relative max-w-full max-h-[75vh] overflow-auto md:${dialogSize[size]}
+        className={`bg-navy border-2 border-primary border-dashed text-white rounded-2xl mx-4 p-6 relative max-w-full max-h-[75vh]  md:${dialogSize[size]}
         [&::-webkit-scrollbar]:w-2
         [&::-webkit-scrollbar-track]:bg-white/20
         [&::-webkit-scrollbar-track]:rounded-full
