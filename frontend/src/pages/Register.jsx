@@ -69,6 +69,7 @@ export default function Register() {
         navigate("/");
       } else {
         const data = await session.json();
+        console.log(data.details);
         showNotification({
           title: "Error",
           message: data.details,

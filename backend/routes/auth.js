@@ -62,7 +62,7 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
   const guestId = Number(req.guest?.id);
 
   if (!guestId) {
-    return res.status(400).json({ error: "Invalid guest ID" });
+    return res.status(400).json({ details: "Invalid guest ID" });
   }
 
   try {
@@ -71,7 +71,7 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
     });
 
     if (!guest) {
-      return res.status(404).json({ error: "Guest session not found" });
+      return res.status(404).json({ details: "Guest session not found" });
     }
 
     await prisma.guestSession.delete({
@@ -82,19 +82,14 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
     res.status(200).json({ message: "Guest session deleted successfully" });
   } catch (error) {
     res.status(500).json({
-      error: "Failed to delete guest session",
+      details: "Failed to delete guest session",
     });
   }
 });
 
 router.post("/register", validate(registerSchema), async (req, res) => {
   const { username, email, password } = req.body;
-  const guestToken = req.cookies.guestToken;
-  const guestId = jwt.decode(guestToken)?.guestSessionId;
-
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: "Missing mandatory fields" });
-  }
+  const guestId = Number(req.guest?.id);
 
   const existingUser = await prisma.user.findFirst({
     where: {
@@ -103,7 +98,7 @@ router.post("/register", validate(registerSchema), async (req, res) => {
   });
 
   if (existingUser) {
-    return res.status(400).json({ error: "Usuario ya registrado" });
+    return res.status(400).json({ details: "Usuario ya registrado" });
   }
 
   try {
@@ -152,7 +147,13 @@ router.post("/register", validate(registerSchema), async (req, res) => {
 
     res.status(201).json({ message: "Usuario registrado con éxito", user });
   } catch (error) {
-    res.status(400).json({ error: "Error al registrar usuario", error });
+    console.log(error);
+    res
+      .status(500)
+      .json({
+        error: "Error al registrar usuario",
+        details: JSON.stringify(error),
+      });
   }
 });
 

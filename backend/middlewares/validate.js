@@ -7,7 +7,10 @@ const validate = (schema) => (req, res, next) => {
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors;
-    return res.status(400).json({ error: "Datos inválidos", details: errors });
+    console.log(errors);
+    return res
+      .status(400)
+      .json({ error: "Datos inválidos", details: JSON.stringify(errors) });
   }
 
   req.body = result.data;
