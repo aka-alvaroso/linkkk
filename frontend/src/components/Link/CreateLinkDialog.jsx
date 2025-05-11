@@ -32,6 +32,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
   const [metadataDescription, setMetadataDescription] = useState("");
   const [metadataImage, setMetadataImage] = useState("");
   const [buttonLoading, setButtonLoading] = useState(false);
+  const [metadataEnabled, setMetadataEnabled] = useState(false);
 
   useEffect(() => {
     if (linkData) {
@@ -79,6 +80,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         metadataTitle: metadataTitle,
         metadataDescription: metadataDescription,
         metadataImage: metadataImage,
+        useMetadata: metadataEnabled,
       }),
     });
 
@@ -269,39 +271,53 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
           inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
         />
 
-        {/* Metada */}
-        <h4 className="text-lg md:col-span-2 mt-4">Metadatos</h4>
-        <Input
-          label="Título"
-          type="text"
-          value={metadataTitle}
-          placeholder="Título del enlace"
-          onChange={(e) => setMetadataTitle(e.target.value)}
-          className="w-full"
-          inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
-        />
+        {/* Metadata */}
+        <div className="md:col-span-2 flex items-center gap-2 mt-6">
+          <h4 className="text-2xl ">Metadatos</h4>
 
-        <Input
-          label="Descripción"
-          type="text"
-          value={metadataDescription}
-          placeholder="Descripción del enlace"
-          onChange={(e) => setMetadataDescription(e.target.value)}
-          className="w-full"
-          inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
-        />
-
-        <div className="md:col-span-2">
-          <Input
-            label="Imagen"
-            type="text"
-            value={metadataImage}
-            placeholder="Url de la imagen"
-            onChange={(e) => setMetadataImage(e.target.value)}
-            className="w-full"
-            inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white "
+          <Switch
+            checked={metadataEnabled}
+            onChange={() => setMetadataEnabled(!metadataEnabled)}
+            size="md"
           />
         </div>
+        {metadataEnabled && (
+          <Input
+            label="Título"
+            type="text"
+            value={metadataTitle}
+            placeholder="Título del enlace"
+            onChange={(e) => setMetadataTitle(e.target.value)}
+            className="w-full"
+            inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
+          />
+        )}
+
+        {metadataEnabled && (
+          <Input
+            label="Descripción"
+            type="text"
+            value={metadataDescription}
+            placeholder="Descripción del enlace"
+            onChange={(e) => setMetadataDescription(e.target.value)}
+            className="w-full"
+            inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
+          />
+        )}
+
+        {metadataEnabled && (
+          <div className="md:col-span-2">
+            <Input
+              label="Imagen"
+              type="text"
+              value={metadataImage}
+              placeholder="Url de la imagen"
+              onChange={(e) => setMetadataImage(e.target.value)}
+              className="w-full"
+              inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white "
+            />
+          </div>
+        )}
       </div>
 
       <div className="w-full flex items-center gap-2 sticky -bottom-6 bg-navy py-6">

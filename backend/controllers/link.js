@@ -36,6 +36,7 @@ const createLink = async (req, res) => {
       metadataTitle,
       metadataDescription,
       metadataImage,
+      useMetadata,
     } = req.body;
 
     const chars =
@@ -84,9 +85,10 @@ const createLink = async (req, res) => {
           : expirationDate
           ? new Date(expirationDate)
           : null,
-        metadataTitle: metadataTitle ? metadataTitle : null,
-        metadataDescription: metadataDescription ? metadataDescription : null,
-        metadataImage: metadataImage ? metadataImage : null,
+        metadataTitle: useMetadata ? metadataTitle : null,
+        metadataDescription: useMetadata ? metadataDescription : null,
+        metadataImage: useMetadata ? metadataImage : null,
+        useCustomMetadata: useMetadata,
       },
     });
 
@@ -126,29 +128,37 @@ const getLinkRedirect = async (req, res) => {
     }
 
     if (isBot) {
+      // Usar metadatos personalizados si existen y están habilitados
+      const title = link.useCustomMetadata && link.metadataTitle
+        ? link.metadataTitle
+        : "Título por defecto";
+      const description = link.useCustomMetadata && link.metadataDescription
+        ? link.metadataDescription
+        : "Descripción por defecto";
+      const image = link.useCustomMetadata && link.metadataImage
+        ? link.metadataImage
+        : "https://tusitio.com/default.jpg";
+
       return res.send(`
-          <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="UTF-8">
-        <meta property="og:title" content="${
-          link.metaTitle || "Título por defecto"
-        }" />
-        <meta property="og:description" content="${
-          link.metaDescription || "Descripción por defecto"
-        }" />
-        <meta property="og:image" content="${
-          link.metaImage || "https://tusitio.com/default.jpg"
-        }" />
-        <meta property="og:url" content="https://tusitio.com/${shortCode}" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta http-equiv="refresh" content="0;url=https://tusitio.com/r/${shortCode}" />
-        <title>${link.metaTitle || "Redireccionando..."}</title>
-      </head>
-      <body>
-        <p>Redirigiendo...</p>
-      </body>
-      </html>`);
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <meta property="og:title" content="${title}" />
+          <meta property="og:description" content="${description}" />
+          <meta property="og:image" content="${image}" />
+          <meta property="og:url" content="https://linkkk.dev/${shortCode}" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="${title}" />
+          <meta name="twitter:description" content="${description}" />
+          <meta name="twitter:image" content="${image}" />
+          <meta http-equiv="refresh" content="0;url=https://linkkk.dev/r/${shortCode}" />
+          <title>${title || "Redireccionando..."}</title>
+        </head>
+        <body>
+          <p>Redirigiendo...</p>
+        </body>
+        </html>`);
     } else {
       res.status(200).json(link);
     }
@@ -331,6 +341,7 @@ const updateLink = async (req, res) => {
       metadataTitle,
       metadataDescription,
       metadataImage,
+      useMetadata,
     } = req.body;
 
     const existingLink = await prisma.link.findUnique({
@@ -367,9 +378,10 @@ const updateLink = async (req, res) => {
         mobileUrl: mobileUrl ? mobileUrl : null,
         desktopUrl: desktopUrl ? desktopUrl : null,
         sufix: sufix ? sufix : null,
-        metadataTitle: metadataTitle ? metadataTitle : null,
-        metadataDescription: metadataDescription ? metadataDescription : null,
-        metadataImage: metadataImage ? metadataImage : null,
+        metadataTitle: useMetadata ? metadataTitle : null,
+        metadataDescription: useMetadata ? metadataDescription : null,
+        metadataImage: useMetadata ? metadataImage : null,
+        useCustomMetadata: useMetadata,
       },
       include: {
         group: true,

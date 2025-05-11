@@ -14,6 +14,7 @@ const createLinkSchema = z.object({
   metadataTitle: z.string().optional(),
   metadataDescription: z.string().optional(),
   metadataImage: z.string().optional(),
+  useMetadata: z.boolean(),
 });
 
 const shortCodeParamSchema = z.object({
@@ -36,6 +37,7 @@ const updateLinkSchema = z.object({
   metadataTitle: z.string().optional(),
   metadataDescription: z.string().optional(),
   metadataImage: z.string().optional(),
+  useMetadata: z.boolean(),
 });
 
 const deleteLinkSchema = z.object({
