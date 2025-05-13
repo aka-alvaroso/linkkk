@@ -10,7 +10,10 @@ const groupRoutes = require("./routes/group");
 const tagRoutes = require("./routes/tag");
 const cookieParser = require("cookie-parser");
 const validate = require("./middlewares/validate");
-const { shortCodeParamSchema } = require("./validations/link");
+const {
+  shortCodeParamSchema,
+  postLinkPassword,
+} = require("./validations/link");
 
 const prisma = require("./prisma/client");
 
@@ -27,6 +30,16 @@ app.use(
 );
 app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+app.use(
+  "/assets/font",
+  express.static("c:/Dev/linkkk/frontend/src/assets/font")
+);
+app.use(
+  "/public/images",
+  express.static("c:/Dev/linkkk/frontend/public/images")
+);
 
 // Rutas
 app.get("/", (req, res) => {
@@ -35,11 +48,17 @@ app.get("/", (req, res) => {
 
 // Rutas de la API
 
-app.get(
-  "/r/:shortCode",
-  validate(shortCodeParamSchema),
-  linkController.getLinkRedirect
-);
+// app.route(
+//   "/r/:shortCode",
+//   validate(shortCodeParamSchema),
+//   linkController.getLinkRedirect
+// );
+
+app
+  .route("/r/:shortCode")
+  .get(validate(shortCodeParamSchema), linkController.getLinkRedirect)
+  .post(validate(postLinkPassword), linkController.postLinkPassword);
+
 app.use("/link", linkRoutes);
 app.use("/access", accessRoutes);
 app.use("/auth", authRoutes);
@@ -330,6 +349,12 @@ app.get("/countries/deleteall", async (req, res) => {
     res.status(500).json({ error: "Error al borrar los países" });
   }
 });
+
+app.get(
+  "/:shortCode",
+  validate(shortCodeParamSchema),
+  linkController.getLinkRedirect
+);
 
 app.listen(PORT, () => {
   console.log(`🚀 Servidor escuchando en el puerto ${PORT}`);

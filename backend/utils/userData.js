@@ -1,0 +1,44 @@
+const IPAPI_KEY = process.env.IPAPI_KEY;
+
+const getClientIp = (req) => {
+  let ip =
+    req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
+    req.connection.remoteAddress ||
+    req.socket?.remoteAddress ||
+    req.ip;
+
+  if (ip === "::1" || ip === "0:0:0:0:0:0:0:1") ip = "127.0.0.1";
+  if (ip.startsWith("::ffff:")) ip = ip.replace("::ffff:", "");
+  return ip;
+};
+
+const getCountryFromIP = async (ip) => {
+  const geo = await fetch(
+    `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
+  );
+  const data = await geo.json();
+  return data.countryCode;
+};
+
+const isVPNOrProxy = async (ip) => {
+  if (ip === "::1" || ip === "0:0:0:0:0:0:0:1" || ip === "127.0.0.1") {
+    return false;
+  }
+  const res = await fetch(
+    `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
+  );
+  const data = await res.json();
+  return data.proxy || data.vpn;
+};
+
+const getDeviceType = (userAgent) => {
+  const isMobile = /mobi/i.test(userAgent);
+  return isMobile ? "MOBILE" : "DESKTOP";
+};
+
+module.exports = {
+  getClientIp,
+  getCountryFromIP,
+  isVPNOrProxy,
+  getDeviceType,
+};

@@ -11,7 +11,7 @@ html, body, #root {
 
 
 .font-brice {
-  font-family: 'Brice', sans-serif; /* Clase para aplicar la fuente Brice */
+  font-family: 'Brice', sans-serif;
 }
 
 @font-face {

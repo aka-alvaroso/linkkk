@@ -1,5 +1,32 @@
 const prisma = require("../prisma/client");
+const { renderError, renderPasswordForm } = require("../utils/templates");
 const jwt = require("jsonwebtoken");
+const {
+  getClientIp,
+  getCountryFromIP,
+  isVPNOrProxy,
+  getDeviceType,
+} = require("../utils/userData");
+
+function isActive(link) {
+  return link.status;
+}
+function isPassword(link) {
+  return link.password;
+}
+function isAccessLimit(link) {
+  return link.accessLimit && link.accessLimit <= link.accesses.length;
+}
+function isExpired(link) {
+  // TODO: ¿Cuando se accede a un enlace expirado, se guarda como inactivo?
+  return link.d_expire && new Date(link.d_expire) < new Date();
+}
+function isBlockedCountry(link, country) {
+  return link.blockedCountries.some(
+    (blockedCountry) =>
+      blockedCountry.code.toUpperCase() === country.toUpperCase()
+  );
+}
 
 const createLink = async (req, res) => {
   if (req.guest?.guestSessionId) {
@@ -103,8 +130,12 @@ const createLink = async (req, res) => {
 
 const getLinkRedirect = async (req, res) => {
   try {
-    const { shortCode } = req.params;
+    const ip = getClientIp(req);
     const userAgent = req.headers["user-agent"];
+    const country = (await getCountryFromIP(ip)) || "XX";
+    const isVPN = await isVPNOrProxy(ip);
+    const deviceType = getDeviceType(userAgent);
+    const { shortCode } = req.params;
     const isBot = /bot|facebook|twitter|discord|crawl|spider|preview/i.test(
       userAgent
     );
@@ -129,15 +160,18 @@ const getLinkRedirect = async (req, res) => {
 
     if (isBot) {
       // Usar metadatos personalizados si existen y están habilitados
-      const title = link.useCustomMetadata && link.metadataTitle
-        ? link.metadataTitle
-        : "Título por defecto";
-      const description = link.useCustomMetadata && link.metadataDescription
-        ? link.metadataDescription
-        : "Descripción por defecto";
-      const image = link.useCustomMetadata && link.metadataImage
-        ? link.metadataImage
-        : "https://tusitio.com/default.jpg";
+      const title =
+        link.useCustomMetadata && link.metadataTitle
+          ? link.metadataTitle
+          : "Título por defecto";
+      const description =
+        link.useCustomMetadata && link.metadataDescription
+          ? link.metadataDescription
+          : "Descripción por defecto";
+      const image =
+        link.useCustomMetadata && link.metadataImage
+          ? link.metadataImage
+          : "https://tusitio.com/default.jpg";
 
       return res.send(`
         <!DOCTYPE html>
@@ -160,12 +194,192 @@ const getLinkRedirect = async (req, res) => {
         </body>
         </html>`);
     } else {
-      res.status(200).json(link);
+      // Estado del enlace
+      if (!isActive(link)) {
+        return res.send(renderError("Error", "El enlace no está activo."));
+      }
+
+      // Límite de accesos
+      if (isAccessLimit(link)) {
+        return res.send(
+          renderError("Error", "Este enlace no admite más accesos.")
+        );
+      }
+
+      // Fecha de expiración
+      if (isExpired(link)) {
+        return res.send(renderError("Error", "Este enlace ha caducado."));
+      }
+
+      // País bloqueado
+      if (isBlockedCountry(link, country)) {
+        return res.send(
+          renderError("Error", "Este enlace está bloqueado en tu país.")
+        );
+      }
+
+      // Contraseña
+      if (isPassword(link)) {
+        const userData = {
+          ip: ip,
+          isVPN: isVPN,
+          country: country,
+          deviceType: deviceType,
+          method: "LINK", // TODO: AÑADIR QRCODE
+        };
+        return res.send(
+          renderPasswordForm(
+            link.shortUrl,
+            "",
+            encodeURIComponent(JSON.stringify(userData))
+          )
+        );
+      }
+
+      let url = link.longUrl;
+
+      // Dispositivo
+      if (deviceType === "MOBILE") {
+        if (link.mobileUrl) {
+          url = link.mobileUrl;
+        }
+
+        if (link.desktopUrl && !link.mobileUrl) {
+          return res.send(
+            renderError(
+              "Error",
+              "Este enlace no tiene una URL para dispositivos móviles."
+            )
+          );
+        }
+
+        if (!link.mobileUrl && !link.desktopUrl) {
+          return res.redirect(302, link.longUrl);
+        }
+      } else {
+        if (link.desktopUrl) {
+          url = link.desktopUrl;
+        }
+
+        if (link.mobileUrl && !link.desktopUrl) {
+          return res.send(
+            renderError(
+              "Error",
+              "Este enlace no tiene una URL para dispositivos de escritorio."
+            )
+          );
+        }
+
+        if (!link.mobileUrl && !link.desktopUrl) {
+          url = link.longUrl;
+        }
+      }
+
+      const access = await prisma.access.create({
+        data: {
+          linkId: Number(link.id),
+          device: deviceType,
+          ip,
+          is_vpn: isVPN.toString(),
+          country,
+          method: "LINK", // TODO: AÑADIR QRCODE
+        },
+      });
+
+      // Redireccionar
+      return res.redirect(302, url);
     }
   } catch (error) {
     console.error("Error al recuperar link:", error);
     res.status(500).json({ error: error.message });
   }
+};
+
+const postLinkPassword = async (req, res) => {
+  const { shortCode } = req.params;
+  const { password, userData } = req.body;
+
+  const parsedUserData = userData
+    ? JSON.parse(decodeURIComponent(userData))
+    : {};
+
+  let link = await prisma.link.findUnique({
+    where: { sufix: shortCode },
+    include: { blockedCountries: true, accesses: true },
+  });
+  if (!link)
+    link = await prisma.link.findUnique({
+      where: { shortUrl: shortCode },
+      include: { blockedCountries: true, accesses: true },
+    });
+
+  if (!link) {
+    return res.status(404).send(renderError("Error", "Link not found"));
+  }
+
+  if (link.password !== password) {
+    // Contraseña incorrecta, vuelve a mostrar el form con error
+    return res.send(
+      renderPasswordForm(
+        shortCode,
+        "Contraseña incorrecta",
+        encodeURIComponent(JSON.stringify(parsedUserData))
+      )
+    );
+  }
+
+  let url = link.longUrl;
+
+  // Dispositivo
+  if (userData.deviceType === "MOBILE") {
+    if (link.mobileUrl) {
+      url = link.mobileUrl;
+    }
+
+    if (link.desktopUrl && !link.mobileUrl) {
+      return res.send(
+        renderError(
+          "Error",
+          "Este enlace no tiene una URL para dispositivos móviles."
+        )
+      );
+    }
+
+    if (!link.mobileUrl && !link.desktopUrl) {
+      return res.redirect(302, link.longUrl);
+    }
+  } else {
+    if (link.desktopUrl) {
+      url = link.desktopUrl;
+    }
+
+    if (link.mobileUrl && !link.desktopUrl) {
+      return res.send(
+        renderError(
+          "Error",
+          "Este enlace no tiene una URL para dispositivos de escritorio."
+        )
+      );
+    }
+
+    if (!link.mobileUrl && !link.desktopUrl) {
+      url = link.longUrl;
+    }
+  }
+
+  const access = await prisma.access.create({
+    data: {
+      linkId: Number(link.id),
+      device: parsedUserData.deviceType,
+      ip: parsedUserData.ip,
+      is_vpn: parsedUserData.isVPN.toString(),
+      country: parsedUserData.country,
+      method: parsedUserData.method,
+    },
+  });
+
+  // Redireccionar
+  return res.redirect(302, url);
 };
 
 const getLinkDetails = async (req, res) => {
@@ -424,6 +638,7 @@ const deleteLink = async (req, res) => {
 module.exports = {
   createLink,
   getLinkRedirect,
+  postLinkPassword,
   getLinkDetails,
   getLinksByUserId,
   getLinkStats,

@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { useAuth } from "./context/Auth.jsx";
 import { useUserData } from "./context/UserDataContext.jsx";
 
-import Redirect from "./pages/Redirect.jsx";
+// import Redirect from "./pages/Redirect.jsx";
 import Home from "./pages/Home.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
@@ -53,7 +53,6 @@ function App() {
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/r/:shortCode" element={<Redirect />} />
 
       {/* Rutas que requieren mínimo sesión de invitado */}
       <Route element={<ResponsiveLayout />}>
@@ -110,7 +109,6 @@ function App() {
       </Route>
 
       {/* Rutas públicas */}
-      <Route path="/:shortCode" element={<Redirect />} />
       <Route path="/notfound" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

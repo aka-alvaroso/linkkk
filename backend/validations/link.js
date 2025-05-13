@@ -21,6 +21,12 @@ const shortCodeParamSchema = z.object({
   shortCode: z.string().min(1, "shortCode requerido"),
 });
 
+const postLinkPassword = z.object({
+  shortCode: z.string().min(1, "shortCode requerido"),
+  password: z.string().min(1, "password requerido"),
+  userData: z.string(),
+});
+
 const updateLinkSchema = z.object({
   id: z.string().min(1, "ID requerido"), // desde req.params
   longUrl: z.string().url().optional(),
@@ -47,6 +53,7 @@ const deleteLinkSchema = z.object({
 module.exports = {
   createLinkSchema,
   shortCodeParamSchema,
+  postLinkPassword,
   updateLinkSchema,
   deleteLinkSchema,
 };
