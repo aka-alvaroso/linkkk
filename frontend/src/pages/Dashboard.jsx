@@ -77,6 +77,7 @@ export default function Dashboard() {
 
     try {
       // Actualizar en la bd
+
       const response = await fetch(
         `${import.meta.env.VITE_API_URL}link/update`,
         {
@@ -100,6 +101,12 @@ export default function Dashboard() {
             mobileUrl: link.mobileUrl ? link.mobileUrl : undefined,
             desktopUrl: link.desktopUrl ? link.desktopUrl : undefined,
             sufix: link.sufix ? link.sufix : undefined,
+            metadataTitle: link.metadataTitle ? link.metadataTitle : undefined,
+            metadataDescription: link.metadataDescription
+              ? link.metadataDescription
+              : undefined,
+            metadataImage: link.metadataImage ? link.metadataImage : undefined,
+            useMetadata: link.useCustomMetadata,
           }),
         }
       );
@@ -323,7 +330,19 @@ export default function Dashboard() {
                 </div>
 
                 <div className="w-full lg:w-4/12 h-full grid grid-cols-2 grid-rows-2 gap-2 p-2">
-                  <button className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow">
+                  <button
+                    className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        "https://linkkk.dev/" +
+                          (link.sufix ? link.sufix : link.shortUrl)
+                      );
+                      showNotification({
+                        message: "El enlace ha sido copiado al portapapeles",
+                        type: "success",
+                      });
+                    }}
+                  >
                     <Copy size={30} />
                   </button>
                   <button

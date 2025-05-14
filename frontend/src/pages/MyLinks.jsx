@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/Auth";
 import { useUserData } from "../context/UserDataContext";
+import { useNotification } from "../context/NotificationContext";
 
 import GroupSelector from "../components/Group/GroupSelector";
 import TagSelector from "../components/Tag/TagSelector";
@@ -31,6 +32,7 @@ import Card from "../components/Common/Card";
 
 export default function MyLinks() {
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const { userData } = useUserData();
   const [searchParams] = useSearchParams();
   const { isLoggedIn } = useAuth();
@@ -393,6 +395,10 @@ export default function MyLinks() {
                     "https://linkkk.dev/" +
                       (link.sufix ? link.sufix : link.shortUrl)
                   );
+                  showNotification({
+                    message: "El enlace ha sido copiado al portapapeles",
+                    type: "success",
+                  });
                 }}
               >
                 <Copy size={30} />

@@ -34,11 +34,11 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(
   "/assets/font",
-  express.static("c:/Dev/linkkk/frontend/src/assets/font")
+  express.static("/var/www/linkkk/frontend/src/assets/font")
 );
 app.use(
   "/public/images",
-  express.static("c:/Dev/linkkk/frontend/public/images")
+  express.static("/var/www/linkkk/frontend/public/images")
 );
 
 // Rutas
