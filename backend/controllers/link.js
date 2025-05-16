@@ -524,7 +524,7 @@ const getLinkStats = async (req, res) => {
     ).length;
 
     res.status(200).json({
-      totalAccesses,
+      accesses,
       last7Days: last7DaysFormatted,
       mobileAccesses,
       desktopAccesses: totalAccesses - mobileAccesses,

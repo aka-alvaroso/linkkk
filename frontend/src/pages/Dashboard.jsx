@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import {
   LineChart,
   Line,
@@ -11,7 +11,6 @@ import {
   Pie,
 } from "recharts";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/Auth";
 import Loading from "../components/Common/Loading";
 import { useNotification } from "../context/NotificationContext";
 import { useUserData } from "../context/UserDataContext";
@@ -57,17 +56,19 @@ import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { userData, refreshUserData } = useUserData();
   const { shortCode } = useParams();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [link, setLink] = useState({});
+  const [link, setLink] = useState(
+    userData?.links?.find(
+      (l) => l.sufix === shortCode || l.shortUrl === shortCode
+    ) || {}
+  );
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [countries, setCountries] = useState([]);
   const { showNotification } = useNotification();
-  const { refreshUserData } = useUserData();
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -133,84 +134,40 @@ export default function Dashboard() {
     }
   };
 
-  const fetchData = useCallback(async () => {
-    // Obtener el enlace
-    const responseLink = await fetch(
-      `${import.meta.env.VITE_API_URL}link/${shortCode}`,
-      {
-        credentials: "include",
-      }
+  useEffect(() => {
+    setLink(
+      userData.links.find(
+        (l) => l.sufix === shortCode || l.shortUrl === shortCode
+      ) || {}
     );
 
-    if (responseLink.ok) {
-      const dataLink = await responseLink.json();
-
-      // console.log(JSON.stringify(dataLink, 0, 2));
-      setLink(dataLink);
-    } else {
-      switch (responseLink.status) {
-        case 404:
-          setError("Enlace no encontrado");
-          break;
-        default:
-          setError("Error al obtener enlace");
-          break;
-      }
-    }
-
-    // Obtener los accesos del enlace
-    const responseStats = await fetch(
-      `${import.meta.env.VITE_API_URL}link/stats/${shortCode}`,
-      {
-        credentials: "include",
-      }
-    );
-
-    if (responseStats.ok) {
-      const dataStats = await responseStats.json();
-      // console.log(JSON.stringify(dataStats, 0, 2));
-      setStats(dataStats);
-    } else {
-      switch (responseStats.status) {
-        case 404:
-          setError("Enlace no encontrado");
-          break;
-        default:
-          setError("Error al obtener estadísticas");
-          break;
-      }
-    }
-
-    setLoading(false);
-  }, [shortCode]);
-
-  const fetchCountries = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}countries/get`,
+    const fetchStats = async () => {
+      const responseStats = await fetch(
+        `${import.meta.env.VITE_API_URL}link/stats/${shortCode}`,
         {
           credentials: "include",
         }
       );
 
-      if (response.status !== 200) {
-        console.error(response.json());
-        return;
+      if (responseStats.ok) {
+        const dataStats = await responseStats.json();
+        setStats(dataStats);
+      } else {
+        switch (responseStats.status) {
+          case 404:
+            setError("Enlace no encontrado");
+            break;
+          default:
+            setError("Error al obtener estadísticas");
+            break;
+        }
       }
 
-      const data = await response.json();
-      setCountries(data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+      setLoading(false);
+    };
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      fetchData();
-      fetchCountries();
-    }
-  }, [fetchData, isLoggedIn]);
+    fetchStats();
+  }, [shortCode, userData]);
 
   function formatNumber(num) {
     if (num >= 1e9) return (num / 1e9).toFixed(2) + "B";
@@ -261,7 +218,7 @@ export default function Dashboard() {
               setIsEditModalOpen(false);
             }}
             linkData={link}
-            countries={countries}
+            countries={userData.countries}
           />
           <DeleteLinkDialog
             isOpen={isDeleteModalOpen}
@@ -315,7 +272,7 @@ export default function Dashboard() {
                     </p>
                   </div>
                   <div className="w-full flex flex-wrap gap-2 items-center mt-4">
-                    {link.tags.map((tag) => {
+                    {link.tags?.map((tag) => {
                       const colorClass = colorMap[tag.color];
                       return (
                         <span
@@ -368,9 +325,7 @@ export default function Dashboard() {
               <div className="flex flex-col items-start rounded-4xl border-3 border-yellow text-yellow py-2 px-4 h-full">
                 <h2 className="font-bold w-full text-xl">Clics totales</h2>
                 <span className="w-full font-bold text-6xl font-brice">
-                  {stats.totalAccesses
-                    ? formatNumber(stats.totalAccesses)
-                    : "0"}
+                  {stats.accesses ? formatNumber(stats.accesses.length) : "0"}
                   {/* {formatNumber("777777")} */}
                 </span>
                 <p className="text-md mb-4">Todos los tiempos</p>
@@ -430,7 +385,7 @@ export default function Dashboard() {
                 {!link.accessLimit &&
                   !link.d_expire &&
                   !link.password &&
-                  !link.blockedCountries.length > 0 &&
+                  !link.blockedCountries?.length > 0 &&
                   !link.mobileUrl &&
                   !link.desktopUrl &&
                   !link.sufix &&
@@ -494,7 +449,7 @@ export default function Dashboard() {
                 )}
 
                 {/* Bloqueo de países - Si el enlace tiene lista de paises bloqueados*/}
-                {link.blockedCountries.length > 0 && (
+                {link.blockedCountries?.length > 0 && (
                   <div className="w-full flex flex-col items-center justify-between text-start text-sm my-1 sm:flex-row">
                     <p className="flex items-center">
                       <MapPinX width={20} height={20} className="mr-1" />
@@ -637,7 +592,7 @@ export default function Dashboard() {
               <div className="flex flex-col items-start rounded-4xl border-3 border-navy text-white py-2 px-4 h-full xl:col-span-4">
                 <p className="font-bold w-full text-xl">Tabla de accesos</p>
                 <div className="w-full overflow-x-auto mt-4">
-                  <AccessTable link={link} />
+                  <AccessTable stats={stats} />
                 </div>
               </div>
             </div>
@@ -649,8 +604,8 @@ export default function Dashboard() {
 }
 
 // Componente de tabla de accesos
-function AccessTable({ link }) {
-  const data = React.useMemo(() => link.accesses, [link.accesses]);
+function AccessTable({ stats }) {
+  const data = React.useMemo(() => stats.accesses, [stats.accesses]);
 
   const [globalFilter, setGlobalFilter] = useState("");
   const [pagination, setPagination] = useState({

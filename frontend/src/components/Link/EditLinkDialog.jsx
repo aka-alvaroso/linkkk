@@ -10,7 +10,7 @@ import TagSelector from "../Tag/TagSelector";
 import Switch from "../Common/Switch";
 import { useNotification } from "../../context/NotificationContext";
 
-export default function EditLinkDialog({ isOpen, onClose, linkData }) {
+export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
   const { showNotification } = useNotification();
   const { userData, refreshUserData } = useUserData();
   const dialogRef = useRef(null);
@@ -103,6 +103,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData }) {
       });
     }
 
+    onSave && onSave();
     setButtonLoading(false);
     onClose();
     dialogRef.current?.close();
