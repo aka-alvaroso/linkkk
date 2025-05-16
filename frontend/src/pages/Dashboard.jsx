@@ -152,6 +152,7 @@ export default function Dashboard() {
       if (responseStats.ok) {
         const dataStats = await responseStats.json();
         setStats(dataStats);
+        console.log(dataStats);
       } else {
         switch (responseStats.status) {
           case 404:

@@ -517,15 +517,15 @@ const getLinkStats = async (req, res) => {
     }));
 
     const mobileAccesses = accesses.filter(
-      (access) => access.device?.type === "MOBILE"
+      (access) => access.device === "MOBILE"
     ).length;
     const qrAccesses = accesses.filter(
-      (access) => access.method?.type === "QR"
+      (access) => access.method === "QRCODE"
     ).length;
 
     res.status(200).json({
       accesses,
-      last7Days: last7DaysFormatted,
+      last7Days: last7DaysFormatted.reverse(),
       mobileAccesses,
       desktopAccesses: totalAccesses - mobileAccesses,
       qrAccesses,
