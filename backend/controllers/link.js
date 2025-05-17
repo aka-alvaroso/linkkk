@@ -163,15 +163,15 @@ const getLinkRedirect = async (req, res) => {
       const title =
         link.useCustomMetadata && link.metadataTitle
           ? link.metadataTitle
-          : "Título por defecto";
+          : "Acorta tus enlaces con facilidad – Linkkk";
       const description =
         link.useCustomMetadata && link.metadataDescription
           ? link.metadataDescription
-          : "Descripción por defecto";
+          : "Crea enlaces cortos, personaliza sus destinos y haz seguimiento a tus clics con estadísticas en tiempo real. Rápido, seguro y gratis.";
       const image =
         link.useCustomMetadata && link.metadataImage
           ? link.metadataImage
-          : "https://tusitio.com/default.jpg";
+          : "/public/images/metadataImage.png";
 
       return res.send(`
         <!DOCTYPE html>
