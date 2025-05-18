@@ -171,7 +171,7 @@ const getLinkRedirect = async (req, res) => {
       const image =
         link.useCustomMetadata && link.metadataImage
           ? link.metadataImage
-          : "/public/images/metadataImage.png";
+          : "https://linkkk.dev/images/metadataImage.png";
 
       return res.send(`
         <!DOCTYPE html>
