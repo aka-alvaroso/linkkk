@@ -613,7 +613,7 @@ export default function Dashboard() {
                   />
 
                   <p className="w-full text-sm mb-4 text-center">
-                    Escaneado 128 veces
+                    Escaneado {stats.qrAccesses} veces
                   </p>
                   <div className="w-full flex items-center justify-center gap-4">
                     <button className="flex border-2 bg-light-blue border-light-blue border-dashed text-navy rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-transparent hover:text-light-blue transition">

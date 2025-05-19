@@ -135,11 +135,12 @@ const getLinkRedirect = async (req, res) => {
     const country = (await getCountryFromIP(ip)) || "XX";
     const isVPN = await isVPNOrProxy(ip);
     const deviceType = getDeviceType(userAgent);
-    const accessMethod = req.params.qr ? "QRCODE" : "LINK";
     const { shortCode } = req.params;
     const isBot = /bot|facebook|twitter|discord|crawl|spider|preview/i.test(
       userAgent
     );
+
+    const accessMethod = req.query.qr == "true" ? "QRCODE" : "LINK";
 
     if (!shortCode) {
       return res.status(400).json({ error: "Missing shortCode parameter" });
