@@ -352,7 +352,7 @@ const postLinkPassword = async (req, res) => {
     }
 
     if (!link.mobileUrl && !link.desktopUrl) {
-      return res.redirect(302, link.longUrl);
+      url = link.longUrl;
     }
   } else {
     if (link.desktopUrl) {
@@ -384,7 +384,6 @@ const postLinkPassword = async (req, res) => {
     },
   });
 
-  // Redireccionar
   return res.redirect(302, url);
 };
 
