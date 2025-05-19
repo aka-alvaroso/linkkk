@@ -260,7 +260,7 @@ const getLinkRedirect = async (req, res) => {
         }
 
         if (!link.mobileUrl && !link.desktopUrl) {
-          return res.redirect(302, link.longUrl);
+          url = link.longUrl;
         }
       } else {
         if (link.desktopUrl) {
