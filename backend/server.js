@@ -8,6 +8,7 @@ const linkController = require("./controllers/link");
 const accessRoutes = require("./routes/access");
 const groupRoutes = require("./routes/group");
 const tagRoutes = require("./routes/tag");
+const qrCodeRoutes = require("./routes/qrcode");
 const cookieParser = require("cookie-parser");
 const validate = require("./middlewares/validate");
 const {
@@ -65,6 +66,7 @@ app.use("/auth", authRoutes);
 app.use("/user", userRoutes);
 app.use("/group", groupRoutes);
 app.use("/tag", tagRoutes);
+app.use("/qrcode", qrCodeRoutes);
 app.get("/countries/insert", (req, res) => {
   const countries = [
     { id: 1, code: "AF", name: "Afganistán" },

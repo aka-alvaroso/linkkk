@@ -57,6 +57,7 @@ model Link {
   metadataTitle     String?
   metadataDescription String?
   metadataImage     String?
+  qrBinaryBytes Bytes?
   accesses    Access[]
   user        User? @relation(fields: [userId], references: [id])
   guest_session GuestSession? @relation(fields: [guest_sessionId], references: [id])

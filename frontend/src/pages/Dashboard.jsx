@@ -53,6 +53,7 @@ import {
 } from "lucide-react";
 import EditLinkDialog from "../components/Link/EditLinkDialog";
 import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
+import ConfirmDialog from "../components/Common/ConfirmDialog";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -68,6 +69,9 @@ export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRegenerateQrCodeModalOpen, setIsRegenerateQrCodeModalOpen] =
+    useState(false);
+
   const { showNotification } = useNotification();
 
   const handleSwitch = async () => {
@@ -134,6 +138,42 @@ export default function Dashboard() {
     }
   };
 
+  const handleGenerateQrCode = async () => {
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}qrcode/create`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          linkId: link.id,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (response.ok) {
+      setLink((prevLink) => ({
+        ...prevLink,
+        qrBinaryBytes: data.qrBinaryBytes,
+      }));
+      showNotification({
+        title: "Código QR generado",
+        message: "El código QR se ha generado correctamente.",
+        type: "success",
+      });
+    } else {
+      console.error("Error al generar el código QR:", data);
+      showNotification({
+        title: "Error al generar el código QR",
+        message: data.error,
+        type: "error",
+      });
+    }
+  };
+
   useEffect(() => {
     setLink(
       userData.links.find(
@@ -152,7 +192,6 @@ export default function Dashboard() {
       if (responseStats.ok) {
         const dataStats = await responseStats.json();
         setStats(dataStats);
-        console.log(dataStats);
       } else {
         switch (responseStats.status) {
           case 404:
@@ -201,6 +240,19 @@ export default function Dashboard() {
     STONE: "bg-stone-100 text-stone-600",
   };
 
+  const qrCodeBase64 = link?.qrBinaryBytes
+    ? `data:image/png;base64,${btoa(
+        String.fromCharCode.apply(null, Object.values(link.qrBinaryBytes))
+      )}`
+    : null;
+
+  if (loading)
+    return (
+      <div className="w-full h-96 flex items-center justify-center">
+        <Loading />
+      </div>
+    );
+
   if (loading)
     return (
       <div className="w-full h-96 flex items-center justify-center">
@@ -225,9 +277,23 @@ export default function Dashboard() {
             isOpen={isDeleteModalOpen}
             onClose={() => {
               setIsDeleteModalOpen(false);
+            }}
+            onConfirm={() => {
               navigate("/links");
             }}
             link={link}
+          />
+          <ConfirmDialog
+            isOpen={isRegenerateQrCodeModalOpen}
+            onClose={() => {
+              setIsRegenerateQrCodeModalOpen(false);
+            }}
+            onConfirm={() => {
+              handleGenerateQrCode();
+              setIsRegenerateQrCodeModalOpen(false);
+            }}
+            title="Regenerar código QR"
+            message="¿Estás seguro de que quieres regenerar el código QR?"
           />
 
           <div className="w-full lg:w-4/6 mx-auto">
@@ -535,10 +601,17 @@ export default function Dashboard() {
                 <p className="font-bold w-full text-xl">Código QR</p>
                 <div className="w-full flex flex-col items-center justify-center overflow-hidden">
                   <img
-                    src="https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
+                    src={
+                      qrCodeBase64
+                        ? qrCodeBase64
+                        : "https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
+                    }
                     alt="Código QR"
-                    className="max-w-full w-auto h-auto max-h-[200px] object-contain my-4 rounded-xl"
+                    className={`max-w-full w-auto h-auto max-h-[200px] object-contain my-4 rounded-xl ${
+                      qrCodeBase64 ? "" : "blur-sm"
+                    }`}
                   />
+
                   <p className="w-full text-sm mb-4 text-center">
                     Escaneado 128 veces
                   </p>
@@ -547,7 +620,16 @@ export default function Dashboard() {
                       <Copy width={20} height={20} />
                       <p className="ml-2">Copiar</p>
                     </button>
-                    <button className="flex border-2 border-yellow border-dashed text-yellow rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-yellow hover:text-navy transition">
+                    <button
+                      className="flex border-2 border-yellow border-dashed text-yellow rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-yellow hover:text-navy transition"
+                      onClick={() => {
+                        if (!link.qrBinaryBytes) {
+                          handleGenerateQrCode();
+                        } else {
+                          setIsRegenerateQrCodeModalOpen(true);
+                        }
+                      }}
+                    >
                       <RotateCw width={20} height={20} />
                       <p className="ml-2">Regenerar</p>
                     </button>

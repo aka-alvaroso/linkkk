@@ -135,6 +135,7 @@ const getLinkRedirect = async (req, res) => {
     const country = (await getCountryFromIP(ip)) || "XX";
     const isVPN = await isVPNOrProxy(ip);
     const deviceType = getDeviceType(userAgent);
+    const accessMethod = req.params.qr ? "QRCODE" : "LINK";
     const { shortCode } = req.params;
     const isBot = /bot|facebook|twitter|discord|crawl|spider|preview/i.test(
       userAgent
@@ -163,11 +164,11 @@ const getLinkRedirect = async (req, res) => {
       const title =
         link.useCustomMetadata && link.metadataTitle
           ? link.metadataTitle
-          : "Acorta tus enlaces con facilidad – Linkkk";
+          : "Linkkk - Potencia tus enlaces al siguiente nivel en segundos";
       const description =
         link.useCustomMetadata && link.metadataDescription
           ? link.metadataDescription
-          : "Crea enlaces cortos, personaliza sus destinos y haz seguimiento a tus clics con estadísticas en tiempo real. Rápido, seguro y gratis.";
+          : "Genera enlaces cortos y únicos, customizalos con ajustes únicos y echa un vistazo a sus estadísticas. Genera códigos QR y facilita el uso a todo el mundo. ";
       const image =
         link.useCustomMetadata && link.metadataImage
           ? link.metadataImage
@@ -182,7 +183,11 @@ const getLinkRedirect = async (req, res) => {
           <meta property="og:description" content="${description}" />
           <meta property="og:image" content="${image}" />
           <meta property="og:url" content="https://linkkk.dev/${shortCode}" />
+          <meta property="og:type" content="website" />
+
           <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:domain" content="linkkk.dev" />
+          <meta name="twitter:url" content="https://linkkk.dev/${shortCode}" />
           <meta name="twitter:title" content="${title}" />
           <meta name="twitter:description" content="${description}" />
           <meta name="twitter:image" content="${image}" />
@@ -225,7 +230,7 @@ const getLinkRedirect = async (req, res) => {
           isVPN: isVPN,
           country: country,
           deviceType: deviceType,
-          method: "LINK", // TODO: AÑADIR QRCODE
+          method: accessMethod,
         };
         return res.send(
           renderPasswordForm(
@@ -282,7 +287,7 @@ const getLinkRedirect = async (req, res) => {
           ip,
           is_vpn: isVPN.toString(),
           country,
-          method: "LINK", // TODO: AÑADIR QRCODE
+          method: accessMethod,
         },
       });
 

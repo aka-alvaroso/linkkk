@@ -4,7 +4,7 @@ import Dialog from "../Common/Dialog";
 import { useNotification } from "../../context/NotificationContext";
 import { useUserData } from "../../context/UserDataContext";
 
-export default function DeleteLinkDialog({ isOpen, onClose, link }) {
+export default function DeleteLinkDialog({ isOpen, onClose, onConfirm, link }) {
   const { refreshUserData } = useUserData();
   const dialogRef = useRef(null);
   const { showNotification } = useNotification();
@@ -37,12 +37,12 @@ export default function DeleteLinkDialog({ isOpen, onClose, link }) {
 
     await refreshUserData({ onlyLinks: true });
     setButtonLoading(false);
+    onConfirm();
     onClose(false);
     handleCancel();
   };
 
   const handleCancel = () => {
-    onClose(false);
     dialogRef.current?.close();
   };
 
