@@ -34,7 +34,7 @@ import { generateQrCode, base64ToBlob } from "../utils/qrCode";
 export default function MyLinks() {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
-  const { userData } = useUserData();
+  const { userData, refreshUserData } = useUserData();
   const [searchParams] = useSearchParams();
   const { isLoggedIn } = useAuth();
   const [filteredLinks, setFilteredLinks] = useState(userData?.links);
@@ -100,6 +100,7 @@ export default function MyLinks() {
   const handleGenerateQrCode = async (link) => {
     const response = await generateQrCode(link);
 
+    refreshUserData({ onlyLinks: true });
     if (response.ok) {
       showNotification({
         title: "Código QR generado",

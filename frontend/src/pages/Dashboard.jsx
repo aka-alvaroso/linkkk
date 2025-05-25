@@ -174,7 +174,6 @@ export default function Dashboard() {
   };
 
   const handleGenerateQrCode = async () => {
-    console.log("Generando QR code");
     const response = await generateQrCode(link);
 
     const data = await response.json();
@@ -183,6 +182,7 @@ export default function Dashboard() {
         ...prevLink,
         qrBinaryBytes: data.qrBinaryBytes,
       }));
+      refreshUserData({ onlyLinks: true });
       showNotification({
         title: "Código QR generado",
         message: "El código QR se ha generado correctamente.",
@@ -630,7 +630,7 @@ export default function Dashboard() {
                           variant="ligth_blue"
                           size="md"
                           onClick={() => {
-                            handleGenerateQrCode;
+                            handleGenerateQrCode();
                           }}
                         >
                           Generar Código QR
