@@ -6,19 +6,19 @@ const createAccess = async (req, res) => {
 
     if (!linkId || !device || !ip || !is_vpn || !country || !method) {
       if (!linkId) {
-        return res.status(400).json({ error: "El ID del link es requerido" });
+        return res.status(400).json({ details: "El ID del link es requerido" });
       }
       if (!device) {
-        return res.status(400).json({ error: "El dispositivo es requerido" });
+        return res.status(400).json({ details: "El dispositivo es requerido" });
       }
       if (!ip) {
-        return res.status(400).json({ error: "La IP es requerida" });
+        return res.status(400).json({ details: "La IP es requerida" });
       }
       if (!is_vpn) {
-        return res.status(400).json({ error: "Es un VPN o no" });
+        return res.status(400).json({ details: "Es un VPN o no" });
       }
       if (!country) {
-        return res.status(400).json({ error: "El país es requerido" });
+        return res.status(400).json({ details: "El país es requerido" });
       }
       if (!method) {
         return res
@@ -39,7 +39,7 @@ const createAccess = async (req, res) => {
     });
     res.status(201).json(access);
   } catch (error) {
-    res.status(500).json({ error: "Error al crear acceso", error });
+    res.status(500).json({ details: "Error al crear acceso" });
   }
 };
 

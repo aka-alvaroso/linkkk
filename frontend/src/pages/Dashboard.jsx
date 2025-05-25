@@ -162,7 +162,7 @@ export default function Dashboard() {
       } else {
         showNotification({
           title: "Error al actualizar el enlace",
-          message: data.error,
+          message: data.details,
           type: "error",
         });
         console.error("Error del servidor:", data);
@@ -192,7 +192,7 @@ export default function Dashboard() {
       console.error("Error al generar el código QR:", data);
       showNotification({
         title: "Error al generar el código QR",
-        message: data.error,
+        message: data.details,
         type: "error",
       });
     }

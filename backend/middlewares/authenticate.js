@@ -7,7 +7,7 @@ function authenticate(req, res, next) {
   const guestToken = req.cookies.guestToken;
 
   if (!token && !guestToken) {
-    return res.status(401).json({ error: "No token provided" });
+    return res.status(401).json({ details: "Token no proporcionado" });
   }
 
   if (token) {
@@ -30,7 +30,7 @@ function authenticate(req, res, next) {
     }
   }
 
-  return res.status(401).json({ error: "Invalid or expired session" });
+  return res.status(401).json({ details: "Sesión inválida o caducada" });
 }
 
 module.exports = authenticate;

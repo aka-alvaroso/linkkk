@@ -83,6 +83,8 @@ function renderPasswordForm(shortCode, errorMessage = "", userData) {
     <head>
       <meta charset="UTF-8">
       <title>Enlace protegido</title>
+      <link rel="icon" href="/public/images/logo.png" type="image/x-icon" />
+      <link rel="shortcut icon" href="/public/images/logo.png" type="image/x-icon" />
       <style>
         * {
           margin: 0;
@@ -202,6 +204,14 @@ function renderPasswordForm(shortCode, errorMessage = "", userData) {
           transition: all 0.3s ease;
         }
 
+        .error {
+          background-color: #991b1bdd;
+          color: #ef4444;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          margin-top: 1rem;
+        }
+
 
 
       </style>
@@ -217,7 +227,7 @@ function renderPasswordForm(shortCode, errorMessage = "", userData) {
           <input type="hidden" name="userData" value="${userData}" />
           <button type="submit">Acceder</button>
         </form>
-        ${errorMessage ? `<p style="color:red;">${errorMessage}</p>` : ""}
+        ${errorMessage ? `<p class="error">${errorMessage}</p>` : ""}
         <img src="/public/images/linky_security.png" alt="Linky Security" />
       </div>
     </body>

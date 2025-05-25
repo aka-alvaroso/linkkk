@@ -125,19 +125,19 @@ export default function Home() {
     >
       <section
         id="home"
-        className="relative mx-auto w-full py-4 flex flex-col items-center justify-center bg-primary"
+        className="relative mx-auto w-full py-4 flex flex-col items-center justify-center bg-primary h-screen"
       >
         <div className="w-full h-full z-10 lg:w-3/4">
           <div className="w-4/5 flex flex-col items-center justify-center mt-20 lg:w-[70%] m-auto">
             <img
-              src="/images/clip_throwing_plane.png"
+              src="/images/linky_hero_1.png"
               alt="Clip character"
-              className="hidden xl:block absolute -bottom-20 left-10 transition"
+              className="hidden xl:block absolute left-10 transition"
             />
             <img
-              src="/images/clipboard.png"
+              src="/images/linky_hero_2.png"
               alt="Linky character pointing to input"
-              className="hidden opacity-0 xl:block xl:opacity-100 absolute -bottom-15 right-20 transition"
+              className="hidden opacity-0 xl:block xl:opacity-100 absolute right-20 transition"
             />
             <h1 className="text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
               <p className="title inline-block font-brice transition-transform duration-200 hover:-translate-y-1/3">
@@ -302,7 +302,6 @@ export default function Home() {
                     </span>
                     Activo
                   </p>
-                  <p className="text-xs text-neutral-300">Expira: Nunca</p>
                 </div>
                 <div className="w-full flex flex-col mt-2">
                   <p className="text-xl font-bold text-white">
@@ -315,11 +314,6 @@ export default function Home() {
                     </span>
                   </p>
                 </div>
-
-                <p className="w-full flex items-center text-start text-sm text-white mt-4">
-                  <Folder width={15} height={15} className={`mr-1`} />
-                  Sin Grupo
-                </p>
 
                 <div className="w-full flex flex-wrap gap-2 items-center mt-2 rounded-4xl"></div>
               </div>
@@ -409,10 +403,10 @@ export default function Home() {
         <div className="bg-orange text-white w-11/12 md:w-1/3 p-8 rounded-xl">
           <h3 className="font-bold text-3xl font-brice">¿Qué es Linkkk?</h3>
           <p className="mt-4 text-md lg:text-xl">
-            Linkkk es un servicio basado en la generación de enlaces cortos y
-            únicos, permitiendo a los usuarios compartir contenidos de manera
-            fácil y rápida. Además, permite reunir diferentes analíticas de cada
-            enlace creado para determinar su popularidad y rendimiento.
+            Linkkk es un servicio basado en la creación de enlaces cortos que
+            permiten compartir contenido de manera fácil y rápida. Además, reúne
+            diferentes estadísticas sobre el enlace creado que ayudan a
+            determinar el rendimiento del enlace y su alcance.
           </p>
           <button
             className="w-full lg:w-1/2 mt-8 bg-yellow rounded-xl text-navy font-bold border-2 border-navy py-3 px-8
@@ -469,8 +463,8 @@ export default function Home() {
 
       <section className="relative min-h-screen bg-lavender text-navy flex flex-col items-center justify-evenly py-12">
         <img
-          src="images/thinking_link_machine.png"
-          alt="Thinking link machine"
+          src="images/linky_ok.png"
+          alt="Linky Ok"
           className="hidden xl:block absolute -top-56 left-20 w-72"
         />
 
@@ -524,7 +518,7 @@ export default function Home() {
         <img
           src="images/clip_walking.png"
           alt="clip_walking"
-          className="hidden lg:block absolute -top-40 right-30 w-64 object-cover z-100"
+          className="hidden lg:block absolute -top-40 right-30 w-72 object-cover z-100"
         />
 
         <div className="relative inline-block">

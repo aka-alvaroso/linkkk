@@ -100,9 +100,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
       console.error(resData);
       showNotification({
         title: "Error al crear el enlace",
-        message: `Error: ${resData.error} ${
-          resData.details ? " - " + JSON.stringify(resData.details) : ""
-        }`,
+        message: resData.details,
         type: "error",
       });
     }

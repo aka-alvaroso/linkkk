@@ -44,7 +44,7 @@ const createLink = async (req, res) => {
     });
 
     if (count >= 10) {
-      return res.status(400).json({ error: "Límite de enlaces alcanzado" });
+      return res.status(400).json({ details: "Límite de enlaces alcanzado" });
     }
   }
 
@@ -79,7 +79,7 @@ const createLink = async (req, res) => {
       });
 
       if (linkExists) {
-        return res.status(400).json({ error: "Sufix already exists" });
+        return res.status(400).json({ details: "Sufijo ya existe" });
       }
     }
 
@@ -122,9 +122,7 @@ const createLink = async (req, res) => {
     res.status(201).json(link);
   } catch (error) {
     console.error("Error al crear link:", error);
-    res
-      .status(500)
-      .json({ error: "Error al crear link", details: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -143,7 +141,7 @@ const getLinkRedirect = async (req, res) => {
     const accessMethod = req.query.qr == "true" ? "QRCODE" : "LINK";
 
     if (!shortCode) {
-      return res.status(400).json({ error: "Missing shortCode parameter" });
+      return res.status(400).json({ details: "Missing shortCode parameter" });
     }
 
     let link = await prisma.link.findUnique({
@@ -297,7 +295,7 @@ const getLinkRedirect = async (req, res) => {
     }
   } catch (error) {
     console.error("Error al recuperar link:", error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -398,7 +396,7 @@ const getLinkDetails = async (req, res) => {
     const { shortCode } = req.params;
 
     if (!shortCode) {
-      return res.status(400).json({ error: "Missing shortCode parameter" });
+      return res.status(400).json({ details: "Missing shortCode parameter" });
     }
 
     const link = await prisma.link.findFirst({
@@ -414,12 +412,12 @@ const getLinkDetails = async (req, res) => {
     });
 
     if (!link || link.userId !== req.user.id) {
-      return res.status(404).json({ error: "Link not found" });
+      return res.status(404).json({ details: "Link not found" });
     }
 
     res.status(200).json(link);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -450,7 +448,7 @@ const getLinksByUserId = async (req, res) => {
 
     res.status(200).json({ links });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -458,13 +456,15 @@ const getLinksByUserId = async (req, res) => {
 const getLinkStats = async (req, res) => {
   try {
     if (!req.user) {
-      return res.status(401).json({ error: "No token provided - Link stats" });
+      return res
+        .status(401)
+        .json({ details: "Token no proporcionado - Link stats" });
     }
 
     const { shortCode } = req.params;
 
     if (!shortCode) {
-      return res.status(400).json({ error: "Missing shortCode parameter" });
+      return res.status(400).json({ details: "Falta el parámetro shortCode" });
     }
 
     // Obtener el enlace con accesos
@@ -478,7 +478,7 @@ const getLinkStats = async (req, res) => {
     });
 
     if (!link || link.userId !== req.user.id) {
-      return res.status(404).json({ error: "Link not found" });
+      return res.status(404).json({ details: "Enlace no encontrado" });
     }
 
     const accesses = link.accesses;
@@ -537,7 +537,7 @@ const getLinkStats = async (req, res) => {
       linkAccesses: totalAccesses - qrAccesses,
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -568,7 +568,17 @@ const updateLink = async (req, res) => {
     });
 
     if (!existingLink || existingLink.userId !== req.user.id) {
-      return res.status(404).json({ error: "Link no encontrado" });
+      return res.status(404).json({ details: "Link no encontrado" });
+    }
+
+    if (sufix) {
+      const existingLinkWithSufix = await prisma.link.findFirst({
+        where: { sufix },
+      });
+
+      if (existingLinkWithSufix) {
+        return res.status(400).json({ details: "Sufijo ya existe" });
+      }
     }
 
     const updatedLink = await prisma.link.update({
@@ -611,7 +621,7 @@ const updateLink = async (req, res) => {
 
     res.status(200).json(updatedLink);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 
@@ -623,7 +633,7 @@ const deleteLink = async (req, res) => {
     const { id } = req.body;
 
     if (!id) {
-      return res.status(400).json({ error: "Falta el parámetro id" });
+      return res.status(400).json({ details: "Falta el parámetro id" });
     }
 
     const link = await prisma.link.delete({
@@ -634,9 +644,9 @@ const deleteLink = async (req, res) => {
       },
     });
 
-    res.status(200).json({ message: "Link deleted successfully", link });
+    res.status(200).json({ message: "Enlace eliminado", link });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ details: error.message });
   }
 };
 

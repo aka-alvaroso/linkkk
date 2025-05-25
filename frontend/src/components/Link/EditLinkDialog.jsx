@@ -98,7 +98,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
       console.error(resData);
       showNotification({
         title: "Error al actualizar el enlace",
-        message: `Error: ${resData.error} - ${JSON.stringify(resData.details)}`,
+        message: resData.details,
         type: "error",
       });
     }

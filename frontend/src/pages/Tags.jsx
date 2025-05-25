@@ -102,21 +102,22 @@ export default function Groups() {
       </div>
       <div className="w-full h-full flex flex-col items-center justify-center mt-8">
         {userData.tags.length === 0 && (
-          <div className="w-full flex flex-col items-center justify-center text-neutral-800">
+          <div className="w-full flex flex-col items-center justify-center">
             <Hash width={42} height={42} />
             <p className="text-2xl font-bold my-4">No tienes etiquetas.</p>
-            <button
-              className="py-2 px-4 bg-transparent border-2 border-navy border-dashed text-white rounded-xl flex items-center gap-2 transition hover:cursor-pointer hover:bg-navy hover:text-white"
+            <Button
+              variant="yellow"
               onClick={() => setIsCreateDialogOpen(true)}
+              className="flex items-center gap-2 mt-4"
             >
               Crear una
               <Plus width={20} height={20} />
-            </button>
+            </Button>
           </div>
         )}
 
         {tagsFiltered.length === 0 && userData.tags.length !== 0 && (
-          <div className="w-full flex flex-col items-center justify-center text-neutral-800">
+          <div className="w-full flex flex-col items-center justify-center">
             <Hash width={42} height={42} />
             <p className="text-2xl font-bold my-4">
               No se han encontrado etiquetas con ese título.

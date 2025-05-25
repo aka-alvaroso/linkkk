@@ -39,7 +39,9 @@ router.post("/guest", async (req, res) => {
 
     return res.status(201).json({ message: "OK" });
   } catch (error) {
-    return res.status(500).json({ error: "Error creating guest session" });
+    return res
+      .status(500)
+      .json({ details: "Error al crear sesión de invitado" });
   }
 });
 
@@ -62,7 +64,7 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
   const guestId = Number(req.guest?.id);
 
   if (!guestId) {
-    return res.status(400).json({ details: "Invalid guest ID" });
+    return res.status(400).json({ details: "ID de invitado no encontrado" });
   }
 
   try {
@@ -71,7 +73,9 @@ router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
     });
 
     if (!guest) {
-      return res.status(404).json({ details: "Guest session not found" });
+      return res
+        .status(404)
+        .json({ details: "Sesión de invitado no encontrada" });
     }
 
     await prisma.guestSession.delete({
@@ -148,12 +152,10 @@ router.post("/register", validate(registerSchema), async (req, res) => {
     res.status(201).json({ message: "Usuario registrado con éxito", user });
   } catch (error) {
     console.log(error);
-    res
-      .status(500)
-      .json({
-        error: "Error al registrar usuario",
-        details: JSON.stringify(error),
-      });
+    res.status(500).json({
+      error: "Error al registrar usuario",
+      details: JSON.stringify(error),
+    });
   }
 });
 
@@ -169,7 +171,9 @@ router.post("/login", validate(loginSchema), async (req, res) => {
       });
 
       if (!guest) {
-        return res.status(404).json({ error: "Guest session not found" });
+        return res
+          .status(404)
+          .json({ details: "Sesión de invitado no encontrada" });
       }
 
       await prisma.guestSession.delete({
@@ -192,13 +196,13 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     });
 
     if (!user) {
-      return res.status(401).json({ error: "Incorrect credentials" });
+      return res.status(401).json({ details: "Credenciales incorrectas" });
     }
 
     const isPasswordCorrect = await bcryptjs.compare(password, user.password);
 
     if (!isPasswordCorrect) {
-      return res.status(401).json({ error: "Incorrect credentials" });
+      return res.status(401).json({ details: "Credenciales incorrectas" });
     }
 
     const token = jwt.sign(
@@ -218,7 +222,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
 
     res.status(200).json({ message: "OK" });
   } catch (error) {
-    res.status(500).json({ error: "Error authenticating" });
+    res.status(500).json({ details: "Error al autenticar" });
   }
 });
 

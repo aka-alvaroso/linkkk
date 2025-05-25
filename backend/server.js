@@ -348,7 +348,7 @@ app.get("/countries/deleteall", async (req, res) => {
     res.status(200).json({ message: "Países borrados correctamente" });
   } catch (error) {
     console.error("Error deleting countries:", error);
-    res.status(500).json({ error: "Error al borrar los países" });
+    res.status(500).json({ details: "Error al borrar los países" });
   }
 });
 

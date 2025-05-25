@@ -34,7 +34,7 @@ export default function DeleteTagDialog({ isOpen, onClose, tag }) {
       console.error(responseData.details);
       showNotification({
         title: "Error al eliminar etiqueta",
-        message: `Error: ${responseData.details}`,
+        message: responseData.details,
         type: "error",
       });
     }

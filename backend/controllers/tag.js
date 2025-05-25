@@ -19,7 +19,7 @@ const getTagsByUserId = async (req, res) => {
   const userId = req.user.id;
 
   if (!userId) {
-    return res.status(400).json({ error: "Falta el parámetro userId" });
+    return res.status(400).json({ details: "Falta el parámetro userId" });
   }
 
   const tags = await prisma.tag.findMany({
@@ -30,7 +30,7 @@ const getTagsByUserId = async (req, res) => {
   });
 
   if (!tags) {
-    return res.status(404).json({ error: "Tags no encontrados" });
+    return res.status(404).json({ details: "Tags no encontrados" });
   }
 
   res.status(200).json(tags);

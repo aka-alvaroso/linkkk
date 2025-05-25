@@ -15,13 +15,13 @@ const getUserById = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json({ details: "Usuario no encontrado" });
     }
 
     res.status(200).json(user);
   } catch (error) {
     console.error("Error al obtener usuario:", error);
-    res.status(500).json({ error: "Error al obtener usuario" });
+    res.status(500).json({ details: "Error al obtener usuario" });
   }
 };
 
@@ -46,7 +46,7 @@ const updateUser = async (req, res) => {
     res.status(200).json(updatedUser);
   } catch (error) {
     console.error("Error al actualizar usuario:", error);
-    res.status(500).json({ error: "Error al actualizar usuario" });
+    res.status(500).json({ details: "Error al actualizar usuario" });
   }
 };
 
@@ -61,7 +61,7 @@ const deleteUser = async (req, res) => {
     res.status(200).json({ message: "Usuario eliminado correctamente" });
   } catch (error) {
     console.error("Error al eliminar usuario:", error);
-    res.status(500).json({ error: "Error al eliminar usuario" });
+    res.status(500).json({ details: "Error al eliminar usuario" });
   }
 };
 

@@ -12,7 +12,7 @@ const createQrCode = async (req, res) => {
     });
 
     if (!link || link.userId !== userId) {
-      return res.status(404).json({ error: "Link not found" });
+      return res.status(404).json({ details: "Enlace no encontrado" });
     }
 
     const qrCode = await generateQrCode(
@@ -29,7 +29,7 @@ const createQrCode = async (req, res) => {
     res.status(200).json(newLink);
   } catch (error) {
     console.error("Error al crear el código QR:", error);
-    res.status(500).json({ error: "Error al crear el código QR" });
+    res.status(500).json({ details: "Error al crear el código QR" });
   }
 };
 

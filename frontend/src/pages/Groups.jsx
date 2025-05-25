@@ -112,13 +112,14 @@ export default function Groups() {
           <div className="w-full flex flex-col items-center justify-center text-navy">
             <FolderX width={42} height={42} />
             <p className="text-2xl font-bold my-4">No tienes grupos.</p>
-            <button
-              className="py-2 px-4 bg-transparent border-2 border-navy border-dashed text-white rounded-xl flex items-center gap-2 transition hover:cursor-pointer hover:bg-navy hover:text-white"
+            <Button
+              variant="yellow"
               onClick={() => setIsCreateDialogOpen(true)}
+              className="flex items-center gap-2 mt-4"
             >
               Crear uno
               <Plus width={20} height={20} />
-            </button>
+            </Button>
           </div>
         )}
 

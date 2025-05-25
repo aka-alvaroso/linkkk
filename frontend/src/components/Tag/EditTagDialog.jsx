@@ -36,9 +36,7 @@ export default function EditTagDialog({ isOpen, onClose, tag }) {
       console.error(responseData.error);
       showNotification({
         title: "Error al actualizar etiqueta",
-        message: `Error: ${responseData.error} - ${JSON.stringify(
-          responseData.details
-        )}`,
+        message: responseData.details,
         type: "error",
       });
     }

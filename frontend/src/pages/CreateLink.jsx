@@ -80,7 +80,7 @@ export default function CreateLink() {
       } else {
         showNotification({
           title: "Error",
-          message: `Error: ${data.error} - ${JSON.stringify(data.details)}`,
+          message: data.details,
           type: "error",
         });
         console.error(data.details);

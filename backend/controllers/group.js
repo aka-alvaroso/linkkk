@@ -20,7 +20,7 @@ const getGroupsByUserId = async (req, res) => {
   const userId = req.user.id;
 
   if (!userId) {
-    return res.status(400).json({ error: "Missing userId parameter" });
+    return res.status(400).json({ details: "Parámetro userId no encontrado" });
   }
 
   const groups = await prisma.group.findMany({
@@ -29,7 +29,7 @@ const getGroupsByUserId = async (req, res) => {
   });
 
   if (!groups) {
-    return res.status(404).json({ error: "Groups not found" });
+    return res.status(404).json({ details: "Grupos no encontrados" });
   }
 
   res.status(200).json(groups);
@@ -38,6 +38,10 @@ const getGroupsByUserId = async (req, res) => {
 const updateGroup = async (req, res) => {
   const { groupId, title, description, color } = req.body;
   const userId = req.user.id;
+
+  if (title === "") {
+    return res.status(400).json({ details: "El título no puede estar vacío" });
+  }
 
   const group = await prisma.group.update({
     where: {
@@ -59,7 +63,7 @@ const deleteGroup = async (req, res) => {
   const userId = req.user.id;
 
   if (!groupId) {
-    return res.status(400).json({ error: "Falta el parámetro groupId" });
+    return res.status(400).json({ details: "Falta el parámetro groupId" });
   }
 
   const group = await prisma.group.delete({

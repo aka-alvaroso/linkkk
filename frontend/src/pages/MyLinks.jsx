@@ -187,6 +187,9 @@ export default function MyLinks() {
       <DeleteLinkDialog
         isOpen={isDeleteDialogOpen}
         onClose={handleCloseDialog}
+        onConfirm={() => {
+          setIsDeleteDialogOpen(false);
+        }}
         link={selectedLink}
       />
 
@@ -194,13 +197,14 @@ export default function MyLinks() {
         <h1 className="text-4xl font-bold text-yellow font-brice">
           Mis enlaces
         </h1>
-        <button
-          className="max-w-48 flex items-center gap-2 text-navy bg-yellow border-2 border-yellow border-dashed py-3 px-6 rounded-xl transition hover:cursor-pointer hover:bg-primary hover:text-yellow"
+        <Button
+          variant="yellow"
           onClick={() => navigate("/links/create")}
+          className="flex items-center gap-2 mt-4"
         >
+          Crear
           <Plus width={20} height={20} />
-          <span className="ml-2">Crear enlace</span>
-        </button>
+        </Button>
 
         <p className="text-white text-md">
           Mostrando: <span className="font-bold">{filteredLinks.length}</span>
@@ -313,13 +317,14 @@ export default function MyLinks() {
             <Link2Off size={32} />
             <p className="text-xl font-bold my-2">No tienes enlaces creados.</p>
             <Button
-              variant="white_reverse"
-              size="lg"
+              variant="yellow"
               onClick={() => {
                 navigate("/links/create");
               }}
+              className="flex items-center gap-2 mt-4"
             >
               Crear uno
+              <Plus width={20} height={20} />
             </Button>
           </div>
         )}
@@ -330,13 +335,14 @@ export default function MyLinks() {
               No se han encontrado enlaces
             </p>
             <Button
-              variant="white_reverse"
-              size="lg"
+              variant="yellow"
               onClick={() => {
                 navigate("/links/create");
               }}
+              className="flex items-center gap-2 mt-4"
             >
               Crear uno
+              <Plus width={20} height={20} />
             </Button>
           </div>
         )}
@@ -443,7 +449,7 @@ export default function MyLinks() {
                   className="w-full h-full rounded-xl"
                 />
                 {!link.qrBinaryBytes && (
-                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-black/80">
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-primary/70">
                     <Button
                       variant="ligth_blue"
                       size="sm"
@@ -457,7 +463,7 @@ export default function MyLinks() {
                   </div>
                 )}
                 {link.qrBinaryBytes && (
-                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-black/80">
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-primary/70">
                     <Button
                       variant="yellow_reverse"
                       size="md"
