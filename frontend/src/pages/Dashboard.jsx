@@ -50,10 +50,13 @@ import {
   Trash,
   Check,
   X,
+  ScanLine,
 } from "lucide-react";
 import EditLinkDialog from "../components/Link/EditLinkDialog";
 import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
 import ConfirmDialog from "../components/Common/ConfirmDialog";
+import Button from "../components/Common/Button";
+import { base64ToBlob, generateQrCode } from "../utils/qrCode";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -69,10 +72,42 @@ export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRegenerateQrCodeModalOpen, setIsRegenerateQrCodeModalOpen] =
-    useState(false);
 
   const { showNotification } = useNotification();
+
+  const copyQrCodeToClipboard = async () => {
+    if (!qrCodeBase64) {
+      showNotification({
+        title: "Error",
+        message: "No hay código QR para copiar.",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      const blob = await base64ToBlob(qrCodeBase64);
+      console.log("qrCodeBase64: ", qrCodeBase64);
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+
+      showNotification({
+        title: "Copiado",
+        message: "Código QR copiado al portapapeles.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Error al copiar el código QR:", err);
+      showNotification({
+        title: "Error",
+        message: "No se pudo copiar el código QR.",
+        type: "error",
+      });
+    }
+  };
 
   const handleSwitch = async () => {
     setLink((prevLink) => ({
@@ -139,19 +174,8 @@ export default function Dashboard() {
   };
 
   const handleGenerateQrCode = async () => {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}qrcode/create`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          linkId: link.id,
-        }),
-      }
-    );
+    console.log("Generando QR code");
+    const response = await generateQrCode(link);
 
     const data = await response.json();
     if (response.ok) {
@@ -283,18 +307,6 @@ export default function Dashboard() {
             }}
             link={link}
           />
-          <ConfirmDialog
-            isOpen={isRegenerateQrCodeModalOpen}
-            onClose={() => {
-              setIsRegenerateQrCodeModalOpen(false);
-            }}
-            onConfirm={() => {
-              handleGenerateQrCode();
-              setIsRegenerateQrCodeModalOpen(false);
-            }}
-            title="Regenerar código QR"
-            message="¿Estás seguro de que quieres regenerar el código QR?"
-          />
 
           <div className="w-full lg:w-4/6 mx-auto">
             <h1 className="text-4xl font-bold my-4 text-yellow font-brice">
@@ -305,7 +317,7 @@ export default function Dashboard() {
               <div className="flex flex-col lg:flex-row items-center justify-center rounded-4xl border-3 border-navy border-dashed text-white py-2 px-4 xl:col-span-2">
                 <div className="w-full lg:w-8/12 h-full flex flex-col items-start justify-center">
                   <p className="w-full text-xl font-bold overflow-hidden text-ellipsis ">
-                    linkkk.dev/{link.sufix ? link.sufix : link.shortUrl}
+                    linkkk.dev/r/{link.sufix ? link.sufix : link.shortUrl}
                   </p>
                   <p className="text-sm flex gap-2 items-center ">
                     <CornerDownRight width={20} height={20} />
@@ -358,7 +370,7 @@ export default function Dashboard() {
                     className="py-4 row-span-2 bg-yellow text-navy font-bold rounded-xl border-2 border-yellow flex items-center justify-center transition hover:cursor-pointer hover:bg-transparent hover:border-dashed hover:text-yellow"
                     onClick={() => {
                       navigator.clipboard.writeText(
-                        "https://linkkk.dev/" +
+                        "https://linkkk.dev/r/" +
                           (link.sufix ? link.sufix : link.shortUrl)
                       );
                       showNotification({
@@ -600,40 +612,48 @@ export default function Dashboard() {
               <div className="flex flex-col items-start rounded-4xl border-3 border-navy text-white py-2 px-4 h-full xl:col-span-2">
                 <p className="font-bold w-full text-xl">Código QR</p>
                 <div className="w-full flex flex-col items-center justify-center overflow-hidden">
-                  <img
-                    src={
-                      qrCodeBase64
-                        ? qrCodeBase64
-                        : "https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
-                    }
-                    alt="Código QR"
-                    className={`max-w-full w-auto h-auto max-h-[200px] object-contain my-4 rounded-xl ${
-                      qrCodeBase64 ? "" : "blur-sm"
-                    }`}
-                  />
+                  <div className="relative max-w-full w-auto h-auto max-h-[200px] object-contain my-4 rounded-xl">
+                    <img
+                      src={
+                        qrCodeBase64
+                          ? qrCodeBase64
+                          : "https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
+                      }
+                      alt="Código QR"
+                      className={`w-full h-full rounded-xl ${
+                        qrCodeBase64 ? "" : "blur-sm"
+                      }`}
+                    />
+                    {!qrCodeBase64 && (
+                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center  ">
+                        <Button
+                          variant="ligth_blue"
+                          size="md"
+                          onClick={() => {
+                            handleGenerateQrCode;
+                          }}
+                        >
+                          Generar Código QR
+                        </Button>
+                      </div>
+                    )}
+
+                    {qrCodeBase64 && (
+                      <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-black/80">
+                        <Button
+                          variant="yellow_reverse"
+                          size="md"
+                          onClick={copyQrCodeToClipboard}
+                        >
+                          Copiar QR
+                        </Button>
+                      </div>
+                    )}
+                  </div>
 
                   <p className="w-full text-sm mb-4 text-center">
                     Escaneado {stats.qrAccesses} veces
                   </p>
-                  <div className="w-full flex items-center justify-center gap-4">
-                    <button className="flex border-2 bg-light-blue border-light-blue border-dashed text-navy rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-transparent hover:text-light-blue transition">
-                      <Copy width={20} height={20} />
-                      <p className="ml-2">Copiar</p>
-                    </button>
-                    <button
-                      className="flex border-2 border-yellow border-dashed text-yellow rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-yellow hover:text-navy transition"
-                      onClick={() => {
-                        if (!link.qrBinaryBytes) {
-                          handleGenerateQrCode();
-                        } else {
-                          setIsRegenerateQrCodeModalOpen(true);
-                        }
-                      }}
-                    >
-                      <RotateCw width={20} height={20} />
-                      <p className="ml-2">Regenerar</p>
-                    </button>
-                  </div>
                 </div>
               </div>
 

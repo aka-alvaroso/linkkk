@@ -157,7 +157,7 @@ const getLinkRedirect = async (req, res) => {
       });
 
     if (!link) {
-      return res.status(404).json({ error: "Link not found" });
+      return res.redirect(302, "https://linkkk.dev/notfound");
     }
 
     if (isBot) {
@@ -183,12 +183,12 @@ const getLinkRedirect = async (req, res) => {
           <meta property="og:title" content="${title}" />
           <meta property="og:description" content="${description}" />
           <meta property="og:image" content="${image}" />
-          <meta property="og:url" content="https://linkkk.dev/${shortCode}" />
+          <meta property="og:url" content="https://linkkk.dev/r/${shortCode}" />
           <meta property="og:type" content="website" />
 
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:domain" content="linkkk.dev" />
-          <meta name="twitter:url" content="https://linkkk.dev/${shortCode}" />
+          <meta name="twitter:url" content="https://linkkk.dev/r/${shortCode}" />
           <meta name="twitter:title" content="${title}" />
           <meta name="twitter:description" content="${description}" />
           <meta name="twitter:image" content="${image}" />

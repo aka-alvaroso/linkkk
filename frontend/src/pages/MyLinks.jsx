@@ -29,6 +29,7 @@ import EditLinkDialog from "../components/Link/EditLinkDialog";
 import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
 import Button from "../components/Common/Button";
 import Card from "../components/Common/Card";
+import { generateQrCode, base64ToBlob } from "../utils/qrCode";
 
 export default function MyLinks() {
   const navigate = useNavigate();
@@ -94,6 +95,57 @@ export default function MyLinks() {
   const handleCloseDialog = () => {
     setIsEditDialogOpen(false);
     setIsDeleteDialogOpen(false);
+  };
+
+  const handleGenerateQrCode = async (link) => {
+    const response = await generateQrCode(link);
+
+    if (response.ok) {
+      showNotification({
+        title: "Código QR generado",
+        message: "El código QR se ha generado correctamente.",
+        type: "success",
+      });
+    }
+  };
+
+  const copyQrCodeToClipboard = async (link) => {
+    const qrCodeBase64 = link?.qrBinaryBytes
+      ? `data:image/png;base64,${btoa(
+          String.fromCharCode.apply(null, Object.values(link.qrBinaryBytes))
+        )}`
+      : null;
+
+    if (!qrCodeBase64) {
+      showNotification({
+        title: "Error",
+        message: "No hay código QR para copiar.",
+        type: "error",
+      });
+      return;
+    }
+
+    try {
+      const blob = await base64ToBlob(qrCodeBase64);
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+
+      showNotification({
+        title: "Copiado",
+        message: "Código QR copiado al portapapeles.",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Error al copiar el código QR:", err);
+      showNotification({
+        title: "Error",
+        message: "No se pudo copiar el código QR.",
+        type: "error",
+      });
+    }
   };
 
   const colorMap = {
@@ -324,7 +376,7 @@ export default function MyLinks() {
               )}
 
               <p className="w-full text-xl font-bold overflow-hidden text-ellipsis mt-2">
-                linkkk.dev/{link.sufix ? link.sufix : link.shortUrl}
+                linkkk.dev/r/{link.sufix ? link.sufix : link.shortUrl}
               </p>
               <p className="w-full text-sm flex gap-2 items-center">
                 <CornerDownRight width={20} height={20} />
@@ -373,15 +425,50 @@ export default function MyLinks() {
             </div>
 
             {/* QrCode */}
-            <div className="hidden w-full lg:w-1/4 h-full lg:flex flex-col items-center justify-center gap-4">
-              <QrCode width={128} height={128} />
-              <div className="flex items-center justify-center gap-2">
-                <button className="flex border-2 bg-light-blue border-light-blue border-dashed text-navy rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-light-blue hover:text-navy transition">
-                  <Copy width={20} height={20} />
-                </button>
-                <button className="flex border-2 border-yellow border-dashed text-yellow rounded-xl px-4 py-2 text-sm hover:cursor-pointer hover:bg-yellow hover:text-navy transition">
-                  <RotateCw width={20} height={20} />
-                </button>
+            <div className="hidden w-sm lg:w-1/6 h-full lg:flex flex-col items-center justify-center gap-4 ">
+              <div className="relative flex items-center justify-center p-1 gap-2 w-3/4">
+                <img
+                  src={
+                    link.qrBinaryBytes
+                      ? `data:image/png;base64,${btoa(
+                          String.fromCharCode.apply(
+                            null,
+                            Object.values(link.qrBinaryBytes)
+                          )
+                        )}`
+                      : "https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
+                  }
+                  alt="Código QR"
+                  className="w-full h-full rounded-xl"
+                />
+                {!link.qrBinaryBytes && (
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-black/80">
+                    <Button
+                      variant="ligth_blue"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleGenerateQrCode(link);
+                      }}
+                    >
+                      <RotateCw width={20} height={20} />
+                    </Button>
+                  </div>
+                )}
+                {link.qrBinaryBytes && (
+                  <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-black/80">
+                    <Button
+                      variant="yellow_reverse"
+                      size="md"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        copyQrCodeToClipboard(link);
+                      }}
+                    >
+                      <Copy size={20} />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -392,7 +479,7 @@ export default function MyLinks() {
                 onClick={(e) => {
                   e.stopPropagation();
                   navigator.clipboard.writeText(
-                    "https://linkkk.dev/" +
+                    "https://linkkk.dev/r/" +
                       (link.sufix ? link.sufix : link.shortUrl)
                   );
                   showNotification({

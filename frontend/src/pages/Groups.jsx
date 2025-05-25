@@ -18,7 +18,6 @@ import DeleteGroupDialog from "../components/Group/DeleteGroupDialog";
 import Card from "../components/Common/Card";
 
 export default function Groups() {
-  console.log("Groups");
   const { userData } = useUserData();
   const [groupsFiltered, setGroupsFiltered] = useState(userData.groups);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);

@@ -21,11 +21,14 @@ import {
   Zap,
 } from "lucide-react";
 import { animate, onScroll } from "animejs";
-import { useAuth } from "../context/Auth";
+import { useUserData } from "../context/UserDataContext";
+import { useNotification } from "../context/NotificationContext";
+import Button from "../components/Common/Button";
 
 export default function Home() {
   const navigate = useNavigate();
-  const { isLoggedIn } = useAuth();
+  const { refreshUserData } = useUserData();
+  const { showNotification } = useNotification();
 
   const [error, setError] = useState(null);
 
@@ -94,18 +97,20 @@ export default function Home() {
         authorization: "Bearer " + localStorage.getItem("jwt"),
       },
       body: JSON.stringify({
-        url: url,
+        longUrl: url,
       }),
       credentials: "include",
     });
 
     if (response.ok) {
-      const data = await response.json();
-      if (isLoggedIn) {
-        navigate(`/dashboard/${data.shortUrl}`);
-      } else {
-        navigate(`/links`);
-      }
+      refreshUserData({ onlyLinks: true });
+      showNotification({
+        title: "Enlace creado",
+        message: "El enlace se ha creado correctamente.",
+        type: "success",
+      });
+
+      navigate(`/links`);
     } else {
       const data = await response.json();
       setError(data.error);
@@ -288,7 +293,7 @@ export default function Home() {
             <p className="mt-16 text-white">
               ¿No estás convencido? Prueba con este ejemplo
             </p>
-            <div className="w-11/12 lg:w-2xl mt-4 bg-transparent border-2 border-white rounded-xl border-dashed p-4">
+            <div className="w-11/12 lg:w-2xl mt-4 bg-transparent border-2 border-white rounded-xl border-dashed p-4 flex">
               <div>
                 <div className="w-full flex gap-2 items-center">
                   <p className="flex items-center gap-2 text-white rounded-4xl px-2 py-1 text-xs">
@@ -301,7 +306,7 @@ export default function Home() {
                 </div>
                 <div className="w-full flex flex-col mt-2">
                   <p className="text-xl font-bold text-white">
-                    linkkk.dev/google
+                    linkkk.dev/r/google
                   </p>
                   <p className="text-sm text-neutral-300 flex gap-2 items-center">
                     <CornerDownRight size={15} />
@@ -317,6 +322,32 @@ export default function Home() {
                 </p>
 
                 <div className="w-full flex flex-wrap gap-2 items-center mt-2 rounded-4xl"></div>
+              </div>
+              <div className="hidden sm:grid w-1/4 grid-cols-2 gap-2 p-2 ml-auto">
+                <Button
+                  variant="lavender"
+                  size="lg"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      "https://linkkk.dev/r/google"
+                    );
+                  }}
+                >
+                  <Copy size={25} />
+                </Button>
+                <Button
+                  variant="yellow"
+                  size="lg"
+                  onClick={() => {
+                    window.open(
+                      "https://linkkk.dev/r/google",
+                      "_blank",
+                      "noopener,noreferrer"
+                    );
+                  }}
+                >
+                  <Share size={25} />
+                </Button>
               </div>
             </div>
           </div>

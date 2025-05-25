@@ -16,7 +16,7 @@ const createQrCode = async (req, res) => {
     }
 
     const qrCode = await generateQrCode(
-      "https://linkkk.dev/" + link.shortUrl + "?qr=true"
+      "https://linkkk.dev/r/" + link.shortUrl + "?qr=true"
     );
 
     const newLink = await prisma.link.update({

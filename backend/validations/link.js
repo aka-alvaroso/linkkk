@@ -14,7 +14,7 @@ const createLinkSchema = z.object({
   metadataTitle: z.string().optional(),
   metadataDescription: z.string().optional(),
   metadataImage: z.string().optional(),
-  useMetadata: z.boolean(),
+  useMetadata: z.boolean().optional(),
 });
 
 const shortCodeParamSchema = z.object({

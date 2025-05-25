@@ -45,6 +45,10 @@ export default function Button({
       "bg-orange text-navy border-2 border-orange border-dashed hover:bg-transparent hover:text-orange",
     orange_reverse:
       "bg-transparent text-orange border-2 border-orange border-dashed hover:bg-orange hover:text-navy",
+    ligth_blue:
+      "bg-light-blue text-navy border-2 border-light-blue border-dashed hover:bg-transparent hover:text-light-blue",
+    light_blue_reverse:
+      "bg-transparent text-light-blue border-2 border-light-blue border-dashed hover:bg-light-blue hover:text-navy",
   };
 
   const sizes = {
