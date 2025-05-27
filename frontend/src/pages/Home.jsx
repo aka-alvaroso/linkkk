@@ -666,30 +666,79 @@ export default function Home() {
       <footer className="bg-primary text-white flex flex-col items-center justify-center gap-4 p-12">
         <div>
           <div
-            className="flex items-center justify-center gap-4 p-4 border-2 border-primary border-dashed rounded-xl transition hover:cursor-pointer hover:border-white"
+            className="flex items-center justify-center gap-4 p-4 border-2 border-primary border-dashed rounded-xl transition hover:cursor-pointer"
             onClick={() => scrollToElement("#home")}
           >
-            <button className="w-[50px] h-[50px] rounded-xl border-2 border-white text-white text-2xl font-[900] hover:cursor-pointer">
-              k.
-            </button>
+            <Button
+              variant="white"
+              size="sm"
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              <span className="font-brice text-3xl">k.</span>
+            </Button>
             <h3 className="font-bold text-4xl font-brice">Linkkk</h3>
           </div>
         </div>
         <div className="flex flex-wrap gap-4 mt-8">
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/legal");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
             <Lock width={25} height={25} />
-            <span className="ml-2">Privacidad</span>
-          </button>
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
+            <span className="ml-2">Aviso legal</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/terms");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
+            <Lock width={25} height={25} />
+            <span className="ml-2">Términos y condiciones</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/privacy");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
+            <Lock width={25} height={25} />
+            <span className="ml-2">Política de privacidad</span>
+          </Button>
+          {/* <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/about");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
             <Info width={25} height={25} />
             <span className="ml-2">Acerca de Linkkk</span>
-          </button>
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
+          </Button> */}
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              window.open("https://github.com/aka-alvaroso/linkkk", "_blank");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
             <Github width={25} height={25} />
             <span className="ml-2">Github</span>
-          </button>
+          </Button>
         </div>
-        <p>
+        <p className="mb-12 md:mb-0">
           Diseñado y desarrollado con ❤️ por{" "}
           <a className="text-light-blue underline" href="https://alvaroso.dev/">
             aka_alvaroso
