@@ -84,20 +84,31 @@ const createLink = async (req, res) => {
     }
 
     const isGuest = !!req.guest;
+    let user;
+
+    if (!isGuest) {
+      user = await prisma.user.findUnique({
+        where: { id: Number(req.user?.id) },
+      });
+    }
+
+    const proSettings = !isGuest && user?.planId === 2;
 
     const link = await prisma.link.create({
       data: {
-        userId: !isGuest ? Number(req.user?.id) : null,
+        userId: !isGuest ? Number(user?.id) : null,
         guest_sessionId: isGuest ? Number(req.guest?.guestSessionId) : null,
         longUrl,
         shortUrl: randomString,
         groupId: isGuest ? null : groupId ? Number(groupId) : null,
-        sufix: isGuest ? null : sufix ? sufix : null,
-        password: isGuest ? null : password ? password : null,
-        accessLimit: isGuest ? null : accessLimit ? Number(accessLimit) : null,
+        sufix: sufix && proSettings ? sufix : null,
+        password: password && proSettings ? password : null,
+        accessLimit: accessLimit && proSettings ? Number(accessLimit) : null,
         blockedCountries: {
-          connect: !isGuest
-            ? blockedCountries?.map((countryId) => ({ id: Number(countryId) }))
+          connect: proSettings
+            ? blockedCountries?.map((countryId) => ({
+                id: Number(countryId),
+              }))
             : [],
         },
         tags: {
@@ -105,17 +116,18 @@ const createLink = async (req, res) => {
             ? tags?.map((tagId) => ({ id: Number(tagId) }))
             : [],
         },
-        mobileUrl: isGuest ? null : mobileUrl ? mobileUrl : null,
-        desktopUrl: isGuest ? null : desktopUrl ? desktopUrl : null,
+        mobileUrl: mobileUrl && proSettings ? mobileUrl : null,
+        desktopUrl: desktopUrl && proSettings ? desktopUrl : null,
         d_expire: isGuest
           ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-          : expirationDate
+          : expirationDate && proSettings
           ? new Date(expirationDate)
           : null,
-        metadataTitle: useMetadata ? metadataTitle : null,
-        metadataDescription: useMetadata ? metadataDescription : null,
-        metadataImage: useMetadata ? metadataImage : null,
-        useCustomMetadata: useMetadata,
+        metadataTitle: useMetadata && proSettings ? metadataTitle : null,
+        metadataDescription:
+          useMetadata && proSettings ? metadataDescription : null,
+        metadataImage: useMetadata && proSettings ? metadataImage : null,
+        useCustomMetadata: useMetadata && proSettings,
       },
     });
 
@@ -571,7 +583,13 @@ const updateLink = async (req, res) => {
       return res.status(404).json({ details: "Link no encontrado" });
     }
 
-    if (sufix) {
+    const user = await prisma.user.findUnique({
+      where: { id: Number(req.user?.id) },
+    });
+
+    const proSettings = user?.planId === 2;
+
+    if (sufix && proSettings) {
       const existingLinkWithSufix = await prisma.link.findFirst({
         where: { sufix },
       });
@@ -591,26 +609,25 @@ const updateLink = async (req, res) => {
           set: [],
           connect: tags && tags.map((tagId) => ({ id: Number(tagId) })),
         },
-        d_expire: d_expire ? new Date(d_expire) : null,
-        password: password ? password : null,
-        accessLimit: accessLimit ? Number(accessLimit) : null,
+        d_expire: d_expire && proSettings ? new Date(d_expire) : null,
+        password: password && proSettings ? password : null,
+        accessLimit: accessLimit && proSettings ? Number(accessLimit) : null,
         blockedCountries: {
           set: [],
-          connect: blockedCountries?.map((countryId) => ({
-            id: Number(countryId),
-          })),
+          connect: proSettings
+            ? blockedCountries?.map((countryId) => ({
+                id: Number(countryId),
+              }))
+            : [],
         },
-        tags: {
-          set: [],
-          connect: tags?.map((tagId) => ({ id: Number(tagId) })),
-        },
-        mobileUrl: mobileUrl ? mobileUrl : null,
-        desktopUrl: desktopUrl ? desktopUrl : null,
-        sufix: sufix ? sufix : null,
-        metadataTitle: useMetadata ? metadataTitle : null,
-        metadataDescription: useMetadata ? metadataDescription : null,
-        metadataImage: useMetadata ? metadataImage : null,
-        useCustomMetadata: useMetadata,
+        mobileUrl: mobileUrl && proSettings ? mobileUrl : null,
+        desktopUrl: desktopUrl && proSettings ? desktopUrl : null,
+        sufix: sufix && proSettings ? sufix : null,
+        metadataTitle: useMetadata && proSettings ? metadataTitle : null,
+        metadataDescription:
+          useMetadata && proSettings ? metadataDescription : null,
+        metadataImage: useMetadata && proSettings ? metadataImage : null,
+        useCustomMetadata: useMetadata && proSettings,
       },
       include: {
         group: true,

@@ -7,7 +7,7 @@ import { useUserData } from "../context/UserDataContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { checkLoginStatus, isLoggedIn } = useAuth();
+  const { login } = useAuth();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
 
@@ -34,27 +34,8 @@ export default function Register() {
     );
 
     if (response.ok) {
-      const session = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-        credentials: "include",
-      });
-      if (session.ok) {
-        await checkLoginStatus();
-        if (!isLoggedIn) {
-          showNotification({
-            title: "Error",
-            message: "No se pudo iniciar sesión",
-            type: "error",
-          });
-          navigate("/");
-        }
+      const session = await login(username, password);
+      if (session) {
         await refreshUserData({
           onlyLinks: false,
           onlyGroups: false,
@@ -62,8 +43,7 @@ export default function Register() {
           onlyCountries: false,
         });
         showNotification({
-          title: "Sesión iniciada",
-          message: "¡Bienvenido de nuevo!",
+          title: "¡Bienvenido!",
           type: "success",
         });
         navigate("/");

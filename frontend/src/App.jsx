@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom"; // <--- Añadir useLocation
 import { useAuth } from "./context/Auth.jsx";
 import { useUserData } from "./context/UserDataContext.jsx";
 
@@ -19,10 +19,12 @@ import { useState, useEffect } from "react";
 import ProtectedRoute from "./components/Auth/ProtectedRoute.jsx";
 import GuestOrUserRoute from "./components/Auth/GuestOrUserRoute.jsx";
 import LoadingPage from "./pages/Loading.jsx";
+import Pricing from "./pages/Pricing.jsx";
 
 // Componente responsivo que elige el layout adecuado
 function ResponsiveLayout({ children }) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const location = useLocation(); // <--- Añadir esto
 
   useEffect(() => {
     const handleResize = () => {
@@ -32,6 +34,18 @@ function ResponsiveLayout({ children }) {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 0);
+    }
+  }, [location.hash]);
 
   return isDesktop ? (
     <DesktopLayout>{children}</DesktopLayout>
@@ -103,6 +117,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Tags />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pricing"
+          element={
+            <ProtectedRoute>
+              <Pricing />
             </ProtectedRoute>
           }
         />

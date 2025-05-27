@@ -16,7 +16,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
   const { showNotification } = useNotification();
   const { userData, refreshUserData } = useUserData();
   const dialogRef = useRef(null);
-  const [status, setStatus] = useState(false);
+  const [status, setStatus] = useState(true);
   const [longUrl, setLongUrl] = useState("");
   const [sufix, setSufix] = useState("");
   const [expirationDate, setExpirationDate] = useState("");
@@ -37,7 +37,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
   useEffect(() => {
     if (linkData) {
       setLongUrl(linkData.longUrl || "");
-      setStatus(linkData.status || false);
+      setStatus(linkData.status);
       setGroupSelected(linkData.group?.id || undefined);
       setTagsSelected(linkData.tags || []);
       setExpirationDate(linkData.expirationDate || "");

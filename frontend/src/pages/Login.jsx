@@ -7,56 +7,38 @@ import { useAuth } from "../context/Auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { checkLoginStatus } = useAuth();
+  const { login } = useAuth();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: document.querySelector("#username").value,
-        password: document.querySelector("#password").value,
-      }),
-      credentials: "include",
-    });
+    const isLoggedIn = await login(
+      document.querySelector("#username").value,
+      document.querySelector("#password").value
+    );
 
-    if (res.ok) {
-      const isLoggedIn = await checkLoginStatus();
-      if (!isLoggedIn) {
-        showNotification({
-          title: "Error",
-          message: "No se pudo iniciar sesión",
-          type: "error",
-        });
-        navigate("/");
-      }
-      await refreshUserData({
-        onlyLinks: false,
-        onlyGroups: false,
-        onlyTags: false,
-        onlyCountries: false,
-      });
-      showNotification({
-        title: "Sesión iniciada",
-        message: "¡Bienvenido de nuevo!",
-        type: "success",
-      });
-      navigate("/");
-    } else {
-      const data = await res.json();
-      console.log(data.details);
+    if (!isLoggedIn) {
       showNotification({
         title: "Error",
-        message: data.details,
+        message: "No se pudo iniciar sesión",
         type: "error",
       });
+      navigate("/");
     }
+    await refreshUserData({
+      onlyLinks: false,
+      onlyGroups: false,
+      onlyTags: false,
+      onlyCountries: false,
+    });
+    showNotification({
+      title: "Sesión iniciada",
+      message: "¡Bienvenido de nuevo!",
+      type: "success",
+    });
+    navigate("/");
   };
 
   return (

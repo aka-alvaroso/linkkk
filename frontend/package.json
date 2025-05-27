@@ -11,6 +11,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.3.0",
     "@tailwindcss/vite": "^4.0.14",
     "@tanstack/react-table": "^8.21.3",
     "animejs": "^4.0.1",

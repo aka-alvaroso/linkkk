@@ -15,6 +15,7 @@ import {
   QrCode,
   Share,
   Sparkle,
+  Sparkles,
   Split,
   Tag,
   TextCursorInput,
@@ -291,7 +292,7 @@ export default function Home() {
               </p>
             </form>
             <p className="mt-16 text-white">
-              ¿No estás convencido? Prueba con este ejemplo
+              ¿Quieres saber cómo funciona? Prueba con este ejemplo:
             </p>
             <div className="w-11/12 lg:w-2xl mt-4 bg-transparent border-2 border-white rounded-xl border-dashed p-4 flex">
               <div>
@@ -325,6 +326,11 @@ export default function Home() {
                     navigator.clipboard.writeText(
                       "https://linkkk.dev/r/google"
                     );
+                    showNotification({
+                      title: "Enlace copiado",
+                      message: "El enlace se ha copiado al portapapeles.",
+                      type: "success",
+                    });
                   }}
                 >
                   <Copy size={25} />
@@ -514,7 +520,10 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="z-10 relative bg-light-blue py-8 lg:py-24 flex flex-col items-center justify-center">
+      <section
+        id="pricing"
+        className="min-h-screen z-10 relative bg-light-blue py-8 lg:py-24 flex flex-col items-center justify-center "
+      >
         <img
           src="images/clip_walking.png"
           alt="clip_walking"
@@ -613,6 +622,19 @@ export default function Home() {
             </p>
           </div>
         </div>
+        <Button
+          variant="custom"
+          size="md"
+          onClick={() => {
+            navigate("/pricing");
+          }}
+          className="flex items-center gap-2 py-3 px-8 text-navy bg-gradient-to-r 
+              from-lavender to-light-blue rounded-xl border-navy border-2 hover:cursor-pointer 
+              hover:shadow-[0_6px_0_0_rgba(24,30,106)]"
+        >
+          <Sparkles size={20} className="text-navy" />
+          <span className="font-bold font-brice text-lg">Pasar a PRO</span>
+        </Button>
       </section>
 
       <div className="relative flex overflow-x-hidden bg-navy text-orange border-y-2 border-orange">
