@@ -14,6 +14,10 @@ import MyLinks from "./pages/MyLinks.jsx";
 import CreateLink from "./pages/CreateLink.jsx";
 import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
+import LegalNotice from "./pages/legal_notice.jsx";
+import TermsAndConditions from "./pages/terms.jsx";
+import PrivacyPolicy from "./pages/privacy.jsx";
+
 import { useState, useEffect } from "react";
 
 import ProtectedRoute from "./components/Auth/ProtectedRoute.jsx";
@@ -53,6 +57,9 @@ function App() {
       {/* Rutas públicas */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
+      <Route path="/legal" element={<LegalNotice />} />
+      <Route path="/terms" element={<TermsAndConditions />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
 
       {/* Rutas que requieren mínimo sesión de invitado */}
       <Route element={<ResponsiveLayout />}>
