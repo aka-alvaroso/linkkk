@@ -24,7 +24,7 @@ export const UserDataProvider = ({ children }) => {
             const tags = await fetchUserTags();
             setUserData({ links, groups, tags, countries });
           } else {
-            setUserData({ links, countries });
+            setUserData({ links, groups: [], tags: [], countries });
           }
         } catch (e) {
           console.error("Error cargando datos del usuario", e);

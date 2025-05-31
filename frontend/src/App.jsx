@@ -55,14 +55,49 @@ function App() {
   return (
     <Routes>
       {/* Rutas públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/legal" element={<LegalNotice />} />
-      <Route path="/terms" element={<TermsAndConditions />} />
-      <Route path="/privacy" element={<PrivacyPolicy />} />
 
       {/* Rutas que requieren mínimo sesión de invitado */}
       <Route element={<ResponsiveLayout />}>
+        <Route
+          path="/login"
+          element={
+            <GuestOrUserRoute>
+              <Login />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <GuestOrUserRoute>
+              <Register />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/legal"
+          element={
+            <GuestOrUserRoute>
+              <LegalNotice />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <GuestOrUserRoute>
+              <TermsAndConditions />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <GuestOrUserRoute>
+              <PrivacyPolicy />
+            </GuestOrUserRoute>
+          }
+        />
         <Route
           path="/links"
           element={

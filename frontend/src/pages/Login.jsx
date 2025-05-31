@@ -7,60 +7,42 @@ import { useAuth } from "../context/Auth";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { checkLoginStatus } = useAuth();
+  const { login } = useAuth();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const res = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        username: document.querySelector("#username").value,
-        password: document.querySelector("#password").value,
-      }),
-      credentials: "include",
-    });
+    const isLoggedIn = await login(
+      document.querySelector("#username").value,
+      document.querySelector("#password").value
+    );
 
-    if (res.ok) {
-      const isLoggedIn = await checkLoginStatus();
-      if (!isLoggedIn) {
-        showNotification({
-          title: "Error",
-          message: "No se pudo iniciar sesión",
-          type: "error",
-        });
-        navigate("/");
-      }
-      await refreshUserData({
-        onlyLinks: false,
-        onlyGroups: false,
-        onlyTags: false,
-        onlyCountries: false,
-      });
-      showNotification({
-        title: "Sesión iniciada",
-        message: "¡Bienvenido de nuevo!",
-        type: "success",
-      });
-      navigate("/");
-    } else {
-      const data = await res.json();
-      console.log(data.details);
+    if (!isLoggedIn) {
       showNotification({
         title: "Error",
-        message: data.details,
+        message: "No se pudo iniciar sesión",
         type: "error",
       });
+      navigate("/");
     }
+    await refreshUserData({
+      onlyLinks: false,
+      onlyGroups: false,
+      onlyTags: false,
+      onlyCountries: false,
+    });
+    showNotification({
+      title: "Sesión iniciada",
+      message: "¡Bienvenido de nuevo!",
+      type: "success",
+    });
+    navigate("/");
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
+    <div className="w-full h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
       {/* El div que contenía la imagen se elimina */}
       <div className="relative mx-auto py-18 bg-yellow text-navy shadow-[15px_15px_0_0_rgba(24,30,106)] w-10/12 flex flex-col items-center justify-center rounded-4xl xl:w-1/3">
         {/* La imagen ahora es hija de este div y se posiciona relativamente a él */}

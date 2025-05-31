@@ -7,7 +7,7 @@ import { useUserData } from "../context/UserDataContext";
 
 export default function Register() {
   const navigate = useNavigate();
-  const { checkLoginStatus, isLoggedIn } = useAuth();
+  const { login } = useAuth();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
 
@@ -34,60 +34,32 @@ export default function Register() {
     );
 
     if (response.ok) {
-      const session = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username: username,
-          password: password,
-        }),
-        credentials: "include",
-      });
-      if (session.ok) {
-        await checkLoginStatus();
-        if (!isLoggedIn) {
-          showNotification({
-            title: "Error",
-            message: "No se pudo iniciar sesión",
-            type: "error",
-          });
-          navigate("/");
-        }
-        await refreshUserData({
-          onlyLinks: false,
-          onlyGroups: false,
-          onlyTags: false,
-          onlyCountries: false,
-        });
+      const session = await login(username, password);
+      if (session) {
+        await refreshUserData();
         showNotification({
-          title: "Sesión iniciada",
-          message: "¡Bienvenido de nuevo!",
+          title: "¡Bienvenido!",
           type: "success",
         });
         navigate("/");
       } else {
-        const data = await session.json();
-        console.log(data.details);
         showNotification({
           title: "Error",
-          message: data.details,
+          message: "Login failed.",
           type: "error",
         });
       }
     } else {
-      const data = await response.json();
       showNotification({
         title: "Error",
-        message: data.details,
+        message: "Login failed.",
         type: "error",
       });
     }
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
+    <div className="w-full h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
       <div className="relative mx-auto py-18 bg-lavender text-navy shadow-[15px_15px_0_0_rgba(24,30,106)] w-10/12 flex flex-col items-center justify-center rounded-4xl xl:w-1/3">
         <h1 className="text-4xl font-bold text-center z-10 font-brice">
           Crear cuenta

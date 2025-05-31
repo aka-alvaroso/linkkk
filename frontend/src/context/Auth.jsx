@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [isGuestSession, setIsGuestSession] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
+  const [user, setUser] = useState(null);
 
   const checkLoginStatus = async () => {
     try {
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await res.json();
       setIsLoggedIn(data.isAuthenticated);
+      setUser(data.user);
       return data.isAuthenticated;
     } catch {
       setIsLoggedIn(false);
@@ -50,10 +52,6 @@ export const AuthProvider = ({ children }) => {
     setAuthChecked(true);
   };
 
-  useEffect(() => {
-    initializeAuth();
-  }, []);
-
   const createGuestSession = async () => {
     try {
       await fetch(`${import.meta.env.VITE_API_URL}auth/guest`, {
@@ -66,6 +64,36 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const login = async (username, password) => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}auth/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setIsLoggedIn(true);
+        setUser(data.user);
+        return true;
+      } else {
+        console.error("Error iniciando sesión", data.details);
+        return false;
+      }
+    } catch (error) {
+      console.error("Error iniciando sesión", error);
+      return false;
+    }
+  };
+
   const logout = async () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}auth/logout`, {
@@ -75,6 +103,8 @@ export const AuthProvider = ({ children }) => {
       if (res.ok) {
         setIsLoggedIn(false);
         setIsGuestSession(false);
+        setUser(null);
+        window.location.reload();
       } else {
         console.error("Error cerrando sesión", res.json());
       }
@@ -83,9 +113,14 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  useEffect(() => {
+    initializeAuth();
+  }, []);
+
   return (
     <AuthContext.Provider
       value={{
+        user,
         isLoggedIn,
         isGuestSession,
         authLoading,
@@ -93,6 +128,7 @@ export const AuthProvider = ({ children }) => {
         checkLoginStatus,
         checkGuestSession,
         createGuestSession,
+        login,
         logout,
       }}
     >
