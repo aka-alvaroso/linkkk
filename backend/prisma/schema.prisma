@@ -25,6 +25,7 @@ model User {
   links      Link[]
   groups     Group[]
   tags       Tag[]
+  apiKey     String? @unique
 }
 
 model Plan {
