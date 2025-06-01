@@ -50,9 +50,28 @@ export default function Register() {
         });
       }
     } else {
+      let errorMessage = "Error en el registro.";
+
+      try {
+        const errorData = await response.json();
+
+        if (errorData && errorData.details) {
+          errorMessage = errorData.details;
+        } else if (errorData && errorData.message) {
+          errorMessage = errorData.message; // Fallback a errorData.message
+        }
+      } catch (error) {
+        try {
+          errorMessage =
+            "Error en el registro: Respuesta inválida del servidor.";
+        } catch (textErr) {
+          errorMessage =
+            "Error en el registro: No se pudo leer la respuesta del servidor.";
+        }
+      }
       showNotification({
         title: "Error",
-        message: "Login failed.",
+        message: errorMessage,
         type: "error",
       });
     }
