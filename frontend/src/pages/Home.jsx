@@ -57,22 +57,6 @@ export default function Home() {
         // debug: true,
       }),
     });
-
-    animate(".card-feature", {
-      // Property keyframes
-      y: [
-        { to: "2.75rem", ease: "outBounce", duration: 0 },
-        { to: 0, ease: "outBounce", duration: 600 },
-      ],
-      delay: (_, i) => i * 100,
-      ease: "inOutCirc",
-      loopDelay: 1000,
-      autoplay: onScroll({
-        // debug: true,
-        enter: "bottom-=500 top",
-        leave: "bottom-=500 top",
-      }),
-    });
   }, []);
 
   const scrollToElement = (selector) => {

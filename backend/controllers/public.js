@@ -1,6 +1,6 @@
 const { date } = require("zod");
 const prisma = require("../prisma/client");
-const { validateApiKey } = require("../utils/apikey");
+const { validateApiKey } = require("../utils/apiKey");
 
 const createApiKey = async (req, res) => {
   const user = req.user;
