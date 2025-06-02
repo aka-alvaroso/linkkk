@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,19 +26,20 @@ export default function Login() {
         type: "error",
       });
       navigate("/");
+    } else {
+      await refreshUserData({
+        onlyLinks: false,
+        onlyGroups: false,
+        onlyTags: false,
+        onlyCountries: false,
+      });
+      showNotification({
+        title: "Sesión iniciada",
+        message: "¡Bienvenido de nuevo!",
+        type: "success",
+      });
+      navigate("/");
     }
-    await refreshUserData({
-      onlyLinks: false,
-      onlyGroups: false,
-      onlyTags: false,
-      onlyCountries: false,
-    });
-    showNotification({
-      title: "Sesión iniciada",
-      message: "¡Bienvenido de nuevo!",
-      type: "success",
-    });
-    navigate("/");
   };
 
   return (

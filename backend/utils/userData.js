@@ -14,10 +14,11 @@ const getClientIp = (req) => {
 
 const getCountryFromIP = async (ip) => {
   const geo = await fetch(
-    `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
+    `https://api.ipapi.is/?q=${ip}`
+    // `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
   );
   const data = await geo.json();
-  return data.countryCode;
+  return data.location.country_code;
 };
 
 const isVPNOrProxy = async (ip) => {
@@ -25,10 +26,12 @@ const isVPNOrProxy = async (ip) => {
     return false;
   }
   const res = await fetch(
-    `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
+    `https://api.ipapi.is/?q=${ip}`
+    // `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
   );
   const data = await res.json();
-  return data.proxy || data.vpn;
+
+  return data.is_proxy || data.is_vpn;
 };
 
 const getDeviceType = (userAgent) => {

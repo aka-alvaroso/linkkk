@@ -13,7 +13,7 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "@prisma/client": "^6.5.0",
+    "@prisma/client": "^6.8.2",
     "bcryptjs": "^3.0.2",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -22,8 +22,10 @@
     "express-rate-limit": "^7.5.0",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.14.0",
-    "prisma": "^6.5.0",
     "qrcode": "^1.5.4",
     "zod": "^3.24.3"
+  },
+  "devDependencies": {
+    "prisma": "^6.8.2"
   }
 }

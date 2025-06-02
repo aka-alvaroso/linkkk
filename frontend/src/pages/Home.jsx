@@ -23,12 +23,14 @@ import {
 import { animate, onScroll } from "animejs";
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
+import { useAuth } from "../context/AuthContext";
 import Button from "../components/Common/Button";
 
 export default function Home() {
   const navigate = useNavigate();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
+  const { isLoggedIn } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -256,23 +258,25 @@ export default function Home() {
               >
                 Acortar
               </button>
-              <p className="mt-4 text-center text-white">
-                ¿Quieres más opciones?{" "}
-                <a
-                  onClick={() => navigate("/register")}
-                  className="text-light-blue underline"
-                >
-                  Regístrate
-                </a>{" "}
-                o
-                <a
-                  onClick={() => navigate("/login")}
-                  className="text-light-blue underline"
-                >
-                  {" "}
-                  inicia sesión
-                </a>
-              </p>
+              {!isLoggedIn && (
+                <p className="mt-4 text-center text-white">
+                  ¿Quieres más opciones?{" "}
+                  <a
+                    onClick={() => navigate("/register")}
+                    className="text-light-blue underline"
+                  >
+                    Regístrate
+                  </a>{" "}
+                  o
+                  <a
+                    onClick={() => navigate("/login")}
+                    className="text-light-blue underline"
+                  >
+                    {" "}
+                    inicia sesión
+                  </a>
+                </p>
+              )}
             </form>
             <p className="mt-16 text-white">
               ¿No estás convencido? Prueba con este ejemplo

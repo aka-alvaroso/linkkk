@@ -573,7 +573,12 @@ const updateLink = async (req, res) => {
 
     if (sufix) {
       const existingLinkWithSufix = await prisma.link.findFirst({
-        where: { sufix },
+        where: {
+          sufix,
+          NOT: {
+            id: Number(id),
+          },
+        },
       });
 
       if (existingLinkWithSufix) {

@@ -485,9 +485,6 @@ export default function Dashboard() {
                       />
                       Límite de accesos:&nbsp; {link.accessLimit}
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -507,9 +504,6 @@ export default function Dashboard() {
                         second: "2-digit",
                       })}
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -521,9 +515,6 @@ export default function Dashboard() {
                       <Lock width={20} height={20} className="mr-1" />
                       Contraseña:&nbsp; Activada
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -536,9 +527,6 @@ export default function Dashboard() {
                       {link.blockedCountries.length.toString() +
                         " país/es bloqueado/s"}
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -550,9 +538,6 @@ export default function Dashboard() {
                       <Split width={20} height={20} className="mr-1" />
                       Redirección inteligente:&nbsp; Activada
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -567,9 +552,6 @@ export default function Dashboard() {
                       />
                       Sufijo personalizado:&nbsp; /{link.sufix}
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
 
@@ -580,9 +562,6 @@ export default function Dashboard() {
                       <Brush width={20} height={20} className="mr-1" />
                       Metadatos de previsualización:&nbsp; Activada
                     </p>
-                    <button className="p-3 rounded-xl text-light-blue border-2 border-light-blue border-dashed hover:text-navy hover:bg-light-blue hover:cursor-pointer transition">
-                      Cambiar
-                    </button>
                   </div>
                 )}
               </div>

@@ -4,7 +4,7 @@ import { getIPData, getVPN } from "../utils/getUserData";
 import { AlignRight, Eye, EyeOff } from "lucide-react";
 import { animate } from "animejs";
 
-// import { useAuth } from '../context/Auth';
+// import { useAuth } from '../context/AuthContext';
 
 export default function Redirect() {
   const { shortCode } = useParams();
