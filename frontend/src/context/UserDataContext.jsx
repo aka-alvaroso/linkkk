@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./Auth";
+import { useAuth } from "./AuthContext";
 import { useFetchUserData } from "../hooks/useFetchUserData";
 
 const UserDataContext = createContext();

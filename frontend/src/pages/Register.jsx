@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import { useUserData } from "../context/UserDataContext";
 

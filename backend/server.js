@@ -25,7 +25,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: "https://linkkk.dev",
+    origin: ["https://linkkk.dev", "http://localhost:5173"],
     credentials: true,
   })
 );

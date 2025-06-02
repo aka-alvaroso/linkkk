@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import { useAuth } from "./context/Auth.jsx";
+import { useAuth } from "./context/AuthContext.jsx";
 import { useUserData } from "./context/UserDataContext.jsx";
 
 // import Redirect from "./pages/Redirect.jsx";
