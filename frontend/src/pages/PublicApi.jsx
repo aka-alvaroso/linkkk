@@ -63,6 +63,17 @@ export default function PublicApi() {
           <h4 className="text-2xl font-bold text-yellow font-brice">
             4. API Key
           </h4>
+          {apiKey.length > 0 ? (
+            <p className="text-md mt-4">
+              Tu API Key es:{" "}
+              <span className="font-bold bg-navy p-2 rounded-xl">{apiKey}</span>
+            </p>
+          ) : (
+            <p className="text-md mt-4">
+              Si no tienes API Key puedes generarla, si ya tienes una puedes
+              generar una nueva.
+            </p>
+          )}
           <Button
             variant="yellow_reverse"
             size="md"
@@ -89,12 +100,6 @@ export default function PublicApi() {
           >
             <span className="ml-2">Obtener mi API Key</span>
           </Button>
-          {apiKey.length > 0 && (
-            <p className="text-md mt-4">
-              Tu API Key es:{" "}
-              <span className="font-bold bg-navy p-2 rounded-xl">{apiKey}</span>
-            </p>
-          )}
         </div>
       </div>
     </div>

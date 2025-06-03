@@ -3,22 +3,20 @@ import { useNavigate } from "react-router-dom";
 import {
   Brush,
   Calendar,
+  CodeXml,
   Copy,
   CornerDownRight,
   Folder,
   Github,
-  Info,
   Lock,
   MapPinX,
   MousePointerBan,
   Plus,
-  QrCode,
   Share,
   Sparkle,
   Split,
   Tag,
   TextCursorInput,
-  Zap,
 } from "lucide-react";
 import { animate, onScroll } from "animejs";
 import { useUserData } from "../context/UserDataContext";
@@ -126,6 +124,9 @@ export default function Home() {
               className="hidden opacity-0 xl:block xl:opacity-100 absolute right-20 transition"
             />
             <h1 className="text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
+              <div className="absolute top-0 -left-15 -rotate-45">
+                <p className="text-4xl font-brice z-100 text-yellow">Beta</p>
+              </div>
               <p className="title inline-block font-brice transition-transform duration-200 hover:-translate-y-1/3">
                 P
               </p>
@@ -703,17 +704,17 @@ export default function Home() {
             <Lock width={25} height={25} />
             <span className="ml-2">Política de privacidad</span>
           </Button>
-          {/* <Button
+          <Button
             variant="yellow"
             size="sm"
             onClick={() => {
-              navigate("/about");
+              navigate("/apidocs");
             }}
             className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
           >
-            <Info width={25} height={25} />
-            <span className="ml-2">Acerca de Linkkk</span>
-          </Button> */}
+            <CodeXml width={25} height={25} />
+            <span className="ml-2">API para desarrolladores</span>
+          </Button>
           <Button
             variant="yellow"
             size="sm"
