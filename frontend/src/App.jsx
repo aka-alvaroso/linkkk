@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom"; // <--- Añadir useLocation
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useAuth } from "./context/Auth.jsx";
 import { useUserData } from "./context/UserDataContext.jsx";
 
@@ -14,6 +14,11 @@ import MyLinks from "./pages/MyLinks.jsx";
 import CreateLink from "./pages/CreateLink.jsx";
 import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
+import LegalNotice from "./pages/Legal_notice.jsx";
+import TermsAndConditions from "./pages/Terms.jsx";
+import PrivacyPolicy from "./pages/Privacy.jsx";
+import PublicApi from "./pages/PublicApi.jsx";
+
 import { useState, useEffect } from "react";
 
 import ProtectedRoute from "./components/Auth/ProtectedRoute.jsx";
@@ -65,11 +70,49 @@ function App() {
   return (
     <Routes>
       {/* Rutas públicas */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
 
       {/* Rutas que requieren mínimo sesión de invitado */}
       <Route element={<ResponsiveLayout />}>
+        <Route
+          path="/login"
+          element={
+            <GuestOrUserRoute>
+              <Login />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <GuestOrUserRoute>
+              <Register />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/legal"
+          element={
+            <GuestOrUserRoute>
+              <LegalNotice />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/terms"
+          element={
+            <GuestOrUserRoute>
+              <TermsAndConditions />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/privacy"
+          element={
+            <GuestOrUserRoute>
+              <PrivacyPolicy />
+            </GuestOrUserRoute>
+          }
+        />
         <Route
           path="/links"
           element={
@@ -91,6 +134,14 @@ function App() {
           element={
             <GuestOrUserRoute>
               <CreateLink />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/apidocs"
+          element={
+            <GuestOrUserRoute>
+              <PublicApi />
             </GuestOrUserRoute>
           }
         />

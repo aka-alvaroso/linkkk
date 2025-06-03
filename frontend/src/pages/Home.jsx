@@ -3,33 +3,33 @@ import { useNavigate } from "react-router-dom";
 import {
   Brush,
   Calendar,
+  CodeXml,
   Copy,
   CornerDownRight,
   Folder,
   Github,
-  Info,
   Lock,
   MapPinX,
   MousePointerBan,
   Plus,
-  QrCode,
   Share,
   Sparkle,
   Sparkles,
   Split,
   Tag,
   TextCursorInput,
-  Zap,
 } from "lucide-react";
 import { animate, onScroll } from "animejs";
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
+import { useAuth } from "../context/AuthContext";
 import Button from "../components/Common/Button";
 
 export default function Home() {
   const navigate = useNavigate();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
+  const { isLoggedIn } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -56,22 +56,6 @@ export default function Home() {
         leave: "bottom-=500 top",
         sync: true,
         // debug: true,
-      }),
-    });
-
-    animate(".card-feature", {
-      // Property keyframes
-      y: [
-        { to: "2.75rem", ease: "outBounce", duration: 0 },
-        { to: 0, ease: "outBounce", duration: 600 },
-      ],
-      delay: (_, i) => i * 100,
-      ease: "inOutCirc",
-      loopDelay: 1000,
-      autoplay: onScroll({
-        // debug: true,
-        enter: "bottom-=500 top",
-        leave: "bottom-=500 top",
       }),
     });
   }, []);
@@ -141,6 +125,9 @@ export default function Home() {
               className="hidden opacity-0 xl:block xl:opacity-100 absolute right-20 transition"
             />
             <h1 className="text-center text-4xl md:text-5xl lg:text-7xl text-white drop-shadow-[-5px_5px_0px_rgba(24,30,106)]">
+              <div className="absolute top-0 -left-15 -rotate-45">
+                <p className="text-4xl font-brice z-100 text-yellow">Beta</p>
+              </div>
               <p className="title inline-block font-brice transition-transform duration-200 hover:-translate-y-1/3">
                 P
               </p>
@@ -273,23 +260,25 @@ export default function Home() {
               >
                 Acortar
               </button>
-              <p className="mt-4 text-center text-white">
-                ¿Quieres más opciones?{" "}
-                <a
-                  onClick={() => navigate("/register")}
-                  className="text-light-blue underline"
-                >
-                  Regístrate
-                </a>{" "}
-                o
-                <a
-                  onClick={() => navigate("/login")}
-                  className="text-light-blue underline"
-                >
-                  {" "}
-                  inicia sesión
-                </a>
-              </p>
+              {!isLoggedIn && (
+                <p className="mt-4 text-center text-white">
+                  ¿Quieres más opciones?{" "}
+                  <a
+                    onClick={() => navigate("/register")}
+                    className="text-light-blue underline"
+                  >
+                    Regístrate
+                  </a>{" "}
+                  o
+                  <a
+                    onClick={() => navigate("/login")}
+                    className="text-light-blue underline"
+                  >
+                    {" "}
+                    inicia sesión
+                  </a>
+                </p>
+              )}
             </form>
             <p className="mt-16 text-white">
               ¿Quieres saber cómo funciona? Prueba con este ejemplo:
@@ -688,30 +677,79 @@ export default function Home() {
       <footer className="bg-primary text-white flex flex-col items-center justify-center gap-4 p-12">
         <div>
           <div
-            className="flex items-center justify-center gap-4 p-4 border-2 border-primary border-dashed rounded-xl transition hover:cursor-pointer hover:border-white"
+            className="flex items-center justify-center gap-4 p-4 border-2 border-primary border-dashed rounded-xl transition hover:cursor-pointer"
             onClick={() => scrollToElement("#home")}
           >
-            <button className="w-[50px] h-[50px] rounded-xl border-2 border-white text-white text-2xl font-[900] hover:cursor-pointer">
-              k.
-            </button>
+            <Button
+              variant="white"
+              size="sm"
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              <span className="font-brice text-3xl">k.</span>
+            </Button>
             <h3 className="font-bold text-4xl font-brice">Linkkk</h3>
           </div>
         </div>
         <div className="flex flex-wrap gap-4 mt-8">
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/legal");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
             <Lock width={25} height={25} />
-            <span className="ml-2">Privacidad</span>
-          </button>
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
-            <Info width={25} height={25} />
-            <span className="ml-2">Acerca de Linkkk</span>
-          </button>
-          <button className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition">
+            <span className="ml-2">Aviso legal</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/terms");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
+            <Lock width={25} height={25} />
+            <span className="ml-2">Términos y condiciones</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/privacy");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
+            <Lock width={25} height={25} />
+            <span className="ml-2">Política de privacidad</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              navigate("/apidocs");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
+            <CodeXml width={25} height={25} />
+            <span className="ml-2">API para desarrolladores</span>
+          </Button>
+          <Button
+            variant="yellow"
+            size="sm"
+            onClick={() => {
+              window.open("https://github.com/aka-alvaroso/linkkk", "_blank");
+            }}
+            className="flex items-center justify-center gap-2 bg-yellow text-primary border-2 border-yellow p-3 rounded-xl hover:cursor-pointer hover:bg-primary hover:text-yellow hover:border-dashed transition"
+          >
             <Github width={25} height={25} />
             <span className="ml-2">Github</span>
-          </button>
+          </Button>
         </div>
-        <p>
+        <p className="mb-12 md:mb-0">
           Diseñado y desarrollado con ❤️ por{" "}
           <a className="text-light-blue underline" href="https://alvaroso.dev/">
             aka_alvaroso

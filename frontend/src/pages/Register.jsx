@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 import { useNotification } from "../context/NotificationContext";
 import { useUserData } from "../context/UserDataContext";
 
@@ -36,38 +36,49 @@ export default function Register() {
     if (response.ok) {
       const session = await login(username, password);
       if (session) {
-        await refreshUserData({
-          onlyLinks: false,
-          onlyGroups: false,
-          onlyTags: false,
-          onlyCountries: false,
-        });
+        await refreshUserData();
         showNotification({
           title: "¡Bienvenido!",
           type: "success",
         });
         navigate("/");
       } else {
-        const data = await session.json();
-        console.log(data.details);
         showNotification({
           title: "Error",
-          message: data.details,
+          message: "Login failed.",
           type: "error",
         });
       }
     } else {
-      const data = await response.json();
+      let errorMessage = "Error en el registro.";
+
+      try {
+        const errorData = await response.json();
+
+        if (errorData && errorData.details) {
+          errorMessage = errorData.details;
+        } else if (errorData && errorData.message) {
+          errorMessage = errorData.message; // Fallback a errorData.message
+        }
+      } catch (error) {
+        try {
+          errorMessage =
+            "Error en el registro: Respuesta inválida del servidor.";
+        } catch (textErr) {
+          errorMessage =
+            "Error en el registro: No se pudo leer la respuesta del servidor.";
+        }
+      }
       showNotification({
         title: "Error",
-        message: data.details,
+        message: errorMessage,
         type: "error",
       });
     }
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
+    <div className="w-full h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
       <div className="relative mx-auto py-18 bg-lavender text-navy shadow-[15px_15px_0_0_rgba(24,30,106)] w-10/12 flex flex-col items-center justify-center rounded-4xl xl:w-1/3">
         <h1 className="text-4xl font-bold text-center z-10 font-brice">
           Crear cuenta

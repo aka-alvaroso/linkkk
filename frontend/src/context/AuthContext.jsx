@@ -86,7 +86,7 @@ export const AuthProvider = ({ children }) => {
         return true;
       } else {
         const data = await res.json();
-        console.log(data.details);
+        console.error("Error iniciando sesión", data.details);
         return false;
       }
     } catch (error) {
@@ -104,6 +104,8 @@ export const AuthProvider = ({ children }) => {
       if (res.ok) {
         setIsLoggedIn(false);
         setIsGuestSession(false);
+        setUser(null);
+        window.location.reload();
       } else {
         console.error("Error cerrando sesión", res.json());
       }

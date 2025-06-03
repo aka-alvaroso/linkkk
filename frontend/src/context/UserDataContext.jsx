@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { useAuth } from "./Auth";
+import { useAuth } from "./AuthContext";
 import { useFetchUserData } from "../hooks/useFetchUserData";
 
 const UserDataContext = createContext();
@@ -24,7 +24,7 @@ export const UserDataProvider = ({ children }) => {
             const tags = await fetchUserTags();
             setUserData({ links, groups, tags, countries });
           } else {
-            setUserData({ links, countries });
+            setUserData({ links, groups: [], tags: [], countries });
           }
         } catch (e) {
           console.error("Error cargando datos del usuario", e);

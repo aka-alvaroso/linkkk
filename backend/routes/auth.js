@@ -60,150 +60,149 @@ router.get("/guest", async (req, res) => {
   }
 });
 
-router.delete("/guest", authenticate, guestAuthenticate, async (req, res) => {
-  const guestId = Number(req.guest?.id);
+router.post(
+  "/register",
+  authenticate,
+  guestAuthenticate,
+  validate(registerSchema),
+  async (req, res) => {
+    const { username, email, password } = req.body;
 
-  if (!guestId) {
-    return res.status(400).json({ details: "ID de invitado no encontrado" });
-  }
-
-  try {
-    const guest = await prisma.guestSession.findUnique({
-      where: { id: guestId },
-    });
-
-    if (!guest) {
+    if (!req.guest) {
       return res
-        .status(404)
-        .json({ details: "Sesión de invitado no encontrada" });
+        .status(400)
+        .json({ details: "No se ha encontrado sesión de invitado" });
     }
 
-    await prisma.guestSession.delete({
-      where: { id: guestId },
-    });
+    const guestId = req.guest.guestSessionId;
 
-    res.clearCookie("guestToken");
-    res.status(200).json({ message: "Guest session deleted successfully" });
-  } catch (error) {
-    res.status(500).json({
-      details: "Failed to delete guest session",
-    });
-  }
-});
-
-router.post("/register", validate(registerSchema), async (req, res) => {
-  const { username, email, password } = req.body;
-  const guestId = Number(req.guest?.id);
-
-  const existingUser = await prisma.user.findFirst({
-    where: {
-      OR: [{ username }, { email }],
-    },
-  });
-
-  if (existingUser) {
-    return res.status(400).json({ details: "Usuario ya registrado" });
-  }
-
-  try {
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    const user = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password: hashedPassword,
-        planId: 1,
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ username }, { email }],
       },
     });
 
-    if (guestId) {
-      try {
-        const guestLinks = await prisma.link.findMany({
-          where: {
-            guest_sessionId: guestId,
-          },
-        });
+    if (existingUser) {
+      return res.status(400).json({ details: "Usuario ya registrado" });
+    }
 
-        if (guestLinks.length > 0) {
-          guestLinks.forEach(async (link) => {
-            await prisma.link.update({
-              where: {
-                id: link.id,
-              },
-              data: {
-                userId: user.id,
-              },
+    try {
+      const hashedPassword = await bcryptjs.hash(password, 10);
+      const user = await prisma.user.create({
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+          planId: 1,
+        },
+      });
+
+      if (guestId) {
+        try {
+          const guestLinks = await prisma.link.findMany({
+            where: {
+              guest_sessionId: guestId,
+            },
+          });
+
+          if (guestLinks.length > 0) {
+            guestLinks.forEach(async (link) => {
+              await prisma.link.update({
+                where: {
+                  id: link.id,
+                },
+                data: {
+                  userId: user.id,
+                },
+              });
             });
+          }
+
+          // await prisma.guestSession.delete({
+          //   where: {
+          //     id: guestId,
+          //   },
+          // });
+
+          // res.clearCookie("guestToken");
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      res.status(201).json({ message: "Usuario registrado con éxito", user });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        error: "Error al registrar usuario",
+        details: JSON.stringify(error),
+      });
+    }
+  }
+);
+
+router.post(
+  "/login",
+  authenticate,
+  guestAuthenticate,
+  validate(loginSchema),
+  async (req, res) => {
+    const { username, password } = req.body;
+    const guestId = req.guest?.guestSessionId;
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          username,
+        },
+      });
+
+      if (!user) {
+        return res.status(401).json({ details: "Credenciales incorrectas" });
+      }
+
+      const isPasswordCorrect = await bcryptjs.compare(password, user.password);
+
+      if (!isPasswordCorrect) {
+        return res.status(401).json({ details: "Credenciales incorrectas" });
+      }
+
+      if (guestId) {
+        try {
+          const guest = await prisma.guestSession.findUnique({
+            where: { id: guestId },
+          });
+
+          if (!guest) {
+            return res
+              .status(404)
+              .json({ details: "Sesión de invitado no encontrada" });
+          }
+
+          const guestLinks = await prisma.link.findMany({
+            where: {
+              guest_sessionId: guestId,
+            },
+          });
+
+          if (guestLinks.length > 0) {
+            guestLinks.forEach(async (link) => {
+              await prisma.link.update({
+                where: { id: link.id },
+                data: { userId: user.id },
+              });
+            });
+          }
+
+          await prisma.guestSession.delete({
+            where: { id: guestId },
+          });
+        } catch (error) {
+          return res.status(500).json({
+            error: "Failed to delete guest session",
           });
         }
-
-        await prisma.guestSession.delete({
-          where: {
-            id: guestId,
-          },
-        });
-
-        res.clearCookie("guestToken");
-      } catch (error) {
-        console.error(error);
       }
-    }
-
-    res.status(201).json({ message: "Usuario registrado con éxito", user });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({
-      error: "Error al registrar usuario",
-      details: JSON.stringify(error),
-    });
-  }
-});
-
-router.post("/login", validate(loginSchema), async (req, res) => {
-  const { username, password } = req.body;
-  const guestToken = req.cookies.guestToken;
-  const guestId = jwt.decode(guestToken)?.guestSessionId;
-
-  if (guestToken) {
-    try {
-      const guest = await prisma.guestSession.findUnique({
-        where: { id: guestId },
-      });
-
-      if (!guest) {
-        return res
-          .status(404)
-          .json({ details: "Sesión de invitado no encontrada" });
-      }
-
-      await prisma.guestSession.delete({
-        where: { id: guestId },
-      });
-
-      res.clearCookie("guestToken");
-    } catch (error) {
-      return res.status(500).json({
-        error: "Failed to delete guest session",
-      });
-    }
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        username,
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({ details: "Credenciales incorrectas" });
-    }
-
-    const isPasswordCorrect = await bcryptjs.compare(password, user.password);
-
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ details: "Credenciales incorrectas" });
-    }
 
     const userData = {
       id: user.id,
@@ -218,13 +217,21 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     const token = jwt.sign(tokenPayload, AUTH_SECRET_KEY, {
       expiresIn: "1w",
     });
+      const token = jwt.sign(
+        { id: user.id, username: user.username, planId: user.planId },
+        AUTH_SECRET_KEY,
+        {
+          expiresIn: "1w",
+        }
+      );
 
-    res.cookie("token", token, {
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    });
+      res.clearCookie("guestToken");
+      res.cookie("token", token, {
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+      });
 
     res.status(200).json({
       message: "OK",
@@ -234,6 +241,12 @@ router.post("/login", validate(loginSchema), async (req, res) => {
     res.status(500).json({ details: "Error al autenticar" });
   }
 });
+      res.status(200).json({ message: "OK" });
+    } catch (error) {
+      res.status(500).json({ details: "Error al autenticar" });
+    }
+  }
+);
 
 router.get("/status", async (req, res) => {
   const token = req.cookies.token;

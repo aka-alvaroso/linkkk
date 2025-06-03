@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
 

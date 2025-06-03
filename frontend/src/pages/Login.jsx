@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -26,6 +26,19 @@ export default function Login() {
         type: "error",
       });
       navigate("/");
+    } else {
+      await refreshUserData({
+        onlyLinks: false,
+        onlyGroups: false,
+        onlyTags: false,
+        onlyCountries: false,
+      });
+      showNotification({
+        title: "Sesión iniciada",
+        message: "¡Bienvenido de nuevo!",
+        type: "success",
+      });
+      navigate("/");
     }
     await refreshUserData({
       onlyLinks: false,
@@ -42,7 +55,7 @@ export default function Login() {
   };
 
   return (
-    <div className="w-screen h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
+    <div className="w-full h-screen flex flex-col items-center justify-center bg-primary overflow-hidden">
       {/* El div que contenía la imagen se elimina */}
       <div className="relative mx-auto py-18 bg-yellow text-navy shadow-[15px_15px_0_0_rgba(24,30,106)] w-10/12 flex flex-col items-center justify-center rounded-4xl xl:w-1/3">
         {/* La imagen ahora es hija de este div y se posiciona relativamente a él */}
