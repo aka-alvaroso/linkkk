@@ -37,7 +37,7 @@ const createLink = async (req, res) => {
   }
 
   if (!(await validateApiKey(apiKey))) {
-    return res.status(401).json({ message: "Invalid API key" });
+    return res.status(401).json({ message: "Invalid API keyy" });
   }
 
   if (!longUrl) {

@@ -6,7 +6,7 @@ import { ArrowLeftIcon } from "lucide-react";
 export default function LegalNotice() {
   const navigate = useNavigate();
   return (
-    <div className="w-screen h-screen bg-primary text-white py-12 flex justify-center overflow-auto">
+    <div className="w-full h-full bg-primary text-white py-12 flex justify-center overflow-auto">
       <div className="flex flex-col items-start gap-4 max-w-4xl">
         <div className="w-full flex items-center justify-center gap-4">
           <h1 className="text-4xl font-bold text-yellow font-brice">

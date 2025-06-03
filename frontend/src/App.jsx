@@ -14,9 +14,10 @@ import MyLinks from "./pages/MyLinks.jsx";
 import CreateLink from "./pages/CreateLink.jsx";
 import MobileLayout from "./Layouts/Mobile.jsx";
 import DesktopLayout from "./Layouts/Desktop.jsx";
-import LegalNotice from "./pages/legal_notice.jsx";
-import TermsAndConditions from "./pages/terms.jsx";
-import PrivacyPolicy from "./pages/privacy.jsx";
+import LegalNotice from "./pages/Legal_notice.jsx";
+import TermsAndConditions from "./pages/Terms.jsx";
+import PrivacyPolicy from "./pages/Privacy.jsx";
+import PublicApi from "./pages/PublicApi.jsx";
 
 import { useState, useEffect } from "react";
 
@@ -119,6 +120,14 @@ function App() {
           element={
             <GuestOrUserRoute>
               <CreateLink />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/apidocs"
+          element={
+            <GuestOrUserRoute>
+              <PublicApi />
             </GuestOrUserRoute>
           }
         />
