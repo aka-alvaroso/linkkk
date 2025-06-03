@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/Common/Button";
 import { ArrowLeftIcon } from "lucide-react";
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function PublicApi() {
   const [apiKey, setApiKey] = useState("");
