@@ -30,17 +30,19 @@ import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
 import Button from "../components/Common/Button";
 import Card from "../components/Common/Card";
 import { generateQrCode, base64ToBlob } from "../utils/qrCode";
+import ProFeatureDialog from "../components/Pro/ProFueatureDialog";
 
 export default function MyLinks() {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { userData, refreshUserData } = useUserData();
   const [searchParams] = useSearchParams();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [filteredLinks, setFilteredLinks] = useState(userData?.links);
   const [selectedLink, setSelectedLink] = useState(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isProFeatureDialogOpen, setIsProFeatureDialogOpen] = useState(false);
 
   const [filters, setFilters] = useState({
     shortUrl: "",
@@ -191,6 +193,16 @@ export default function MyLinks() {
           setIsDeleteDialogOpen(false);
         }}
         link={selectedLink}
+      />
+      <ProFeatureDialog
+        isOpen={isProFeatureDialogOpen}
+        onClose={() => {
+          setIsProFeatureDialogOpen(false);
+        }}
+        onConfirm={() => {
+          setIsProFeatureDialogOpen(false);
+          navigate("/pricing");
+        }}
       />
 
       <div className="w-11/12 lg:w-4/6 p-4 flex flex-wrap items-center gap-4">
@@ -457,7 +469,11 @@ export default function MyLinks() {
                       size="sm"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleGenerateQrCode(link);
+                        if (user.planId !== 2) {
+                          setIsProFeatureDialogOpen(true);
+                        } else {
+                          handleGenerateQrCode(link);
+                        }
                       }}
                     >
                       <RotateCw width={20} height={20} />
