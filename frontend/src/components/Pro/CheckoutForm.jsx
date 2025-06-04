@@ -9,7 +9,7 @@ import {
 import Button from "../Common/Button";
 import { LoaderCircle } from "lucide-react";
 
-const CheckoutForm = ({ amount, currency = "usd" }) => {
+const CheckoutForm = () => {
   const stripe = useStripe();
   const elements = useElements();
   const [error, setError] = useState(null);
@@ -38,7 +38,7 @@ const CheckoutForm = ({ amount, currency = "usd" }) => {
             "Content-Type": "application/json",
           },
           credentials: "include",
-          body: JSON.stringify({ amount, currency }),
+          body: JSON.stringify({ planId: 2 }),
         }
       );
 
@@ -64,29 +64,6 @@ const CheckoutForm = ({ amount, currency = "usd" }) => {
         setProcessing(false);
       } else {
         setError(null);
-
-        try {
-          const r = await fetch(
-            `${import.meta.env.VITE_API_URL}user/update-plan`,
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              credentials: "include",
-              body: JSON.stringify({ planId: 2 }),
-            }
-          );
-
-          if (!r.ok) {
-            const planErrorData = await r.json();
-            setError(planErrorData.details);
-          } else {
-            console.log("Plan actualizado correctamente");
-          }
-        } catch (planError) {
-          setError("Error al actualizar el plan." + planError.message);
-        }
 
         setProcessing(false);
         setSucceeded(true);

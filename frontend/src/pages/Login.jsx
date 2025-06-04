@@ -25,7 +25,6 @@ export default function Login() {
         message: "No se pudo iniciar sesión",
         type: "error",
       });
-      navigate("/");
     } else {
       await refreshUserData({
         onlyLinks: false,
@@ -38,19 +37,7 @@ export default function Login() {
         message: "¡Bienvenido de nuevo!",
         type: "success",
       });
-      navigate("/");
     }
-    await refreshUserData({
-      onlyLinks: false,
-      onlyGroups: false,
-      onlyTags: false,
-      onlyCountries: false,
-    });
-    showNotification({
-      title: "Sesión iniciada",
-      message: "¡Bienvenido de nuevo!",
-      type: "success",
-    });
     navigate("/");
   };
 

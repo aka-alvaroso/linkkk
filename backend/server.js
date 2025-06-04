@@ -18,6 +18,7 @@ const {
   postLinkPassword,
 } = require("./validations/link");
 const rateLimit = require("express-rate-limit");
+const webhookRoutes = require('./routes/webhook');
 
 const stripeRoutes = require("./routes/stripe");
 
@@ -31,6 +32,8 @@ app.use(
   })
 );
 app.use(cookieParser());
+// Middleware para la ruta de webhooks de Stripe (debe ir antes de express.json())
+app.use('/stripe-webhook', webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

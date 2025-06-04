@@ -204,26 +204,19 @@ router.post(
         }
       }
 
-    const userData = {
-      id: user.id,
-      username: user.username,
-      planId: user.planId,
-    };
+      const userData = {
+        id: user.id,
+        username: user.username,
+        planId: user.planId,
+      };
 
-    const tokenPayload = {
-      id: user.id,
-    };
+      const tokenPayload = {
+        id: user.id,
+      };
 
-    const token = jwt.sign(tokenPayload, AUTH_SECRET_KEY, {
-      expiresIn: "1w",
-    });
-      const token = jwt.sign(
-        { id: user.id, username: user.username, planId: user.planId },
-        AUTH_SECRET_KEY,
-        {
-          expiresIn: "1w",
-        }
-      );
+      const token = jwt.sign(tokenPayload, AUTH_SECRET_KEY, {
+        expiresIn: "1w",
+      });
 
       res.clearCookie("guestToken");
       res.cookie("token", token, {
@@ -233,21 +226,15 @@ router.post(
         sameSite: "lax",
       });
 
-    res.status(200).json({
-      message: "OK",
-      user: userData,
-    });
-  } catch (error) {
-    res.status(500).json({ details: "Error al autenticar" });
-  }
-});
-      res.status(200).json({ message: "OK" });
+      res.status(200).json({
+        message: "OK",
+        user: userData,
+      });
     } catch (error) {
       res.status(500).json({ details: "Error al autenticar" });
     }
   }
 );
-
 router.get("/status", async (req, res) => {
   const token = req.cookies.token;
 

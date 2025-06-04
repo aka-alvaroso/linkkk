@@ -1,5 +1,3 @@
-const IPAPI_KEY = process.env.IPAPI_KEY;
-
 const getClientIp = (req) => {
   let ip =
     req.headers["x-forwarded-for"]?.split(",")[0]?.trim() ||
@@ -13,10 +11,7 @@ const getClientIp = (req) => {
 };
 
 const getCountryFromIP = async (ip) => {
-  const geo = await fetch(
-    `https://api.ipapi.is/?q=${ip}`
-    // `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
-  );
+  const geo = await fetch(`https://api.ipapi.is/?q=${ip}`);
   const data = await geo.json();
   return data.location.country_code;
 };
@@ -25,10 +20,7 @@ const isVPNOrProxy = async (ip) => {
   if (ip === "::1" || ip === "0:0:0:0:0:0:0:1" || ip === "127.0.0.1") {
     return false;
   }
-  const res = await fetch(
-    `https://api.ipapi.is/?q=${ip}`
-    // `https://pro.ip-api.com/json/${ip}?fields=66846719&key=${IPAPI_KEY}`
-  );
+  const res = await fetch(`https://api.ipapi.is/?q=${ip}`);
   const data = await res.json();
 
   return data.is_proxy || data.is_vpn;

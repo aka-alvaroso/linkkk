@@ -22,7 +22,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../context/Auth";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
