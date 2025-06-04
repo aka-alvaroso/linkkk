@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import Button from "../Common/Button";
 import AuthButton from "../Auth/AuthButton";
 
@@ -9,7 +9,7 @@ export default function Navbar() {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
-  const { isLoggedIn, logout } = useAuth();
+  const { isLoggedIn, user, logout } = useAuth();
 
   const navLinks = [
     { name: "Inicio", path: "/", active: currentPath === "/" },
@@ -61,7 +61,24 @@ export default function Navbar() {
           ))}
         </div>
 
-        <AuthButton isLoggedIn={isLoggedIn} logout={logout} />
+        <div className="flex items-center justify-end ml-auto gap-4">
+          {isLoggedIn && user.planId !== 2 && (
+            <Button
+              variant="custom"
+              size="md"
+              onClick={() => {
+                navigate("/#pricing");
+              }}
+              className="ml-auto flex items-center gap-2 py-3 px-8 text-navy bg-gradient-to-r 
+              from-lavender to-light-blue rounded-xl border-navy border-2 hover:cursor-pointer 
+              hover:shadow-[0_6px_0_0_rgba(24,30,106)]"
+            >
+              <Sparkles size={20} className="text-navy" />
+              <span className="font-bold font-brice text-lg">PRO</span>
+            </Button>
+          )}
+          <AuthButton isLoggedIn={isLoggedIn} logout={logout} />
+        </div>
       </div>
     </div>
   );

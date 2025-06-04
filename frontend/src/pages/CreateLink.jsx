@@ -22,6 +22,7 @@ import {
   X,
 } from "lucide-react";
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
@@ -33,12 +34,15 @@ import Button from "../components/Common/Button";
 import CreateLinkDialog from "../components/Link/CreateLinkDialog";
 import GroupSelector from "../components/Group/GroupSelector";
 import TagSelector from "../components/Tag/TagSelector";
+import ProFeatureDialog from "../components/Pro/ProFueatureDialog";
 
 export default function CreateLink() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { userData, refreshUserData } = useUserData();
   const { showNotification } = useNotification();
   const [isCreateLinkDialogOpen, setIsCreateLinkDialogOpen] = useState(false);
+  const [isProFeatureDialogOpen, setIsProFeatureDialogOpen] = useState(false);
   const [linkData, setLinkData] = useState({});
   const [submit, setSubmit] = useState(false);
 
@@ -119,6 +123,15 @@ export default function CreateLink() {
           linkData={linkData}
           setLinkData={setLinkData}
         />
+        <ProFeatureDialog
+          isOpen={isProFeatureDialogOpen}
+          onClose={() => {
+            setIsProFeatureDialogOpen(false);
+          }}
+          onConfirm={() => {
+            setIsProFeatureDialogOpen(false);
+          }}
+        />
         <input
           id="long-url"
           type="text"
@@ -150,7 +163,11 @@ export default function CreateLink() {
             variant="yellow_reverse"
             size="md"
             onClick={() => {
-              setIsCreateLinkDialogOpen(true);
+              if (user.planId !== 2) {
+                setIsProFeatureDialogOpen(true);
+              } else {
+                setIsCreateLinkDialogOpen(true);
+              }
             }}
             className="flex items-center gap-2 col-span-3 sm:col-span-2"
           >

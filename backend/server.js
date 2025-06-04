@@ -1,6 +1,7 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const linkRoutes = require("./routes/link");
@@ -17,8 +18,9 @@ const {
   postLinkPassword,
 } = require("./validations/link");
 const rateLimit = require("express-rate-limit");
+const webhookRoutes = require('./routes/webhook');
 
-dotenv.config();
+const stripeRoutes = require("./routes/stripe");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -30,6 +32,8 @@ app.use(
   })
 );
 app.use(cookieParser());
+// Middleware para la ruta de webhooks de Stripe (debe ir antes de express.json())
+app.use('/stripe-webhook', webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -62,10 +66,13 @@ app.use("/user", userRoutes);
 app.use("/group", groupRoutes);
 app.use("/tag", tagRoutes);
 app.use("/qrcode", qrCodeRoutes);
+app.use("/stripe", stripeRoutes);
+
 app
   .route("/r/:shortCode")
   .get(validate(shortCodeParamSchema), linkController.getLinkRedirect)
   .post(validate(postLinkPassword), linkController.postLinkPassword);
+
 app.get(
   "/:shortCode",
   validate(shortCodeParamSchema),

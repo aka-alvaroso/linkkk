@@ -446,7 +446,9 @@ export default function MyLinks() {
                       : "https://imgs.search.brave.com/2splr4Zrzryy1n8Ymw9T1CY1Dn-B5KaujQ2CksNLjnM/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9xcnRh/Zy5uZXQvYXBpL3Fy/LnBuZw"
                   }
                   alt="Código QR"
-                  className="w-full h-full rounded-xl"
+                  className={`w-full h-full rounded-xl ${
+                    link.qrBinaryBytes ? "" : "blur-xs"
+                  }`}
                 />
                 {!link.qrBinaryBytes && (
                   <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center rounded-xl bg-primary/70">

@@ -85,6 +85,7 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         return true;
       } else {
+        const data = await res.json();
         console.error("Error iniciando sesión", data.details);
         return false;
       }

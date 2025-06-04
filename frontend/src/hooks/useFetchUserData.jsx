@@ -27,6 +27,12 @@ export const useFetchUserData = () => {
   };
 
   const fetchUserCountries = async () => {
+    // const res = await fetch(`${import.meta.env.VITE_API_URL}countries/get`, {
+    //   credentials: "include",
+    // });
+
+    // const data = await res.json();
+    // return data;
     const countries = [
       { id: 1, code: "AF", name: "Afganistán" },
       { id: 2, code: "AL", name: "Albania" },

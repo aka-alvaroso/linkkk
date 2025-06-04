@@ -27,11 +27,10 @@ const getUserById = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const { id } = req.params;
     const { username, email, password, planId } = req.body;
 
     const updatedUser = await prisma.user.update({
-      where: { id: Number(id) },
+      where: { id: Number(req.user.id) },
       data: {
         username,
         email,
@@ -68,5 +67,6 @@ const deleteUser = async (req, res) => {
 module.exports = {
   getUserById,
   updateUser,
+  updateUserPlan,
   deleteUser,
 };

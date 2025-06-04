@@ -25,7 +25,6 @@ export default function Login() {
         message: "No se pudo iniciar sesión",
         type: "error",
       });
-      navigate("/");
     } else {
       await refreshUserData({
         onlyLinks: false,
@@ -38,8 +37,8 @@ export default function Login() {
         message: "¡Bienvenido de nuevo!",
         type: "success",
       });
-      navigate("/");
     }
+    navigate("/");
   };
 
   return (

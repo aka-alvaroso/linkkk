@@ -204,13 +204,19 @@ router.post(
         }
       }
 
-      const token = jwt.sign(
-        { id: user.id, username: user.username, planId: user.planId },
-        AUTH_SECRET_KEY,
-        {
-          expiresIn: "1w",
-        }
-      );
+      const userData = {
+        id: user.id,
+        username: user.username,
+        planId: user.planId,
+      };
+
+      const tokenPayload = {
+        id: user.id,
+      };
+
+      const token = jwt.sign(tokenPayload, AUTH_SECRET_KEY, {
+        expiresIn: "1w",
+      });
 
       res.clearCookie("guestToken");
       res.cookie("token", token, {
@@ -220,13 +226,15 @@ router.post(
         sameSite: "lax",
       });
 
-      res.status(200).json({ message: "OK" });
+      res.status(200).json({
+        message: "OK",
+        user: userData,
+      });
     } catch (error) {
       res.status(500).json({ details: "Error al autenticar" });
     }
   }
 );
-
 router.get("/status", async (req, res) => {
   const token = req.cookies.token;
 
@@ -236,8 +244,22 @@ router.get("/status", async (req, res) => {
 
   try {
     const decoded = jwt.verify(token, AUTH_SECRET_KEY);
-    return res.status(200).json({ isAuthenticated: true, user: decoded });
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: decoded.id,
+      },
+    });
+
+    const userData = {
+      userId: user.id,
+      username: user.username,
+      planId: user.planId,
+    };
+
+    return res.status(200).json({ isAuthenticated: true, user: userData });
   } catch (error) {
+    console.error("Error en el token de autenticación:", error);
     return res.status(200).json({ isAuthenticated: false });
   }
 });
