@@ -54,12 +54,14 @@ import {
 } from "lucide-react";
 import EditLinkDialog from "../components/Link/EditLinkDialog";
 import DeleteLinkDialog from "../components/Link/DeleteLinkDialog";
-import ConfirmDialog from "../components/Common/ConfirmDialog";
 import Button from "../components/Common/Button";
 import { base64ToBlob, generateQrCode } from "../utils/qrCode";
+import ProFeatureDialog from "../components/Pro/ProFueatureDialog";
+import { useAuth } from "../context/AuthContext";
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { userData, refreshUserData } = useUserData();
   const { shortCode } = useParams();
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({});
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isProFeatureDialogOpen, setIsProFeatureDialogOpen] = useState(false);
 
   const { showNotification } = useNotification();
 
@@ -306,6 +309,16 @@ export default function Dashboard() {
               navigate("/links");
             }}
             link={link}
+          />
+          <ProFeatureDialog
+            isOpen={isProFeatureDialogOpen}
+            onClose={() => {
+              setIsProFeatureDialogOpen(false);
+            }}
+            onConfirm={() => {
+              setIsProFeatureDialogOpen(false);
+              navigate("/pricing");
+            }}
           />
 
           <div className="w-full lg:w-4/6 mx-auto">
@@ -609,7 +622,11 @@ export default function Dashboard() {
                           variant="ligth_blue"
                           size="md"
                           onClick={() => {
-                            handleGenerateQrCode();
+                            if (user.planId !== 2) {
+                              setIsProFeatureDialogOpen(true);
+                            } else {
+                              handleGenerateQrCode();
+                            }
                           }}
                         >
                           Generar Código QR

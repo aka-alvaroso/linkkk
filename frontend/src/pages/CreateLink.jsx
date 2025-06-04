@@ -130,6 +130,7 @@ export default function CreateLink() {
           }}
           onConfirm={() => {
             setIsProFeatureDialogOpen(false);
+            navigate("/pricing");
           }}
         />
         <input

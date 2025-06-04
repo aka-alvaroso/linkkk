@@ -1,4 +1,5 @@
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const prisma = require("../prisma/client");
 
 const createPaymentIntent = async (req, res) => {
   const { planId } = req.body;
