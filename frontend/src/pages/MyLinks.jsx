@@ -265,11 +265,11 @@ export default function MyLinks() {
           className="w-30 h-10 relative flex items-center justify-center p-1 border-2 border-navy border-dashed rounded-xl cursor-pointer"
           onClick={() => {
             if (filters.status === "active") {
-              setFilters({ ...filters, status: "" });
-            } else if (filters.status === "") {
               setFilters({ ...filters, status: "inactive" });
-            } else {
+            } else if (filters.status === "") {
               setFilters({ ...filters, status: "active" });
+            } else {
+              setFilters({ ...filters, status: "" });
             }
           }}
         >
@@ -278,8 +278,8 @@ export default function MyLinks() {
               filters.status === ""
                 ? "bg-navy text-primary"
                 : filters.status === "active"
-                ? "bg-yellow text-navy transform -translate-x-8"
-                : "bg-coral text-white transform translate-x-8"
+                ? "bg-yellow text-navy transform translate-x-8"
+                : "bg-coral text-white transform -translate-x-8"
             }
             }`}
           >

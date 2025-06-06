@@ -20,8 +20,8 @@ export default function Switch({ checked, onChange, size = "md" }) {
       <div
         className={`w-1/2 h-full rounded-lg flex items-center justify-center transition  ${
           checked
-            ? "-translate-x-[50%] bg-yellow text-navy"
-            : "translate-x-[50%] bg-navy text-yellow"
+            ? "translate-x-[50%] bg-yellow text-navy"
+            : "-translate-x-[50%] bg-navy text-yellow"
         }`}
       >
         {checked ? <Check size={20} /> : <X size={20} />}

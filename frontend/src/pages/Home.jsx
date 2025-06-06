@@ -29,7 +29,7 @@ export default function Home() {
   const navigate = useNavigate();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
 
   const [error, setError] = useState(null);
 
@@ -611,19 +611,21 @@ export default function Home() {
             </p>
           </div>
         </div>
-        <Button
-          variant="custom"
-          size="md"
-          onClick={() => {
-            navigate("/pricing");
-          }}
-          className="flex items-center gap-2 py-3 px-8 text-navy bg-gradient-to-r 
-              from-lavender to-light-blue rounded-xl border-navy border-2 hover:cursor-pointer 
-              hover:shadow-[0_6px_0_0_rgba(24,30,106)]"
-        >
-          <Sparkles size={20} className="text-navy" />
-          <span className="font-bold font-brice text-lg">Pasar a PRO</span>
-        </Button>
+        {user.planId !== 2 && (
+          <Button
+            variant="custom"
+            size="md"
+            onClick={() => {
+              navigate("/pricing");
+            }}
+            className="flex items-center gap-2 py-3 px-8 text-navy bg-gradient-to-r 
+                  from-lavender to-light-blue rounded-xl border-navy border-2 hover:cursor-pointer 
+                  hover:shadow-[0_6px_0_0_rgba(24,30,106)]"
+          >
+            <Sparkles size={20} className="text-navy" />
+            <span className="font-bold font-brice text-lg">Pasar a PRO</span>
+          </Button>
+        )}
       </section>
 
       <div className="relative flex overflow-x-hidden bg-navy text-orange border-y-2 border-orange">
