@@ -611,7 +611,7 @@ export default function Home() {
             </p>
           </div>
         </div>
-        {user.planId !== 2 && (
+        {user?.planId !== 2 && (
           <Button
             variant="custom"
             size="md"
