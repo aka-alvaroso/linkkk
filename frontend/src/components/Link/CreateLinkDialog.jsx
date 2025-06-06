@@ -126,7 +126,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
       </div>
 
       <div
-        className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-96 overflow-auto
+        className="w-full my-6 grid grid-cols-1 md:grid-cols-2 gap-2 h-64 overflow-auto
         [&::-webkit-scrollbar]:w-2
         [&::-webkit-scrollbar-track]:bg-white/50
         [&::-webkit-scrollbar-track]:rounded-full
@@ -264,7 +264,11 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
           type="text"
           value={desktopUrl}
           placeholder="https://mienlace.largo.com"
-          onChange={(e) => setDesktopUrl(e.target.value)}
+          onChange={(e) => {
+            setDesktopUrl(
+              e.target.value.length > 0 ? e.target.value : undefined
+            );
+          }}
           className="w-full"
           inputClasses="bg-transparent border-2 border-primary border-dashed text-white rounded-xl p-2 focus:outline-none focus:border-white"
         />
