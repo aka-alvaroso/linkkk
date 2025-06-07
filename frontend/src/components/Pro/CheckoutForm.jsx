@@ -21,17 +21,10 @@ const CheckoutForm = () => {
     event.preventDefault();
     setProcessing(true);
 
-    if (!stripe || !elements) {
-      setProcessing(false);
-      return;
-    }
-
-    const cardElement = elements.getElement(CardNumberElement);
-
     try {
       // 1. Crear PaymentIntent en el backend
       const res = await fetch(
-        `${import.meta.env.VITE_API_URL}stripe/create-payment-intent`,
+        `${import.meta.env.VITE_API_URL}stripe/create-checkout-session`,
         {
           method: "POST",
           headers: {
@@ -50,28 +43,10 @@ const CheckoutForm = () => {
         return;
       }
 
-      const { clientSecret } = data;
-
-      // 2. Confirmar el pago en el frontend
-      const payload = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-        },
-      });
-
-      if (payload.error) {
-        setError(`Pago fallido: ${payload.error.message}`);
-        setProcessing(false);
-      } else {
-        setError(null);
-
-        setProcessing(false);
-        setSucceeded(true);
-        setError(null);
-      }
-    } catch (err) {
-      console.error(err);
-      setError(`Error: ${err.message}`);
+      window.location.href = data.url;
+    } catch (error) {
+      console.error("Error al procesar el pago:", error);
+      setError("Error al procesar el pago.");
       setProcessing(false);
     }
   };
