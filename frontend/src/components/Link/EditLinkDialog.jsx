@@ -144,6 +144,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
         >
           {/* LongURL */}
           <Input
+            id="longUrl"
             label="URL Destino"
             placeholder="https://www.google.com"
             value={longUrl}
@@ -154,6 +155,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {/* Sufix */}
           <Input
+            id="sufix"
             label="Sufijo"
             placeholder="micampaña"
             value={sufix}
@@ -177,6 +179,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
           <div className="flex flex-col gap-1">
             <p className="text-sm">Etiquetas</p>
             <TagSelector
+              id="tags"
               tags={userData.tags}
               selectedTags={tagsSelected}
               onSelect={(tags) => setTagsSelected(tags)}
@@ -188,6 +191,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {/* Date Expire */}
           <Input
+            id="expirationDate"
             label="Fecha de Expiración"
             type="date"
             value={expirationDate ? formatDate(expirationDate) : ""}
@@ -199,6 +203,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
           {/* Password */}
           <div className="flex items-end gap-2">
             <Input
+              id="password"
               label="Contraseña"
               type={showPassword ? "text" : "password"}
               value={password}
@@ -225,6 +230,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {/* Access Limit */}
           <Input
+            id="accessLimit"
             label="Límite de accesos"
             type="number"
             value={accessLimit}
@@ -253,6 +259,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {/* Mobile URL */}
           <Input
+            id="mobileUrl"
             label="URL para móviles"
             type="text"
             value={mobileUrl}
@@ -268,6 +275,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {/* Desktop URL */}
           <Input
+            id="desktopUrl"
             label="URL para ordenadores"
             type="text"
             value={desktopUrl}
@@ -289,6 +297,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
           </div>
           {metadataEnabled && (
             <Input
+              id="metadataTitle"
               label="Título"
               type="text"
               value={metadataTitle}
@@ -301,6 +310,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
 
           {metadataEnabled && (
             <Input
+              id="metadataDescription"
               label="Descripción"
               type="text"
               value={metadataDescription}
@@ -314,6 +324,7 @@ export default function EditLinkDialog({ isOpen, onClose, linkData, onSave }) {
           {metadataEnabled && (
             <div className="md:col-span-2">
               <Input
+                id="metadataImage"
                 label="Imagen"
                 type="text"
                 value={metadataImage}

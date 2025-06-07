@@ -93,6 +93,7 @@ export default function Groups() {
         <div className="max-w-48 flex items-center gap-2 bg-primary text-white border-2 border-white border-dashed rounded-xl p-2 ">
           <Search width={20} height={20} />
           <input
+            id="search"
             type="text"
             placeholder="Buscar etiquetas"
             className="w-full py-1 px-2 focus:outline-none placeholder:text-white"

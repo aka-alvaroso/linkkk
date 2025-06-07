@@ -136,6 +136,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
       >
         {/* LongURL */}
         <Input
+          id="longUrl"
           label="URL Destino"
           placeholder="https://www.google.com"
           value={longUrl}
@@ -146,6 +147,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {/* Sufix */}
         <Input
+          id="sufix"
           label="Sufijo"
           placeholder="micampaña"
           value={sufix}
@@ -180,6 +182,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {/* Date Expire */}
         <Input
+          id="expirationDate"
           label="Fecha de Expiración"
           type="date"
           value={expirationDate}
@@ -191,6 +194,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         {/* Password */}
         <div className="flex items-end gap-2">
           <Input
+            id="password"
             label="Contraseña"
             type={showPassword ? "text" : "password"}
             value={password}
@@ -217,6 +221,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {/* Access Limit */}
         <Input
+          id="accessLimit"
           label="Límite de accesos"
           type="number"
           value={accessLimit}
@@ -245,6 +250,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {/* Mobile URL */}
         <Input
+          id="mobileUrl"
           label="URL para móviles"
           type="text"
           value={mobileUrl}
@@ -260,6 +266,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {/* Desktop URL */}
         <Input
+          id="desktopUrl"
           label="URL para ordenadores"
           type="text"
           value={desktopUrl}
@@ -281,6 +288,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         </div>
         {metadataEnabled && (
           <Input
+            id="metadataTitle"
             label="Título"
             type="text"
             value={metadataTitle}
@@ -293,6 +301,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
 
         {metadataEnabled && (
           <Input
+            id="metadataDescription"
             label="Descripción"
             type="text"
             value={metadataDescription}
@@ -306,6 +315,7 @@ export default function CreateLinkDialog({ isOpen, onClose, linkData }) {
         {metadataEnabled && (
           <div className="md:col-span-2">
             <Input
+              id="metadataImage"
               label="Imagen"
               type="text"
               value={metadataImage}
