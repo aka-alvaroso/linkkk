@@ -26,12 +26,17 @@ model User {
   groups     Group[]
   tags       Tag[]
   apiKey     String? @unique
+
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  subscriptionStatus String?
 }
 
 model Plan {
   id          Int     @id @default(autoincrement())
   name        String  @unique
   price       Float
+  stripePriceId   String? @unique
   links_limit Int
   api_limit   Int
   qr          Boolean

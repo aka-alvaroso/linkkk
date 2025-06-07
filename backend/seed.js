@@ -22,6 +22,7 @@ async function main() {
   //     api_limit: 1000,
   //     qr: true,
   //     pro_analytics: false,
+  //     stripePriceId: "price_1RT35fQrPWAE2GLmg2alklYk",
   //   },
   // });
   // console.log("✅ Planes creados");

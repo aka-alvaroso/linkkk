@@ -1,48 +1,112 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const prisma = require('../prisma/client');
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const prisma = require("../prisma/client");
 
 const handleStripeWebhook = async (req, res) => {
-  const sig = req.headers['stripe-signature'];
+  const sig = req.headers["stripe-signature"];
 
   let event;
-
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
+    );
   } catch (err) {
     console.error(`⚠️  Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
-  // Handle the event
+  // Procesar eventos
   switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
-      const userId = paymentIntent.metadata.userId;
-      const planId = paymentIntent.metadata.planId;
+    case "checkout.session.completed": {
+      const session = event.data.object;
 
-      if (userId && planId) {
-        try {
-          await prisma.user.update({
-            where: { id: Number(userId) },
-            data: { planId: Number(planId) },
-          });
-          console.log(`User ${userId} plan updated to ${planId} successfully.`);
-        } catch (error) {
-          console.error(`Error updating user plan for ${userId}:`, error);
-          // Considera un sistema de reintentos o notificación de errores aquí
-        }
-      } else {
-        console.warn('Missing userId or planId in PaymentIntent metadata.');
+      const userId = session.metadata?.userId;
+      const planId = session.metadata?.planId;
+
+      if (!userId || !planId) {
+        console.warn("Faltan userId o planId en session metadata");
+        break;
+      }
+
+      try {
+        await prisma.user.update({
+          where: { id: Number(userId) },
+          data: {
+            planId: Number(planId),
+            stripeCustomerId: session.customer,
+            stripeSubscriptionId: session.subscription,
+            subscriptionStatus: "active",
+          },
+        });
+        console.log(`✅ Usuario ${userId} suscrito correctamente.`);
+      } catch (error) {
+        console.error("Error actualizando usuario tras checkout:", error);
       }
       break;
-    // ... handle other event types
+    }
+
+    case "customer.subscription.updated": {
+      const subscription = event.data.object;
+
+      try {
+        await prisma.user.updateMany({
+          where: { stripeSubscriptionId: subscription.id },
+          data: {
+            subscriptionStatus: subscription.status, // e.g., active, past_due, canceled
+          },
+        });
+        console.log(
+          `🔄 Suscripción ${subscription.id} actualizada: ${subscription.status}`
+        );
+      } catch (error) {
+        console.error("Error actualizando estado de suscripción:", error);
+      }
+      break;
+    }
+
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object;
+
+      try {
+        await prisma.user.updateMany({
+          where: { stripeSubscriptionId: subscription.id },
+          data: {
+            planId: 1, // 👈 Plan gratuito, o como lo tengas definido
+            subscriptionStatus: "canceled",
+            stripeSubscriptionId: null,
+          },
+        });
+        console.log(`🚫 Suscripción cancelada: ${subscription.id}`);
+      } catch (error) {
+        console.error("Error al cancelar suscripción:", error);
+      }
+      break;
+    }
+
+    case "invoice.payment_failed": {
+      const invoice = event.data.object;
+      const subscriptionId = invoice.subscription;
+
+      try {
+        await prisma.user.updateMany({
+          where: { stripeSubscriptionId: subscriptionId },
+          data: {
+            subscriptionStatus: "past_due",
+          },
+        });
+        console.log(`❌ Pago fallido para suscripción ${subscriptionId}`);
+      } catch (error) {
+        console.error("Error al registrar pago fallido:", error);
+      }
+      break;
+    }
+
     default:
-      console.log(`Unhandled event type ${event.type}`);
+      console.log(`Unhandled event type: ${event.type}`);
   }
 
-  // Return a 200 response to acknowledge receipt of the event
-  res.json({ received: true });
+  res.status(200).json({ received: true });
 };
 
 module.exports = { handleStripeWebhook };

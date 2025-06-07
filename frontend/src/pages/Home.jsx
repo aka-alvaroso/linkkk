@@ -24,12 +24,16 @@ import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Common/Button";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function Home() {
   const navigate = useNavigate();
   const { refreshUserData } = useUserData();
   const { showNotification } = useNotification();
   const { isLoggedIn, user } = useAuth();
+  const [processing, setProcessing] = useState(false);
 
   const [error, setError] = useState(null);
 
@@ -99,6 +103,37 @@ export default function Home() {
     } else {
       const data = await response.json();
       setError(data.error);
+    }
+  };
+
+  const handleGoPro = async () => {
+    setProcessing(true);
+
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}stripe/create-checkout-session`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ planId: 2 }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Error al crear la intención de pago.");
+        setProcessing(false);
+        return;
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      console.error(error);
+      alert("Error inesperado al iniciar el pago.");
+    } finally {
+      setProcessing(false);
     }
   };
 
@@ -645,9 +680,8 @@ export default function Home() {
           <Button
             variant="custom"
             size="md"
-            onClick={() => {
-              navigate("/pricing");
-            }}
+            onClick={handleGoPro}
+            disabled={processing}
             className="flex items-center gap-2 py-3 px-8 text-navy bg-gradient-to-r 
                   from-lavender to-light-blue rounded-xl border-navy border-2 hover:cursor-pointer 
                   hover:shadow-[0_6px_0_0_rgba(24,30,106)]"
