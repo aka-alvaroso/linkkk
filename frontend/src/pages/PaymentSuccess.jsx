@@ -1,14 +1,16 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "../components/Common/Button";
+import { ArrowLeftIcon } from "lucide-react";
 
 export default function PaymentSuccess() {
   const navigate = useNavigate();
 
   return (
     <div className="w-full h-full bg-primary text-white py-12 flex justify-center overflow-auto">
-      <div className="flex flex-col items-start gap-4 max-w-4xl px-4">
+      <div className="flex flex-col items-center gap-4 max-w-4xl px-4">
         <h1 className="text-4xl font-bold text-yellow font-brice">
-          Pago realizado con éxito
+          Linky te da la bienvenida a los PRO
         </h1>
 
         <p className="text-md">
@@ -18,7 +20,7 @@ export default function PaymentSuccess() {
         <img
           src="/images/linky_ok.png"
           alt="Linky Ok"
-          className="hidden xl:block absolute -top-56 left-20 w-72"
+          className="hidden xl:block w-72"
         />
 
         <Button
