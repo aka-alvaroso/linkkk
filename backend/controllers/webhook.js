@@ -37,7 +37,7 @@ const handleStripeWebhook = async (req, res) => {
             subscriptionStatus: "active",
           },
         });
-        console.log(`✅ Usuario ${userId} suscrito correctamente.`);
+        // Eliminado log informativo
         break;
       }
 
@@ -47,9 +47,6 @@ const handleStripeWebhook = async (req, res) => {
           where: { stripeSubscriptionId: subscription.id },
           data: { subscriptionStatus: subscription.status },
         });
-        console.log(
-          `🔄 Suscripción ${subscription.id} actualizada: ${subscription.status}`
-        );
         break;
       }
 
@@ -63,7 +60,6 @@ const handleStripeWebhook = async (req, res) => {
             stripeSubscriptionId: null,
           },
         });
-        console.log(`🚫 Suscripción cancelada: ${subscription.id}`);
         break;
       }
 
@@ -74,35 +70,28 @@ const handleStripeWebhook = async (req, res) => {
           where: { stripeSubscriptionId: subscriptionId },
           data: { subscriptionStatus: "past_due" },
         });
-        console.log(`❌ Pago fallido para suscripción ${subscriptionId}`);
         break;
       }
 
+      // Puedes eliminar estos casos si no haces nada con ellos
       case "payment_intent.succeeded": {
-        const paymentIntent = event.data.object;
-        console.log(`💰 PaymentIntent exitoso: ${paymentIntent.id}`);
-        // Aquí podrías hacer algo extra si quieres
+        // No hacer nada ni log
         break;
       }
 
       case "customer.subscription.created": {
-        const subscription = event.data.object;
-        console.log(`🆕 Suscripción creada: ${subscription.id}`);
-        // Opcional: actualizar estado si quieres igual que en checkout.session.completed
+        // No hacer nada ni log
         break;
       }
 
       case "invoice.payment_succeeded": {
-        const invoice = event.data.object;
-        console.log(`📄 Factura pagada correctamente: ${invoice.id}`);
-        // Opcional: actualizar estado o lo que necesites
+        // No hacer nada ni log
         break;
       }
 
       default:
-        console.log(
-          `Evento recibido pero sin manejo específico: ${event.type}`
-        );
+        // No loguear eventos no manejados
+        break;
     }
   } catch (error) {
     console.error("Error procesando evento webhook:", error);
