@@ -18,7 +18,7 @@ const {
   postLinkPassword,
 } = require("./validations/link");
 const rateLimit = require("express-rate-limit");
-const webhookRoutes = require('./routes/webhook');
+const webhookRoutes = require("./routes/webhook");
 
 const stripeRoutes = require("./routes/stripe");
 
@@ -33,7 +33,7 @@ app.use(
 );
 app.use(cookieParser());
 // Middleware para la ruta de webhooks de Stripe (debe ir antes de express.json())
-app.use('/stripe-webhook', webhookRoutes);
+app.use("/stripe-webhook", webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -47,10 +47,10 @@ app.use(
 );
 
 const publicApiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 50, // Limita cada IP a 50 solicitudes por windowMs
+  windowMs: 24 * 60 * 60 * 1000, // 24 hours
+  max: 100, // Limit each IP to 100 requests per day
   message:
-    "Demasiadas solicitudes desde esta IP, por favor, inténtalo de nuevo después de 15 minutos",
+    "Demasiadas solicitudes desde esta IP, por favor, inténtalo de nuevo después de 24 horas",
   standardHeaders: true, // Devuelve información de límite de velocidad en los encabezados `RateLimit-*`
   legacyHeaders: false, // Deshabilita los encabezados `X-RateLimit-*`
 });

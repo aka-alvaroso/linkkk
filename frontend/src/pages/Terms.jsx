@@ -53,16 +53,11 @@ export default function TermsAndConditions() {
           <li>
             <strong>Usuarios Registrados (Plan Gratuito):</strong>
             <ul className="list-disc list-inside ml-6 space-y-1 text-md">
-              <li>Generación de hasta 100 enlaces mensuales.</li>
-              <li>Generación de hasta 50 códigos QR mensuales.</li>
+              <li>Generación de hasta 50 enlaces.</li>
               <li>
                 Los enlaces creados no tienen fecha de expiración automática.
               </li>
-              <li>Acceso limitado al panel de estadísticas de sus enlaces.</li>
-              <li>
-                Acceso limitado a las funcionalidades de creación avanzada de
-                enlaces.
-              </li>
+              <li>Acceso al panel de estadísticas de sus enlaces.</li>
               <li>Creación de hasta un máximo de 5 grupos de enlaces.</li>
               <li>
                 Creación de hasta un máximo de 15 etiquetas para organizar sus
@@ -80,7 +75,6 @@ export default function TermsAndConditions() {
               <li>Todo lo incluido en el Plan Gratuito.</li>
               <li>Generación ilimitada de enlaces.</li>
               <li>Generación ilimitada de códigos QR.</li>
-              <li>Acceso completo al panel de estadísticas de sus enlaces.</li>
               <li>
                 Acceso total a la creación avanzada de enlaces, incluyendo
                 opciones como protección con contraseña, fechas de expiración
@@ -93,13 +87,6 @@ export default function TermsAndConditions() {
               <li>
                 Creación de hasta un máximo de 100 etiquetas para organizar sus
                 enlaces.
-              </li>
-              <li>
-                Exportación de datos de sus enlaces en formatos CSV y JSON.
-              </li>
-              <li>
-                Acceso ampliado a la API Pública (hasta 10,000 peticiones por
-                día).
               </li>
             </ul>
           </li>

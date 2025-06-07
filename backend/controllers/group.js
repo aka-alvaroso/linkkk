@@ -4,6 +4,18 @@ const createGroup = async (req, res) => {
   const { title, description, color } = req.body;
   const userId = req.user.id;
 
+  if (req.user.planId !== 2) {
+    const count = await prisma.group.count({
+      where: {
+        userId: req.user.id,
+      },
+    });
+
+    if (count >= 5) {
+      return res.status(400).json({ details: "Límite de grupos alcanzado" });
+    }
+  }
+
   const group = await prisma.group.create({
     data: {
       userId: Number(userId),

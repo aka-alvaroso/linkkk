@@ -40,7 +40,7 @@ export default function CreateGroupDialog({ isOpen, onClose }) {
       console.error(responseData.error);
       showNotification({
         title: "Error al crear grupo",
-        message: responseData.error,
+        message: responseData.details,
         type: "error",
       });
     }
