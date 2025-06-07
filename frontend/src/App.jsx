@@ -145,6 +145,22 @@ function App() {
             </GuestOrUserRoute>
           }
         />
+        <Route
+          path="/success"
+          element={
+            <GuestOrUserRoute>
+              <PaymentSuccess />
+            </GuestOrUserRoute>
+          }
+        />
+        <Route
+          path="/cancel"
+          element={
+            <GuestOrUserRoute>
+              <PaymentCancel />
+            </GuestOrUserRoute>
+          }
+        />
 
         {/* Rutas que requieren ser usuario logueado */}
         <Route

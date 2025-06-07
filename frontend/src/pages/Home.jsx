@@ -24,9 +24,6 @@ import { useUserData } from "../context/UserDataContext";
 import { useNotification } from "../context/NotificationContext";
 import { useAuth } from "../context/AuthContext";
 import Button from "../components/Common/Button";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 export default function Home() {
   const navigate = useNavigate();

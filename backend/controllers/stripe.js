@@ -25,7 +25,7 @@ const createCheckoutSession = async (req, res) => {
       ],
       metadata: { userId: userId.toString(), planId: planId.toString() },
       success_url: `https://linkkk.dev/success`,
-      cancel_url: `https://linkkk.dev/cancel`,
+      cancel_url: `https://linkkk.dev/`,
     });
 
     return res.json({ url: session.url });
