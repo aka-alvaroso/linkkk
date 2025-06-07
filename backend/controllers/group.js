@@ -4,7 +4,11 @@ const createGroup = async (req, res) => {
   const { title, description, color } = req.body;
   const userId = req.user.id;
 
-  if (req.user.planId !== 2) {
+  const user = await prisma.user.findUnique({
+    where: { id: Number(userId) },
+  });
+
+  if (user.planId !== 2) {
     const count = await prisma.group.count({
       where: {
         userId: req.user.id,
