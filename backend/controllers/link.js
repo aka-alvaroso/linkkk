@@ -48,7 +48,7 @@ const createLink = async (req, res) => {
     }
   }
 
-  if (req.user?.planId !== 2) {
+  if (req.user && req.user?.planId !== 2) {
     const count = await prisma.link.count({
       where: {
         userId: req.user.id,
