@@ -48,6 +48,18 @@ const createLink = async (req, res) => {
     }
   }
 
+  if (req.user?.planId !== 2) {
+    const count = await prisma.link.count({
+      where: {
+        userId: req.user.id,
+      },
+    });
+
+    if (count >= 50) {
+      return res.status(400).json({ details: "Límite de enlaces alcanzado" });
+    }
+  }
+
   try {
     const {
       longUrl,

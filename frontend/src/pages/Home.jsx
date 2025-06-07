@@ -530,29 +530,60 @@ export default function Home() {
             <Sparkle fill="#fff563" />
           </span>
         </div>
-        <div className="w-11/12 mx-auto flex flex-col lg:flex-row items-start justify-center gap-8 py-8">
+        <div className="w-2/3 mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8 py-8">
+          {/* Plan INVITADO */}
+          <div className="w-full relative flex flex-col items-center justify-start gap-4 text-navy bg-transparent border-2 border-navy border-dashed p-8 rounded-xl">
+            {!isLoggedIn && (
+              <p className="absolute -top-2 -left-8 flex items-center justify-center text-lg text-orange bg-navy font-bold font-brice  py-1 px-2 rounded-xl -rotate-45">
+                Actual
+              </p>
+            )}
+            <h3 className="font-bold text-2xl font-brice">Plan invitado</h3>
+            <p className="text-md">
+              Utiliza el servicio sin necesidad de crear una cuenta.
+            </p>
+            <p className="text-md self-start font-bold">
+              <span className="font-bold">+</span> Generación de hasta 10
+              enlaces.
+            </p>
+            <p className="text-md self-start font-bold">
+              <span className="font-bold">-</span> Expiración de los enlaces
+              automática a los 7 días desde su creación.
+            </p>
+            <p className="text-md self-start font-bold">
+              <span className="font-bold">+</span> Si necesitas más enlaces,
+              puedes crear una cuenta.{" "}
+              <span className="text-pink">
+                ¡Tus enlaces ya creados se mantendrán!
+              </span>
+            </p>
+            <p className="text-md self-start font-bold">
+              <span className="font-bold">+</span> Si creaste enlaces y ya
+              tenías una cuenta, cuando inicies sesión{" "}
+              <span className="text-pink">
+                ¡Tus enlaces ya creados se pasarán a tu cuenta!
+              </span>
+            </p>
+          </div>
           {/* Plan GRATUITO */}
-          <div className="w-full lg:w-1/3 relative flex flex-col items-center justify-center gap-4 text-navy bg-lavender border-2 border-navy border-dashed p-8 rounded-xl">
+          <div className="w-full relative flex flex-col items-center justify-start gap-4 text-navy bg-lavender border-2 border-navy border-dashed p-8 rounded-xl">
+            {isLoggedIn && user.planId !== 2 && (
+              <p className="absolute -top-2 -left-8 flex items-center justify-center text-lg text-orange bg-navy font-bold font-brice  py-1 px-2 rounded-xl -rotate-45">
+                Actual
+              </p>
+            )}
             <h3 className="font-bold text-2xl font-brice">Plan gratuito</h3>
             <p className="text-md">
               Disfruta permanentemente de nuestro plan gratis, pudiendo acceder
               a muchas funcionalidades de la aplicación.
             </p>
             <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Generación de hasta 100
-              enlaces mensuales.
-            </p>
-            <p className="text-md self-start font-bold">
               <span className="font-bold">+</span> Generación de hasta 50
-              códigos QR.
+              enlaces.
             </p>
             <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso limitado al panel de
+              <span className="font-bold">+</span> Acceso al panel de
               estadísticas de tus enlaces.
-            </p>
-            <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso limitado a la creación
-              avanzada de enlaces.
             </p>
             <p className="text-md self-start font-bold">
               <span className="font-bold">+</span> Creación de grupos de
@@ -563,12 +594,18 @@ export default function Home() {
               tus enlaces. (Máx 15 etiquetas)
             </p>
             <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso limitado a la API
-              Pública. (100 peticiones/día)
+              <span className="font-bold">+</span> Acceso a la API para
+              desarrolladores. (100 peticiones/día) Nota: Esta API está en fase
+              beta
             </p>
           </div>
           {/* Plan PRO */}
-          <div className="w-full lg:w-1/3 relative flex flex-col items-center justify-center gap-4 text-navy bg-yellow border-2 border-navy p-8 rounded-xl">
+          <div className="w-full relative flex flex-col items-center justify-start gap-4 text-navy bg-yellow border-2 border-navy p-8 rounded-xl">
+            {isLoggedIn && user.planId === 2 && (
+              <p className="absolute -top-2 -left-8 flex items-center justify-center text-lg text-orange bg-navy font-bold font-brice  py-1 px-2 rounded-xl -rotate-45">
+                Actual
+              </p>
+            )}
             <h3 className="font-bold text-2xl font-brice">Plan PRO</h3>
             <p className="text-md">
               Accede a todas las funcionalidades PRO de la aplicación y disfruta
@@ -586,12 +623,8 @@ export default function Home() {
               códigos QR.
             </p>
             <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso total al panel de
-              estadísticas de tus enlaces.
-            </p>
-            <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso total a la creación
-              avanzada de enlaces.
+              <span className="font-bold">+</span> Acceso a los ajustes PRO de
+              tus enlaces.
             </p>
             <p className="text-md self-start font-bold">
               <span className="font-bold">+</span> Creación de grupos de
@@ -601,14 +634,11 @@ export default function Home() {
               <span className="font-bold">+</span> Creación de etiquetas para
               tus enlaces. (Máx 100 etiquetas)
             </p>
-            <p className="text-md self-start font-bold">
+            {/* <p className="text-md self-start font-bold">
+              TODO: Exportación de datos de tus enlaces en formato CSV y JSON.
               <span className="font-bold">+</span> Exportación de datos de tus
               enlaces en formato CSV y JSON.
-            </p>
-            <p className="text-md self-start font-bold">
-              <span className="font-bold">+</span> Acceso a la API Pública.
-              (10000 peticiones/día)
-            </p>
+            </p> */}
           </div>
         </div>
         {user?.planId !== 2 && (

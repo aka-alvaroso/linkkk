@@ -4,6 +4,18 @@ const createTag = async (req, res) => {
   const { tagName, color } = req.body;
   const userId = req.user.id;
 
+  if (req.user.planId !== 2) {
+    const count = await prisma.tag.count({
+      where: {
+        userId: req.user.id,
+      },
+    });
+
+    if (count >= 15) {
+      return res.status(400).json({ details: "Límite de tags alcanzado" });
+    }
+  }
+
   const tag = await prisma.tag.create({
     data: {
       userId: Number(userId),
