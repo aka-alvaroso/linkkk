@@ -18,6 +18,7 @@ import LegalNotice from "./pages/Legal_notice.jsx";
 import TermsAndConditions from "./pages/Terms.jsx";
 import PrivacyPolicy from "./pages/Privacy.jsx";
 import PublicApi from "./pages/PublicApi.jsx";
+import PaymentSuccess from "./pages/PaymentSuccess.jsx";
 
 import { useState, useEffect } from "react";
 
@@ -150,14 +151,6 @@ function App() {
           element={
             <GuestOrUserRoute>
               <PaymentSuccess />
-            </GuestOrUserRoute>
-          }
-        />
-        <Route
-          path="/cancel"
-          element={
-            <GuestOrUserRoute>
-              <PaymentCancel />
             </GuestOrUserRoute>
           }
         />
