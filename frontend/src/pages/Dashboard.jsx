@@ -202,11 +202,19 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    setLink(
+    let newLink =
       userData.links.find(
         (l) => l.sufix === shortCode || l.shortUrl === shortCode
-      ) || {}
-    );
+      ) || {};
+
+    if (Object.keys(newLink).length === 0) {
+      const l = userData.links.find((l) => l.id === link.id);
+
+      navigate(`/dashboard/${l.sufix ? l.sufix : l.shortUrl}`);
+      return;
+    }
+
+    setLink(newLink);
 
     const fetchStats = async () => {
       const responseStats = await fetch(
@@ -299,6 +307,9 @@ export default function Dashboard() {
             }}
             linkData={link}
             countries={userData.countries}
+            onSave={() => {
+              setIsEditModalOpen(false);
+            }}
           />
           <DeleteLinkDialog
             isOpen={isDeleteModalOpen}
@@ -800,6 +811,7 @@ function AccessTable({ stats }) {
       {/* Filtros y controles */}
       <div className="flex flex-wrap gap-2 mb-4 justify-between items-center">
         <select
+          id="pageSize"
           className="p-2 rounded-xl text-sm border-2 bg-transparent border-yellow text-yellow focus:outline-none"
           value={pagination.pageSize}
           onChange={(e) => {
@@ -814,6 +826,7 @@ function AccessTable({ stats }) {
         </select>
 
         <input
+          id="globalFilter"
           type="text"
           placeholder="Buscar..."
           className="p-2 rounded-xl text-sm text-white border-2 border-white border-dashed focus:outline-none focus:border-double placeholder:text-white"
