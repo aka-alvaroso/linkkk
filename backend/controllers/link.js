@@ -48,9 +48,13 @@ const createLink = async (req, res) => {
     }
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: Number(req.user?.id) },
-  });
+  let user;
+
+  if (req.user) {
+    user = await prisma.user.findUnique({
+      where: { id: Number(req.user?.id) },
+    });
+  }
 
   if (user && user.planId !== 2) {
     const count = await prisma.link.count({
