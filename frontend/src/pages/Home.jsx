@@ -481,7 +481,9 @@ export default function Home() {
               ¡Comparte el enlace corto quien desees!
             </li>
           </ol>
-          <button className="flex mt-96 bg-yellow text-navy font-bold py-3 px-6 rounded-xl border-2 border-navy transition hover:cursor-pointer hover:shadow-[0_5px_0_0_rgba(24,30,106)]">
+          <button className="flex mt-96 bg-yellow text-navy font-bold py-3 px-6 rounded-xl border-2 border-navy transition hover:cursor-pointer hover:shadow-[0_5px_0_0_rgba(24,30,106)]"
+            onClick={() => navigate("/links/create")}
+          >
             <Plus width={20} height={20} />
             <span className="ml-2">Crear enlace</span>
           </button>
