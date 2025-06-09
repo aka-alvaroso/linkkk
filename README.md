@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://roadmap.sh/"><img src="frontend/public/images/logo.png" height="128"></a>
+  <a href="https://linkkk.dev/"><img src="frontend/public/images/logo.png" height="128"></a>
   <h1 align="center"><a href="https://linkkk.dev">Linkkk</a></h1>
   <p align="center">Acortar, reunir estadísticas y aumentar la personalización de tus enlaces</p>
 </p>
@@ -7,13 +7,13 @@
 
 
 
-## 📖 Descripción 📖
-Linkkk es un servicio que principalmente trata de acortar enlaces, nació como un Proyecto de Fin de Grado que hice para terminar mi Grado Superior en Desarrollo de Aplicaciones Web. 
+## 🚀 ¿Qué es Linkkk?
+Linkkk es un servicio que principalmente trata de acortar enlaces, nació como un <b>Proyecto de Fin de Grado (TFG)</b> que hice para terminar mi Grado Superior en Desarrollo de Aplicaciones Web. 
 Además de permitir acortar enlaces, Linkkk tiene algunas funcionalidades extra como, generación de códigos QR para los enlaces, posibiliad de añadir ajustes avanzados a los enlaces entre otras.
 
-## 🪛 Características 🪛
+## ✨ Características Destacadas
 
-### 🔨 Características principales 🔨
+### 🎯 Funcionalidades Principales
   - **Usabilidad sin registro**: Linkkk permite el uso del servicio sin necesidad de que el usuario esté registrado, sin embargo, habrán limitaciones que se detallarán más abajo.
   - **Acortar URLs**: Genera a partir de una url, un enlace corto que redirige al enlace destino.
   - **Gestión de Links**: Posibilidad de gestionar enlaces pudiendo crear nuevos, editar existente o eliminarlos.
@@ -25,7 +25,7 @@ Además de permitir acortar enlaces, Linkkk tiene algunas funcionalidades extra 
     - **Gráfica de tipos de dispositivo**: Una gráfica donde se muestra el % accesos según el tipo de dispositivo.
     - **Tabla de accesos**: Una tabla donde se muestran todos los accesos al enlace con información como si ha usado VPN, el país, la IP, el tipo de dispositivo y la fecha.
 
-### ⚒️ Características secundarias ⚒️
+### 🛠️ Funcionalidades Adicionales
   - **Generación de códigos QR**: Linkkk permite generar códigos QR que llevan a un enlace concreto.
   - **API para desarrolladores**: Linkkk tiene una API para desarrolladores que se encuentra en fase `BETA`, y sólo dispone de 2 endpoints usables.
   - **Ajustes avanzados**: Linkkk dispone de varios ajustes avanzados que los usuarios pueden usar a la hora de crear un enlace o editarlo. Estos son:
@@ -37,9 +37,9 @@ Además de permitir acortar enlaces, Linkkk tiene algunas funcionalidades extra 
     - **Metadatos**: Permite cambiar los metadatos del enlace mostrados en Redes Sociales al compartirlo.
     - **Sufijo personalizado**: Cambia el sufijo del enlace para que sea más fácil de recordar.
      
-## 👤 Tipos de usuario 👤
+## 👤 Tipos de Usuario
 
-### 👤 Invitados 👤
+### 🚶 Invitado
 Son usuarios por defecto, permite usar la aplicación sin necesidad de registrarse.
 Estos usuarios disponen de algunas limitaciones:
   - **Límite de enlaces**: Los invitados podrán crear un máximo de `10` enlaces.
@@ -50,7 +50,7 @@ Estos usuarios disponen de algunas limitaciones:
 `Nota: En caso de que un usuario invitado haya creado X enlaces y desee pasar a una cuenta de usuario, podrá registrarse y sus enlaces se traspasarán automáticamente a la nueva cuenta.
 También, si un usuario ya tenía cuenta creada pero sin iniciar sesión ha creado algún enlace, si inicia sesión también se traspasarán los enlaces creados con el modo invitado.`
 
-### 🧑‍💻 Usuarios 🧑‍💻
+### 🧑‍💻 Usuarios Registrados
 Una cuenta es considerada usuario cuando se ha registrado.
 Los usuarios disponen de ciertas características como estas:
   - **Panel de detalle**: Los usuarios podrán entrar al panel de detalle de un enlace pudiendo ver sus analíticas.
@@ -60,7 +60,7 @@ Los usuarios disponen de ciertas características como estas:
   - **API para desarrolladores**: Los usuarios podrán usar la API para desarrolladores con un límite de 100 peticiones por día.
 
 
-### 😎 Usuarios PRO 😎
+### ⭐ Usuarios PRO
 Una cuenta es considerara PRO cuando se ha suscrito mensualmente al servicio.
 Los usuarios PRO son los que más ventajas tienen, aquí van:
   - **Generación de QR**: Los usuarios PRO, podrán generar códigos QR para sus enlaces.
@@ -68,15 +68,15 @@ Los usuarios PRO son los que más ventajas tienen, aquí van:
   - **Ajustes avanzados**: Los usuarios PRO podrán crear y editar sus enlaces con los ajustes PRO (o avanzados).
   - **Creación de grupos y etiquetas**: Los usuarios PRO podrán crear `50` grupos y `100` etiquetas.
 
-## 🔧 Tecnologías 🔧
+## ⚙️ Tecnologías Utilizadas
 Tecnologías utilizadas en el proyecto:
 
-### 🧑‍💻 Front-End (Cliente):
+### 🖥️ Front-End (Cliente)
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)  ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-### Back-End (Servidor):
+### ☁️ Back-End (Servidor)
 ![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)  ![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB) ![Stripe](https://img.shields.io/badge/Stripe-5469d4?style=for-the-badge&logo=stripe&logoColor=ffffff)  ![Zod](https://img.shields.io/badge/zod-%233068b7.svg?style=for-the-badge&logo=zod&logoColor=white)
 
-### Base de Datos
+### 🗄️ Base de Datos
 ![Postgres](https://img.shields.io/badge/postgres-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white)
 
