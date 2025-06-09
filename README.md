@@ -1,4 +1,11 @@
-# 📎 Linkkk 📎
+<p align="center">
+  <a href="https://roadmap.sh/"><img src="frontend/public/images/logo.png" height="128"></a>
+  <h1 align="center"><a href="https://linkkk.dev">Linkkk</a></h1>
+  <p align="center">Acortar, reunir estadísticas y aumentar la personalización de tus enlaces</p>
+</p>
+
+
+
 
 ## 📖 Descripción 📖
 Linkkk es un servicio que principalmente trata de acortar enlaces, nació como un Proyecto de Fin de Grado que hice para terminar mi Grado Superior en Desarrollo de Aplicaciones Web. 
