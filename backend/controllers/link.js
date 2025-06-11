@@ -8,20 +8,20 @@ const {
   getDeviceType,
 } = require("../utils/userData");
 
-function isActive(link) {
+function isActive (link) {
   return link.status;
 }
-function isPassword(link) {
+function isPassword (link) {
   return link.password;
 }
-function isAccessLimit(link) {
+function isAccessLimit (link) {
   return link.accessLimit && link.accessLimit <= link.accesses.length;
 }
-function isExpired(link) {
+function isExpired (link) {
   // TODO: ¿Cuando se accede a un enlace expirado, se guarda como inactivo?
   return link.d_expire && new Date(link.d_expire) < new Date();
 }
-function isBlockedCountry(link, country) {
+function isBlockedCountry (link, country) {
   return link.blockedCountries.some(
     (blockedCountry) =>
       blockedCountry.code.toUpperCase() === country.toUpperCase()
@@ -127,8 +127,8 @@ const createLink = async (req, res) => {
         blockedCountries: {
           connect: proSettings
             ? blockedCountries?.map((countryId) => ({
-                id: Number(countryId),
-              }))
+              id: Number(countryId),
+            }))
             : [],
         },
         tags: {
@@ -141,8 +141,8 @@ const createLink = async (req, res) => {
         d_expire: isGuest
           ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
           : expirationDate && proSettings
-          ? new Date(expirationDate)
-          : null,
+            ? new Date(expirationDate)
+            : null,
         metadataTitle: useMetadata && proSettings ? metadataTitle : null,
         metadataDescription:
           useMetadata && proSettings ? metadataDescription : null,
@@ -199,7 +199,7 @@ const getLinkRedirect = async (req, res) => {
       const description =
         link.useCustomMetadata && link.metadataDescription
           ? link.metadataDescription
-          : "Genera enlaces cortos y únicos, customizalos con ajustes únicos y echa un vistazo a sus estadísticas. Genera códigos QR y facilita el uso a todo el mundo. ";
+          : "Genera enlaces cortos y únicos, customizalos con ajustes únicos y echa un vistazo a sus estadísticas. Genera códigos QR y facilita el uso a todo el mundo.";
       const image =
         link.useCustomMetadata && link.metadataImage
           ? link.metadataImage
@@ -462,8 +462,8 @@ const getLinksByUserId = async (req, res) => {
       where: userId
         ? { userId: Number(userId) }
         : guestId
-        ? { guest_sessionId: Number(guestId) }
-        : {},
+          ? { guest_sessionId: Number(guestId) }
+          : {},
       include: {
         group: true,
         tags: true,
@@ -527,14 +527,14 @@ const getLinkStats = async (req, res) => {
           i === 0
             ? "Hoy"
             : [
-                "Domingo",
-                "Lunes",
-                "Martes",
-                "Miércoles",
-                "Jueves",
-                "Viernes",
-                "Sábado",
-              ][date.getDay()],
+              "Domingo",
+              "Lunes",
+              "Martes",
+              "Miércoles",
+              "Jueves",
+              "Viernes",
+              "Sábado",
+            ][date.getDay()],
         clics: 0,
       };
     });
@@ -641,8 +641,8 @@ const updateLink = async (req, res) => {
           set: [],
           connect: proSettings
             ? blockedCountries?.map((countryId) => ({
-                id: Number(countryId),
-              }))
+              id: Number(countryId),
+            }))
             : [],
         },
         mobileUrl: mobileUrl && proSettings ? mobileUrl : null,
